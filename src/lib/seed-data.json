@@ -1,0 +1,440 @@
+{
+  "_meta": {
+    "exportedAt": "2026-04-12T03:38:39.755Z",
+    "source": "local-sqlite",
+    "version": 2
+  },
+  "users": [],
+  "pengguna": [
+    {
+      "id": "user-superadmin",
+      "namaLengkap": "Super Administrator",
+      "nomorHP": "0000000000",
+      "email": "superadmin@sistemcetak.com",
+      "username": "superadmin",
+      "password": "268899",
+      "role": "superadmin",
+      "validUntil": "2036-04-11T00:00:00.000Z",
+      "createdAt": "2026-04-11T00:45:58.069Z"
+    },
+    {
+      "id": "user-admin",
+      "namaLengkap": "Administrator",
+      "nomorHP": "0000000001",
+      "email": "admin@sistemcetak.com",
+      "username": "admin",
+      "password": "268899",
+      "role": "admin",
+      "validUntil": "2036-04-11T00:00:00.000Z",
+      "createdAt": "2026-04-11T00:45:58.069Z"
+    },
+    {
+      "id": "cmntrfsor000iplvxuxklb8dq",
+      "namaLengkap": "edi san",
+      "nomorHP": "0865756879796",
+      "email": "edi@yahoo.com",
+      "username": "edisan",
+      "password": "268899",
+      "role": "demo",
+      "validUntil": "2026-04-12T00:00:00.000Z",
+      "createdAt": "2026-04-11T03:13:29.595Z"
+    },
+    {
+      "id": "cmnuguswe002yplvxk3ns4kwf",
+      "namaLengkap": "angel",
+      "nomorHP": "0817827036060",
+      "email": "angel@yahoo.com",
+      "username": "angel",
+      "password": "268899",
+      "role": "demo",
+      "validUntil": "2026-04-17T15:05:00.110Z",
+      "createdAt": "2026-04-11T15:05:00.111Z"
+    },
+    {
+      "id": "cmnulnuaz0001plbs92t99ls6",
+      "namaLengkap": "mick",
+      "nomorHP": "081899998827",
+      "email": "mick@yahoo.com",
+      "username": "mickel",
+      "password": "268899",
+      "role": "demo",
+      "validUntil": "2026-04-17T17:19:33.419Z",
+      "createdAt": "2026-04-11T17:19:33.420Z"
+    }
+  ],
+  "posts": [],
+  "customers": [
+    {
+      "id": "cust-budi",
+      "name": "Budi Santoso",
+      "companyName": "PT. Maju Jaya",
+      "address": "Jl. Raya Industri No. 45, Surabaya",
+      "phone": "081234567890",
+      "email": "budi@majujaya.co.id",
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.068Z",
+      "updatedAt": "2026-04-12T03:29:20.266Z"
+    },
+    {
+      "id": "cust-siti",
+      "name": "Siti Rahayu",
+      "companyName": "CV. Berkah Abadi",
+      "address": "Jl. Gatot Subroto No. 12, Jakarta",
+      "phone": "082345678901",
+      "email": "siti@berkahabadi.com",
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.068Z",
+      "updatedAt": "2026-04-12T03:29:20.268Z"
+    },
+    {
+      "id": "cust-ahmad",
+      "name": "Ahmad Wijaya",
+      "companyName": "UD. Sumber Rejeki",
+      "address": "Jl. Diponegoro No. 78, Bandung",
+      "phone": "083456789012",
+      "email": "ahmad@sumberrejeki.co.id",
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.068Z",
+      "updatedAt": "2026-04-12T03:29:20.271Z"
+    }
+  ],
+  "papers": [
+    {
+      "id": "paper-ivory-210",
+      "name": "ivory",
+      "grammage": 210,
+      "width": 79,
+      "height": 109,
+      "pricePerRim": 1356233,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.066Z",
+      "updatedAt": "2026-04-12T03:29:20.273Z"
+    },
+    {
+      "id": "paper-ivory-300",
+      "name": "ivory",
+      "grammage": 300,
+      "width": 79,
+      "height": 109,
+      "pricePerRim": 1937475,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.066Z",
+      "updatedAt": "2026-04-12T03:29:20.278Z"
+    },
+    {
+      "id": "cmnv4q2ve0004q9q3ammyls0b",
+      "name": "art karton",
+      "grammage": 300,
+      "width": 65,
+      "height": 100,
+      "pricePerRim": 1433250,
+      "userId": "user-admin",
+      "createdAt": "2026-04-12T02:13:10.539Z",
+      "updatedAt": "2026-04-12T03:29:20.283Z"
+    }
+  ],
+  "printingCosts": [
+    {
+      "id": "cost-sm52",
+      "machineName": "sm52",
+      "grammage": 0,
+      "printAreaWidth": 52,
+      "printAreaHeight": 37,
+      "pricePerColor": 65000,
+      "specialColorPrice": 80000,
+      "minimumPrintQuantity": 1000,
+      "priceAboveMinimumPerSheet": 60,
+      "platePricePerSheet": 16500,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.067Z",
+      "updatedAt": "2026-04-12T03:29:20.289Z"
+    },
+    {
+      "id": "cost-sm74",
+      "machineName": "sm74",
+      "grammage": 0,
+      "printAreaWidth": 74,
+      "printAreaHeight": 52,
+      "pricePerColor": 130000,
+      "specialColorPrice": 160000,
+      "minimumPrintQuantity": 1000,
+      "priceAboveMinimumPerSheet": 120,
+      "platePricePerSheet": 33000,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.067Z",
+      "updatedAt": "2026-04-12T03:29:20.299Z"
+    }
+  ],
+  "finishings": [
+    {
+      "id": "fin-laminating-glossy",
+      "name": "laminating glossy",
+      "minimumSheets": 0,
+      "minimumPrice": 250000,
+      "additionalPrice": 0,
+      "pricePerCm": 0.18,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.067Z",
+      "updatedAt": "2026-04-12T03:29:20.306Z"
+    },
+    {
+      "id": "fin-laminating-doff",
+      "name": "laminating doff",
+      "minimumSheets": 0,
+      "minimumPrice": 400000,
+      "additionalPrice": 0,
+      "pricePerCm": 0.2,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.067Z",
+      "updatedAt": "2026-04-12T03:29:20.308Z"
+    },
+    {
+      "id": "fin-pond",
+      "name": "pond",
+      "minimumSheets": 1000,
+      "minimumPrice": 70000,
+      "additionalPrice": 40,
+      "pricePerCm": 0,
+      "userId": null,
+      "createdAt": "2026-04-11T00:45:58.067Z",
+      "updatedAt": "2026-04-12T03:29:20.345Z"
+    }
+  ],
+  "calonPembeli": [
+    {
+      "id": "cmntqo2u10003plvxh1q4nwak",
+      "nama": "ming",
+      "nomorHP": "08158829472402",
+      "email": "ming@yahoo.com",
+      "alamat": "",
+      "catatan": "Terdaftar melalui halaman Daftar Akun (username: aming)",
+      "status": "baru",
+      "role": "demo",
+      "expiredDate": "2026-04-18T02:51:56.375Z",
+      "userId": null,
+      "createdAt": "2026-04-11T02:51:56.377Z",
+      "updatedAt": "2026-04-12T03:29:20.348Z"
+    },
+    {
+      "id": "cmntr4hrk0008plvxm5h5ljug",
+      "nama": "aming",
+      "nomorHP": "082738680726",
+      "email": "aming44@yahoo.com",
+      "alamat": "",
+      "catatan": "Terdaftar melalui halaman Daftar Akun (username: aming44)",
+      "status": "baru",
+      "role": "demo",
+      "expiredDate": "2026-04-18T03:04:42.222Z",
+      "userId": null,
+      "createdAt": "2026-04-11T03:04:42.224Z",
+      "updatedAt": "2026-04-12T03:29:20.351Z"
+    },
+    {
+      "id": "cmntrfsos000jplvxy549f8qm",
+      "nama": "edi san",
+      "nomorHP": "0865756879796",
+      "email": "edi@yahoo.com",
+      "alamat": "",
+      "catatan": "Terdaftar melalui halaman Daftar Akun (username: edisan)",
+      "status": "baru",
+      "role": "demo",
+      "expiredDate": "2026-04-17T03:13:29.594Z",
+      "userId": "cmntrfsor000iplvxuxklb8dq",
+      "createdAt": "2026-04-11T03:13:29.596Z",
+      "updatedAt": "2026-04-12T03:29:20.359Z"
+    },
+    {
+      "id": "cmnuguswf002zplvxjeok4j9q",
+      "nama": "angel",
+      "nomorHP": "0817827036060",
+      "email": "angel@yahoo.com",
+      "alamat": "",
+      "catatan": "Terdaftar melalui halaman Daftar Akun (username: angel)",
+      "status": "baru",
+      "role": "demo",
+      "expiredDate": "2026-04-17T15:05:00.110Z",
+      "userId": "cmnuguswe002yplvxk3ns4kwf",
+      "createdAt": "2026-04-11T15:05:00.112Z",
+      "updatedAt": "2026-04-12T03:29:20.361Z"
+    },
+    {
+      "id": "cmnulnub00003plbsg47vwbfw",
+      "nama": "mick",
+      "nomorHP": "081899998827",
+      "email": "mick@yahoo.com",
+      "alamat": "",
+      "catatan": "Pendaftaran mandiri via halaman Daftar Akun - Langsung aktif",
+      "status": "aktif",
+      "role": "demo",
+      "expiredDate": "2026-04-17T17:19:33.419Z",
+      "userId": "cmnulnuaz0001plbs92t99ls6",
+      "createdAt": "2026-04-11T17:19:33.421Z",
+      "updatedAt": "2026-04-12T03:29:20.365Z"
+    }
+  ],
+  "pembeli": [],
+  "settings": [
+    {
+      "key": "appName",
+      "value": "Sistem Cetak"
+    },
+    {
+      "key": "app_font_size",
+      "value": "medium"
+    },
+    {
+      "key": "app_language",
+      "value": "id"
+    },
+    {
+      "key": "auto_logout_min",
+      "value": "10"
+    },
+    {
+      "key": "companyName",
+      "value": "Percetakan"
+    },
+    {
+      "key": "company_address",
+      "value": ""
+    },
+    {
+      "key": "company_email",
+      "value": ""
+    },
+    {
+      "key": "company_logo",
+      "value": ""
+    },
+    {
+      "key": "company_name",
+      "value": ""
+    },
+    {
+      "key": "company_phone",
+      "value": ""
+    },
+    {
+      "key": "currency",
+      "value": "IDR"
+    },
+    {
+      "key": "defaultProfitPercent",
+      "value": "10"
+    },
+    {
+      "key": "demo_days",
+      "value": "6"
+    },
+    {
+      "key": "demo_message",
+      "value": "Selamat datang! Anda sedang menggunakan akun demo.\nUpgrade ke akun penuh untuk mengakses semua fitur."
+    },
+    {
+      "key": "logout_warning_sec",
+      "value": "20"
+    },
+    {
+      "key": "packingCostDefault",
+      "value": "5000"
+    },
+    {
+      "key": "profit",
+      "value": "20"
+    },
+    {
+      "key": "role_permissions",
+      "value": "{\"superadmin\":{\"features\":{\"potong-kertas\":true,\"hitung-cetakan\":true,\"riwayat\":true,\"hak-akses\":true,\"pengguna\":true,\"pengaturan\":true,\"master-customer\":true,\"master-harga-kertas\":true,\"master-ongkos-cetak\":true,\"master-finishing\":true,\"daftar-pengguna\":true,\"calon-pembeli\":true,\"pembeli\":true},\"subPermissions\":{\"master-customer\":{\"master-customer-tambah\":true,\"master-customer-edit\":true,\"master-customer-hapus\":true},\"master-harga-kertas\":{\"master-harga-kertas-tambah\":true,\"master-harga-kertas-edit\":true,\"master-harga-kertas-hapus\":true},\"master-ongkos-cetak\":{\"master-ongkos-cetak-tambah\":true,\"master-ongkos-cetak-edit\":true,\"master-ongkos-cetak-hapus\":true},\"master-finishing\":{\"master-finishing-tambah\":true,\"master-finishing-edit\":true,\"master-finishing-hapus\":true},\"daftar-pengguna\":{\"daftar-pengguna-tambah\":true,\"daftar-pengguna-edit\":true,\"daftar-pengguna-hapus\":true},\"calon-pembeli\":{\"calon-pembeli-tambah\":true,\"calon-pembeli-edit\":true,\"calon-pembeli-hapus\":true,\"calon-pembeli-konversi\":true},\"pembeli\":{\"pembeli-tambah\":true,\"pembeli-edit\":true,\"pembeli-hapus\":true}}},\"admin\":{\"features\":{\"potong-kertas\":true,\"hitung-cetakan\":true,\"riwayat\":true,\"hak-akses\":true,\"pengguna\":true,\"pengaturan\":true,\"master-customer\":true,\"master-harga-kertas\":true,\"master-ongkos-cetak\":true,\"master-finishing\":true,\"daftar-pengguna\":true,\"calon-pembeli\":true,\"pembeli\":true},\"subPermissions\":{\"master-customer\":{\"master-customer-tambah\":true,\"master-customer-edit\":true,\"master-customer-hapus\":true},\"master-harga-kertas\":{\"master-harga-kertas-tambah\":true,\"master-harga-kertas-edit\":true,\"master-harga-kertas-hapus\":true},\"master-ongkos-cetak\":{\"master-ongkos-cetak-tambah\":true,\"master-ongkos-cetak-edit\":true,\"master-ongkos-cetak-hapus\":true},\"master-finishing\":{\"master-finishing-tambah\":true,\"master-finishing-edit\":true,\"master-finishing-hapus\":true},\"daftar-pengguna\":{\"daftar-pengguna-tambah\":true,\"daftar-pengguna-edit\":true,\"daftar-pengguna-hapus\":true},\"calon-pembeli\":{\"calon-pembeli-tambah\":true,\"calon-pembeli-edit\":true,\"calon-pembeli-hapus\":true,\"calon-pembeli-konversi\":true},\"pembeli\":{\"pembeli-tambah\":true,\"pembeli-edit\":true,\"pembeli-hapus\":true}}},\"manager\":{\"features\":{\"potong-kertas\":true,\"hitung-cetakan\":true,\"riwayat\":true,\"hak-akses\":false,\"pengguna\":false,\"pengaturan\":true,\"master-customer\":true,\"master-harga-kertas\":true,\"master-ongkos-cetak\":true,\"master-finishing\":true,\"daftar-pengguna\":false,\"calon-pembeli\":false,\"pembeli\":false},\"subPermissions\":{\"master-customer\":{\"master-customer-tambah\":true,\"master-customer-edit\":true,\"master-customer-hapus\":true},\"master-harga-kertas\":{\"master-harga-kertas-tambah\":true,\"master-harga-kertas-edit\":true,\"master-harga-kertas-hapus\":true},\"master-ongkos-cetak\":{\"master-ongkos-cetak-tambah\":true,\"master-ongkos-cetak-edit\":true,\"master-ongkos-cetak-hapus\":true},\"master-finishing\":{\"master-finishing-tambah\":true,\"master-finishing-edit\":true,\"master-finishing-hapus\":true},\"daftar-pengguna\":{\"daftar-pengguna-tambah\":false,\"daftar-pengguna-edit\":false,\"daftar-pengguna-hapus\":false},\"calon-pembeli\":{\"calon-pembeli-tambah\":false,\"calon-pembeli-edit\":false,\"calon-pembeli-hapus\":false,\"calon-pembeli-konversi\":false},\"pembeli\":{\"pembeli-tambah\":false,\"pembeli-edit\":false,\"pembeli-hapus\":false}}},\"demo\":{\"features\":{\"potong-kertas\":true,\"hitung-cetakan\":true,\"riwayat\":true,\"hak-akses\":false,\"pengguna\":false,\"pengaturan\":true,\"master-customer\":false,\"master-harga-kertas\":true,\"master-ongkos-cetak\":true,\"master-finishing\":true,\"daftar-pengguna\":false,\"calon-pembeli\":false,\"pembeli\":false},\"subPermissions\":{\"master-customer\":{\"master-customer-tambah\":false,\"master-customer-edit\":false,\"master-customer-hapus\":false},\"master-harga-kertas\":{\"master-harga-kertas-tambah\":false,\"master-harga-kertas-edit\":true,\"master-harga-kertas-hapus\":true},\"master-ongkos-cetak\":{\"master-ongkos-cetak-tambah\":true,\"master-ongkos-cetak-edit\":true,\"master-ongkos-cetak-hapus\":true},\"master-finishing\":{\"master-finishing-tambah\":true,\"master-finishing-edit\":true,\"master-finishing-hapus\":true},\"daftar-pengguna\":{\"daftar-pengguna-tambah\":false,\"daftar-pengguna-edit\":false,\"daftar-pengguna-hapus\":false},\"calon-pembeli\":{\"calon-pembeli-tambah\":false,\"calon-pembeli-edit\":false,\"calon-pembeli-hapus\":false,\"calon-pembeli-konversi\":false},\"pembeli\":{\"pembeli-tambah\":false,\"pembeli-edit\":false,\"pembeli-hapus\":false}}},\"user\":{\"features\":{\"potong-kertas\":true,\"hitung-cetakan\":true,\"riwayat\":true,\"hak-akses\":false,\"pengguna\":false,\"pengaturan\":true,\"master-customer\":true,\"master-harga-kertas\":true,\"master-ongkos-cetak\":true,\"master-finishing\":true,\"daftar-pengguna\":false,\"calon-pembeli\":false,\"pembeli\":false},\"subPermissions\":{\"master-customer\":{\"master-customer-tambah\":true,\"master-customer-edit\":true,\"master-customer-hapus\":true},\"master-harga-kertas\":{\"master-harga-kertas-tambah\":true,\"master-harga-kertas-edit\":true,\"master-harga-kertas-hapus\":true},\"master-ongkos-cetak\":{\"master-ongkos-cetak-tambah\":true,\"master-ongkos-cetak-edit\":true,\"master-ongkos-cetak-hapus\":true},\"master-finishing\":{\"master-finishing-tambah\":true,\"master-finishing-edit\":true,\"master-finishing-hapus\":true},\"daftar-pengguna\":{\"daftar-pengguna-tambah\":false,\"daftar-pengguna-edit\":false,\"daftar-pengguna-hapus\":false},\"calon-pembeli\":{\"calon-pembeli-tambah\":false,\"calon-pembeli-edit\":false,\"calon-pembeli-hapus\":false,\"calon-pembeli-konversi\":false},\"pembeli\":{\"pembeli-tambah\":false,\"pembeli-edit\":false,\"pembeli-hapus\":false}}}}"
+    },
+    {
+      "key": "shippingCostDefault",
+      "value": "15000"
+    },
+    {
+      "key": "single_device",
+      "value": "true"
+    },
+    {
+      "key": "single_device_message",
+      "value": "Akun sedang digunakan, silahkan logout di perangkat yang lain"
+    },
+    {
+      "key": "theme_banner_color",
+      "value": "#ffffff"
+    },
+    {
+      "key": "theme_bg_color",
+      "value": "#f8fafc"
+    },
+    {
+      "key": "theme_popup_color",
+      "value": "#ffffff"
+    },
+    {
+      "key": "theme_sidebar_color",
+      "value": "#ffffff"
+    }
+  ],
+  "riwayatCetakan": [
+    {
+      "id": "cmnv63xni000bq9q3i7lbi1sn",
+      "printName": "Ahmad Wijaya",
+      "paperName": "art karton",
+      "paperGrammage": "300",
+      "paperLength": "65",
+      "paperWidth": "100",
+      "cutWidth": "21",
+      "cutHeight": "28.5",
+      "quantity": "3000",
+      "warna": "-",
+      "warnaKhusus": "-",
+      "machineName": "-",
+      "hargaPlat": 0,
+      "ongkosCetak": 0,
+      "ongkosCetakDetail": "Guillotine Horizontal (potong di 43.0cm)",
+      "totalPaperPrice": 859950,
+      "finishingNames": "-",
+      "finishingBreakdown": "-",
+      "finishingCost": 0,
+      "packingCost": 0,
+      "shippingCost": 0,
+      "subTotal": 859950,
+      "profitPercent": 0,
+      "profitAmount": 0,
+      "grandTotal": 859950,
+      "userId": "user-admin",
+      "createdAt": "2026-04-12T02:51:56.574Z",
+      "updatedAt": "2026-04-12T03:29:20.366Z"
+    },
+    {
+      "id": "cmnv65ixn000cq9q3a7v3h5to",
+      "printName": "Ahmad Wijaya",
+      "paperName": "art karton",
+      "paperGrammage": "300",
+      "paperLength": "65",
+      "paperWidth": "100",
+      "cutWidth": "21",
+      "cutHeight": "28.5",
+      "quantity": "3000",
+      "warna": "4",
+      "warnaKhusus": "",
+      "machineName": "sm52",
+      "hargaPlat": 16500,
+      "ongkosCetak": 446000,
+      "ongkosCetakDetail": "(Rp 65.000 × 4 warna) + (3000 - 1000) × Rp 60 + Rp 16.500 × 4 plat",
+      "totalPaperPrice": 859950,
+      "finishingNames": "laminating glossy",
+      "finishingBreakdown": "laminating glossy: (21 × 28.5) × Rp 0,18 × 3000 = Rp 323.190 = Rp 323.190 = Rp 323.190",
+      "finishingCost": 323189.9999999999,
+      "packingCost": 300000,
+      "shippingCost": 200000,
+      "subTotal": 2129140,
+      "profitPercent": 20,
+      "profitAmount": 425828,
+      "grandTotal": 2554968,
+      "userId": "user-admin",
+      "createdAt": "2026-04-12T02:53:10.811Z",
+      "updatedAt": "2026-04-12T03:29:20.370Z"
+    }
+  ]
+}
