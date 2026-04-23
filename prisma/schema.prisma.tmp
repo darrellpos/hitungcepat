@@ -1,0 +1,168 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Pengguna {
+  id            String          @id @default(cuid())
+  namaLengkap   String
+  nomorHP       String
+  email         String
+  username      String          @unique
+  password      String
+  role          String          @default("user")
+  createdAt     DateTime        @default(now())
+  validUntil    DateTime?
+  calonPembeli  CalonPembeli[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  companyName String?
+  address     String
+  phone       String
+  email       String
+  userId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Paper {
+  id          String   @id @default(cuid())
+  name        String
+  grammage    Int
+  width       Float
+  height      Float
+  pricePerRim Float
+  userId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PrintingCost {
+  id                          String   @id @default(cuid())
+  machineName                 String
+  grammage                    Int
+  printAreaWidth              Float
+  printAreaHeight             Float
+  pricePerColor               Float
+  specialColorPrice           Float
+  minimumPrintQuantity        Int
+  priceAboveMinimumPerSheet   Float
+  platePricePerSheet          Float
+  userId                      String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}
+
+model Finishing {
+  id              String   @id @default(cuid())
+  name            String
+  minimumSheets   Int
+  minimumPrice    Float
+  additionalPrice Float
+  pricePerCm      Float
+  userId          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CalonPembeli {
+  id          String    @id @default(cuid())
+  nama        String
+  nomorHP     String
+  email       String
+  alamat      String
+  catatan     String
+  status      String    @default("baru")
+  role        String    @default("demo")
+  expiredDate DateTime?
+  username    String?
+  password    String?
+  userId      String?
+  pengguna    Pengguna? @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Pembeli {
+  id          String    @id @default(cuid())
+  nama        String
+  nomorHP     String
+  email       String
+  alamat      String
+  catatan     String
+  role        String    @default("demo")
+  expiredDate DateTime?
+  userId      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RiwayatCetakan {
+  id                  String   @id @default(cuid())
+  printName           String
+  paperName           String
+  paperGrammage       String
+  paperLength         String
+  paperWidth          String
+  cutWidth            String
+  cutHeight           String
+  quantity            String
+  warna               String
+  warnaKhusus         String
+  machineName         String
+  hargaPlat           Float
+  ongkosCetak         Float
+  ongkosCetakDetail   String
+  totalPaperPrice     Float
+  finishingNames      String
+  finishingBreakdown  String
+  finishingCost       Float
+  packingCost         Float
+  shippingCost        Float
+  otherCost           Float    @default(0)
+  glueCost            Float    @default(0)
+  glueBorongan        Float    @default(0)
+  subTotal            Float
+  profitPercent       Float
+  profitAmount        Float
+  grandTotal          Float
+  userId              String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
