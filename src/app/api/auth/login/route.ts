@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
+import { ensureSeedData } from '@/lib/auto-seed'
 
 // Helper: build default permissions for a role (server-side version)
 function buildDefaultPermissions(roleId: string): Record<string, boolean> {
@@ -51,6 +52,9 @@ function buildDefaultSubPermissions(roleId: string): Record<string, Record<strin
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json()
+
+    // Auto-seed global data (users, settings) if not yet seeded
+    await ensureSeedData(null)
 
     if (!username || !password) {
       return NextResponse.json(
