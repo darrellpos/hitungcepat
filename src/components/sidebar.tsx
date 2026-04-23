@@ -18,7 +18,8 @@ import {
   Shield,
   LogOut,
   X,
-  Menu
+  Menu,
+  Paintbrush
 } from 'lucide-react'
 import { getAuthUser } from '@/lib/auth'
 import { hasFeatureAccess } from '@/lib/permissions'
@@ -40,6 +41,12 @@ const menuItems = [
     href: '/hitung-cetakan',
     icon: Calculator,
     featureId: 'hitung-cetakan',
+  },
+  {
+    titleKey: 'hitung_finishing' as TranslationKey,
+    href: '/hitung-finishing',
+    icon: Paintbrush,
+    featureId: 'hitung-finishing',
   },
   {
     titleKey: 'master_harga_kertas' as TranslationKey,
