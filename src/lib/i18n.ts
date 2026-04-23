@@ -24,6 +24,7 @@ export const translations = {
     // Sidebar
     potong_kertas: 'Potong Kertas',
     hitung_cetakan: 'Hitung Cetakan',
+    hitung_finishing: 'Hitung Finishing',
     master_harga_kertas: 'Master Harga Kertas',
     master_ongkos_cetak: 'Master Ongkos Cetak',
     master_finishing: 'Master Finishing',
@@ -60,6 +61,7 @@ export const translations = {
     subtitle_master_finishing: 'Kelola data finishing',
     subtitle_master_customer: 'Kelola data pelanggan',
     subtitle_riwayat: 'Lihat semua riwayat perhitungan cetakan',
+    subtitle_hitung_finishing: 'Kalkulator biaya finishing cetakan',
     subtitle_administrasi: 'Pengaturan dan manajemen sistem',
     subtitle_hak_akses: 'Kelola hak akses pengguna per fitur',
     subtitle_pengguna: 'Kelola data pengguna, calon pembeli, dan daftar pembeli',
@@ -295,6 +297,7 @@ export const translations = {
     // Sidebar
     potong_kertas: 'Paper Cutting',
     hitung_cetakan: 'Print Calculator',
+    hitung_finishing: 'Finishing Calculator',
     master_harga_kertas: 'Paper Price Master',
     master_ongkos_cetak: 'Print Cost Master',
     master_finishing: 'Finishing Master',
@@ -331,6 +334,7 @@ export const translations = {
     subtitle_master_finishing: 'Manage finishing data',
     subtitle_master_customer: 'Manage customer data',
     subtitle_riwayat: 'View all print calculation history',
+    subtitle_hitung_finishing: 'Finishing cost calculator',
     subtitle_administrasi: 'System management and settings',
     subtitle_hak_akses: 'Manage user access rights per feature',
     subtitle_pengguna: 'Manage users, prospects, and buyer list',
