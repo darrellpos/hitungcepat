@@ -3,15 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // Helper: build default permissions (server-side)
 function buildDefaultPermissions(roleId: string): Record<string, boolean> {
-  const simpleFeatures = ['potong-kertas', 'hitung-cetakan', 'riwayat', 'hak-akses', 'pengguna', 'pengaturan']
+  const simpleFeatures = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'riwayat', 'hak-akses', 'pengguna', 'pengaturan']
   const groupFeatures = ['master-customer', 'master-harga-kertas', 'master-ongkos-cetak', 'master-finishing', 'daftar-pengguna', 'calon-pembeli', 'pembeli']
   const perms: Record<string, boolean> = {}
   for (const f of simpleFeatures) {
     let allowed = false
     if (roleId === 'superadmin') allowed = true
     else if (roleId === 'admin') allowed = true
-    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'riwayat'].includes(f)
-    else if (roleId === 'demo' || roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan'].includes(f)
+    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'riwayat'].includes(f)
+    else if (roleId === 'demo' || roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing'].includes(f)
     perms[f] = allowed
   }
   for (const g of groupFeatures) {
@@ -54,15 +54,29 @@ export async function POST(request: NextRequest) {
     }
 
     // === LOAD LATEST PERMISSIONS FROM DATABASE ===
-    let features = buildDefaultPermissions(role)
-    let subPermissions = buildDefaultSubPermissions(role)
+    // Start with defaults so new features are always included
+    const defaultFeatures = buildDefaultPermissions(role)
+    const defaultSubPermissions = buildDefaultSubPermissions(role)
+    let features = { ...defaultFeatures }
+    let subPermissions = JSON.parse(JSON.stringify(defaultSubPermissions))
     try {
       const customPermsSetting = await db.setting.findUnique({ where: { key: 'role_permissions' } })
       if (customPermsSetting?.value) {
         const allPerms = JSON.parse(customPermsSetting.value)
         if (allPerms[role]) {
-          if (allPerms[role].features) features = allPerms[role].features
-          if (allPerms[role].subPermissions) subPermissions = allPerms[role].subPermissions
+          // Merge: custom overrides defaults, but new features from defaults are kept
+          if (allPerms[role].features) {
+            for (const [key, val] of Object.entries(allPerms[role].features)) {
+              features[key] = val
+            }
+          }
+          if (allPerms[role].subPermissions) {
+            for (const [group, subs] of Object.entries(allPerms[role].subPermissions)) {
+              if (typeof subs === 'object' && subs !== null && !Array.isArray(subs)) {
+                subPermissions[group] = { ...(subPermissions[group] || {}), ...(subs as Record<string, boolean>) }
+              }
+            }
+          }
         }
       }
     } catch {}
