@@ -1,54 +1,74 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
-node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+node_modules/
+.pnp/
+.pnp.js
 
 # testing
-/coverage
+coverage/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
+build/
+dist/
 
 # misc
 .DS_Store
 *.pem
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# prisma
+prisma/*.db
+prisma/*.db-journal
+db/
 
-# vercel
-.vercel
+# uploads
+upload/
 
+# temp
+_temp/
+examples/
+skills/
+mini-services/
+download/
+backups/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-local-*
-.claude
-.z-ai-config
+# logs
 *.log
 dev.log
-dev.out.log
-test
-prompt
+dev-full.log
+dev-restart.log
+keep-alive*.log
+watchdog.log
 
-server.log
-# Skills directory
-/skills/
+# caddy
+Caddyfile
+
+# pid
+server.pid
+.zscripts/
+
+# scripts
+auto-restart.sh
+keep-alive.sh
+keep-alive.cjs
+keep-alive-busy.sh
+keepalive.sh
+start.sh
+start-server.sh
+run-dev.sh
+run-server.sh
+push-to-github.sh
+watchdog.sh
+daemon.cjs
