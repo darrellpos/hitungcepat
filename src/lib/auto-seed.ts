@@ -27,6 +27,14 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   auto_logout_min: '10',
   logout_warning_sec: '20',
   profit: '10',
+  // Theme colors
+  theme_sidebar_color: '#FF8A80',
+  theme_bg_color: '#f8fafc',
+  theme_popup_color: '#ffffff',
+  theme_banner_color: '#ffffff',
+  theme_login_color: '#EFF6FF',
+  app_language: 'id',
+  app_font_size: 'medium',
   // NOTE: role_permissions is NOT seeded here.
   // It is created/managed exclusively by the Hak Akses page save handler.
   // This prevents auto-seed from overwriting user-customized permissions on cold starts.
