@@ -96,24 +96,27 @@ function setStoredPermissionData(data: StoredPermissionData) {
 
 // ===== PUBLIC API =====
 
-/** Get all features a role can access */
+/** Get all features a role can access — always merges stored with defaults so new features appear */
 export function getFeaturePermissions(roleId: string): Record<string, boolean> {
+  const defaults = buildDefaultPermissions(roleId)
   const stored = getStoredPermissionData()
   if (stored && stored[roleId]) {
-    return stored[roleId].features
+    // Merge: stored overrides defaults, but new features from defaults are kept
+    return { ...defaults, ...stored[roleId].features }
   }
-  return buildDefaultPermissions(roleId)
+  return defaults
 }
 
-/** Get sub-permissions for a role and feature */
+/** Get sub-permissions for a role and feature — always merges with defaults */
 export function getSubPermissions(roleId: string, featureId: string): Record<string, boolean> {
+  const defaults = buildDefaultSubPermissions(roleId)
+  const defaultSubs = defaults[featureId] || {}
   const stored = getStoredPermissionData()
   if (stored && stored[roleId]) {
     const subs = stored[roleId].subPermissions[featureId]
-    if (subs) return subs
+    if (subs) return { ...defaultSubs, ...subs }
   }
-  const defaults = buildDefaultSubPermissions(roleId)
-  return defaults[featureId] || {}
+  return defaultSubs
 }
 
 /** Check if a role has page-level access to a feature */
