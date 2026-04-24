@@ -44,3 +44,23 @@ Stage Summary:
 - Production build: 46 routes (33 static + 13 dynamic API)
 - Server running in production mode on port 3000
 - Response times: 4-15ms (production optimized)
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix Hitung Finishing not appearing on online deployment
+
+Work Log:
+- Investigated why hitung-finishing appears locally but not on darrellpos.vercel.app
+- Found root cause: permission system was overriding defaults with stored permissions (from DB/localStorage), which didn't include the new feature
+- Fixed 4 files to use merge strategy instead of override:
+  1. src/app/api/auth/login/route.ts - server-side login permissions merge
+  2. src/app/api/auth/verify-session/route.ts - server-side session verify merge (also added hitung-finishing to feature list)
+  3. src/app/api/register/route.ts - server-side register permissions merge
+  4. src/lib/permissions.ts - client-side localStorage permissions merge
+- Verified Next.js build succeeds with hitung-finishing route
+- Pushed all fixes to GitHub (commits: 9ce44d6, ebbb155)
+
+Stage Summary:
+- All permission systems (server + client) now merge stored permissions with defaults
+- New features will automatically appear even with old cached permissions
+- Build verified successful locally
