@@ -3,15 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // Helper: build default permissions (server-side)
 function buildDefaultPermissions(roleId: string): Record<string, boolean> {
-  const simpleFeatures = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'riwayat', 'hak-akses', 'pengguna', 'pengaturan']
+  const simpleFeatures = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-kertas', 'hitung-harga-kertas', 'riwayat', 'hak-akses', 'pengguna', 'pengaturan']
   const groupFeatures = ['master-customer', 'master-harga-kertas', 'master-ongkos-cetak', 'master-finishing', 'daftar-pengguna', 'calon-pembeli', 'pembeli']
   const perms: Record<string, boolean> = {}
   for (const f of simpleFeatures) {
     let allowed = false
     if (roleId === 'superadmin') allowed = true
     else if (roleId === 'admin') allowed = true
-    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'riwayat'].includes(f)
-    else if (roleId === 'demo' || roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing'].includes(f)
+    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-kertas', 'hitung-harga-kertas', 'riwayat'].includes(f)
+    else if (roleId === 'demo' || roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-kertas', 'hitung-harga-kertas'].includes(f)
     perms[f] = allowed
   }
   for (const g of groupFeatures) {
