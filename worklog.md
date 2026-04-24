@@ -109,3 +109,32 @@ Stage Summary:
 - Font size setting now fully functional: loads from DB, applies globally via CSS, live preview in settings
 - Sidebar color theme syncs from DB on every page load (ThemeProvider + applyThemeAfterLogin)
 - To sync sidebar colors between local and online: use Backup & Restore or manually set colors in Pengaturan on both
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Add Hitung Ongkos Kertas and Hitung Harga Kertas to sidebar
+
+Work Log:
+- Created `/hitung-harga-kertas/page.tsx` - Paper Price Calculator
+  - Calculates price per sheet, price per m², weight per sheet/rim
+  - Select from master paper data or custom input
+  - Optional quantity input for total price calculation
+  - Print functionality
+- Created `/hitung-ongkos-kertas/page.tsx` - Paper Material Cost Calculator
+  - Calculates pieces per sheet (grid layout with cutting gap)
+  - Sheets needed with configurable waste percentage
+  - Total paper cost and cost per piece
+  - Visual preview of layout on paper
+  - Low utilization warning when < 50%
+  - Print functionality
+- Updated sidebar.tsx: Added 2 menu items with Receipt and Sheet icons
+- Updated permissions.ts: Added to SIMPLE_FEATURES and all role defaults
+- Updated login/route.ts, verify-session/route.ts, register/route.ts: Added to simpleFeatures
+- Updated i18n.ts: Added translations for both features (id + en)
+- Deployed to Vercel and promoted to production
+
+Stage Summary:
+- Two new calculator pages live at `/hitung-harga-kertas` and `/hitung-ongkos-kertas`
+- Available to all roles (superadmin, admin, manager, demo, user)
+- Following existing calculator page pattern (hitung-finishing style)
