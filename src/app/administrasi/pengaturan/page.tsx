@@ -172,13 +172,14 @@ export default function PengaturanPage() {
   // Fetch color settings
   const fetchColorSettings = useCallback(async () => {
     try {
-      const keys = ['theme_sidebar_color', 'theme_bg_color', 'theme_popup_color', 'theme_banner_color', 'theme_login_color']
+      const keys = ['theme_sidebar_color', 'theme_bg_color', 'theme_popup_color', 'theme_banner_color', 'theme_login_color', 'app_font_size']
       const results = await Promise.all(keys.map(k => fetch(`/api/settings?key=${k}`, { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null)))
       if (results[0]?.value) { setSidebarColor(results[0].value); applySidebarColor(results[0].value) }
       if (results[1]?.value) { setBgColor(results[1].value); applyBgColor(results[1].value) }
       if (results[2]?.value) { setPopupColor(results[2].value); applyPopupColor(results[2].value) }
       if (results[3]?.value) { setBannerColor(results[3].value); applyBannerColor(results[3].value) }
       if (results[4]?.value) { setLoginColor(results[4].value); applyLoginColor(results[4].value) }
+      if (results[5]?.value) { setFontSize(results[5].value); applyFontSizeLive(results[5].value) }
     } catch { /* silent */ }
   }, [])
 
@@ -212,6 +213,20 @@ export default function PengaturanPage() {
 
   const applyLoginColor = (color: string) => {
     document.documentElement.style.setProperty('--app-login-bg', color)
+  }
+
+  const applyFontSizeLive = (size: string) => {
+    const map: Record<string, string> = {
+      small: '14px',
+      medium: '16px',
+      large: '18px',
+      'extra-large': '20px',
+    }
+    const fs = map[size] || '16px'
+    document.documentElement.style.setProperty('--app-font-size', fs)
+    document.documentElement.style.setProperty('--app-font-size-sm', `${parseInt(fs) - 2}px`)
+    document.documentElement.style.setProperty('--app-font-size-lg', `${parseInt(fs) + 2}px`)
+    document.documentElement.style.setProperty('--app-font-size-xs', `${parseInt(fs) - 4}px`)
   }
 
   // Live preview: apply immediately when color changes
@@ -330,6 +345,7 @@ export default function PengaturanPage() {
       applyPopupColor(popupColor)
       applyBannerColor(bannerColor)
       applyLoginColor(loginColor)
+      applyFontSizeLive(fontSize)
       toast.success(t('setting_saved'))
     } catch { toast.error(t('setting_error_save')) }
     finally { setSaving(false) }
@@ -658,7 +674,7 @@ export default function PengaturanPage() {
               {/* Font Size */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">{t('ukuran_font')}</label>
-                <select value={fontSize} onChange={(e) => setFontSize(e.target.value)} className={inputClass}>
+                <select value={fontSize} onChange={(e) => { setFontSize(e.target.value); applyFontSizeLive(e.target.value) }} className={inputClass}>
                   <option value="small">{t('kecil')}</option>
                   <option value="medium">{t('sedang')}</option>
                   <option value="large">{t('besar')}</option>

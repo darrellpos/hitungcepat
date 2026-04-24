@@ -90,6 +90,11 @@
   --app-popup-border: #e2e8f0;
   --app-banner-bg: #ffffff;
   --app-login-bg: #ffffff;
+  --app-font-size: 16px;
+  --app-font-size-sm: 14px;
+  --app-font-size-lg: 18px;
+  --app-font-size-xs: 12px;
+  font-size: var(--app-font-size);
 }
 
 .dark {
