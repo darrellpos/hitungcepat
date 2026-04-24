@@ -19,7 +19,9 @@ import {
   LogOut,
   X,
   Menu,
-  Paintbrush
+  Paintbrush,
+  Receipt,
+  Sheet
 } from 'lucide-react'
 import { getAuthUser } from '@/lib/auth'
 import { hasFeatureAccess } from '@/lib/permissions'
@@ -47,6 +49,18 @@ const menuItems = [
     href: '/hitung-finishing',
     icon: Paintbrush,
     featureId: 'hitung-finishing',
+  },
+  {
+    titleKey: 'hitung_ongkos_kertas' as TranslationKey,
+    href: '/hitung-ongkos-kertas',
+    icon: Receipt,
+    featureId: 'hitung-ongkos-kertas',
+  },
+  {
+    titleKey: 'hitung_harga_kertas' as TranslationKey,
+    href: '/hitung-harga-kertas',
+    icon: Sheet,
+    featureId: 'hitung-harga-kertas',
   },
   {
     titleKey: 'master_harga_kertas' as TranslationKey,
