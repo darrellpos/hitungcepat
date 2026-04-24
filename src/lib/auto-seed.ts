@@ -1,7 +1,37 @@
 import { db } from '@/lib/db'
+import { execSync } from 'child_process'
+import path from 'path'
 
 // In-memory flag to avoid repeated seeding within the same serverless instance
 let globalSeedChecked = false
+let dbPushDone = false
+
+// Run prisma db push to create/migrate tables (only once per instance)
+async function ensureTablesExist(): Promise<void> {
+  if (dbPushDone) return
+  dbPushDone = true
+  try {
+    // Try a simple query first — if tables exist, skip db push
+    await db.$queryRaw`SELECT 1 FROM Pengguna LIMIT 1`
+    console.log('✅ Database tables already exist')
+    return
+  } catch {
+    // Tables don't exist yet — try prisma db push
+    console.log('📦 Tables not found, running prisma db push...')
+    try {
+      const projectRoot = path.resolve(process.cwd())
+      execSync(`npx prisma db push --skip-generate --accept-data-loss`, {
+        stdio: 'pipe',
+        timeout: 60000,
+        cwd: projectRoot,
+        env: { ...process.env },
+      })
+      console.log('✅ Database tables created via prisma db push')
+    } catch (pushError: any) {
+      console.error('⚠️ prisma db push failed:', pushError?.message || pushError)
+    }
+  }
+}
 
 // Allow external reset (e.g., from seed-admin API)
 export function _resetSeedFlag() { globalSeedChecked = false }
@@ -201,6 +231,9 @@ async function seedGlobalData(): Promise<void> {
  * Backward compatible with existing API calls.
  */
 export async function ensureSeedData(userId?: string | null): Promise<void> {
+  // First, ensure database tables exist (only runs once per instance)
+  await ensureTablesExist()
+
   if (!globalSeedChecked) {
     globalSeedChecked = true
     try {
