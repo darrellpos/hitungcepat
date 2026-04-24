@@ -88,3 +88,24 @@ Stage Summary:
 - Fix: Set DATABASE_URL via Vercel API with type:"plain", promoted deployment to production
 - Login now works at https://darrellpos-new.vercel.app
 - All features visible including hitung-finishing
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix sidebar color mismatch + font size not working in Pengaturan
+
+Work Log:
+- Identified root cause of sidebar color mismatch: local SQLite has different theme_sidebar_color than online Neon PostgreSQL database
+- Identified font size bug: `app_font_size` was saved to DB but never loaded or applied anywhere
+- Added `applyFontSize()` function to theme-context.tsx that sets CSS variables (--app-font-size, sm, lg, xs)
+- Added `app_font_size` to both `applyThemeAfterLogin()` and `ThemeProvider` fetch keys
+- Added CSS variables `--app-font-size`, `--app-font-size-sm`, `--app-font-size-lg`, `--app-font-size-xs` to globals.css with `font-size: var(--app-font-size)` on :root
+- Fixed pengaturan page: now fetches `app_font_size` from DB on load and displays current value
+- Added `applyFontSizeLive()` in pengaturan page for instant preview when changing font size dropdown
+- Font size dropdown now applies live on change (before save)
+- Deployed to Vercel and promoted to production
+
+Stage Summary:
+- Font size setting now fully functional: loads from DB, applies globally via CSS, live preview in settings
+- Sidebar color theme syncs from DB on every page load (ThemeProvider + applyThemeAfterLogin)
+- To sync sidebar colors between local and online: use Backup & Restore or manually set colors in Pengaturan on both
