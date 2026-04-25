@@ -302,7 +302,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
 
         {/* Page Title - Sticky */}
         {(title || subtitle) && (
-          <div className="border-b border-slate-200 px-4 py-1.5 sticky top-[57px] z-20 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
+          <div className="border-b border-slate-200 px-4 py-1 sticky top-[57px] z-20 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
             <div className="flex items-center justify-between">
               <div>
                 {title && <h1 className="text-sm font-bold text-slate-800">{title}</h1>}
