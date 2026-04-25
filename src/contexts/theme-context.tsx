@@ -43,23 +43,30 @@ function applyFontSize(size: string) {
   applyColor('--app-font-size-xs', `${parseInt(fontSize) - 4}px`)
 }
 
+const THEME_KEYS = ['theme_sidebar_color', 'theme_bg_color', 'theme_popup_color', 'theme_banner_color', 'theme_login_color', 'app_font_size'] as const
+
+function applySettingsFromMap(map: Record<string, string>) {
+  if (map.theme_sidebar_color) applySidebarTheme(map.theme_sidebar_color)
+  if (map.theme_bg_color) applyColor('--app-content-bg', map.theme_bg_color)
+  if (map.theme_popup_color) applyPopupTheme(map.theme_popup_color)
+  if (map.theme_banner_color) applyColor('--app-banner-bg', map.theme_banner_color)
+  if (map.theme_login_color) applyColor('--app-login-bg', map.theme_login_color)
+  if (map.app_font_size) applyFontSize(map.app_font_size)
+}
+
 export async function applyThemeAfterLogin() {
-  const keys = ['theme_sidebar_color', 'theme_bg_color', 'theme_popup_color', 'theme_banner_color', 'theme_login_color', 'app_font_size']
-  const results = await Promise.all(
-    keys.map(k =>
-      fetch(`/api/settings?key=${k}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => data?.value || null)
-        .catch(() => null)
-    )
-  )
-  const [sidebar, bg, popup, banner, login, fontSize] = results
-  if (sidebar) applySidebarTheme(sidebar)
-  if (bg) applyColor('--app-content-bg', bg)
-  if (popup) applyPopupTheme(popup)
-  if (banner) applyColor('--app-banner-bg', banner)
-  if (login) applyColor('--app-login-bg', login)
-  if (fontSize) applyFontSize(fontSize)
+  try {
+    const res = await fetch('/api/settings')
+    if (!res.ok) return
+    const data: Array<{ key: string; value: string }> = await res.json()
+    const map: Record<string, string> = {}
+    for (const item of data) {
+      if ((THEME_KEYS as readonly string[]).includes(item.key) && item.value) {
+        map[item.key] = item.value
+      }
+    }
+    applySettingsFromMap(map)
+  } catch {}
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -72,24 +79,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const authUser = getAuthUser()
     if (!authUser) return
 
-    const keys = ['theme_sidebar_color', 'theme_bg_color', 'theme_popup_color', 'theme_banner_color', 'theme_login_color', 'app_font_size']
     const headers = { Cookie: `userId=${authUser.userId}; userRole=${authUser.role}` }
 
-    Promise.all(
-      keys.map(k =>
-        fetch(`/api/settings?key=${k}`, { headers })
-          .then(r => r.ok ? r.json() : null)
-          .then(data => data?.value || null)
-          .catch(() => null)
-      )
-    ).then(([sidebar, bg, popup, banner, login, fontSize]) => {
-      if (sidebar) applySidebarTheme(sidebar)
-      if (bg) applyColor('--app-content-bg', bg)
-      if (popup) applyPopupTheme(popup)
-      if (banner) applyColor('--app-banner-bg', banner)
-      if (login) applyColor('--app-login-bg', login)
-      if (fontSize) applyFontSize(fontSize)
-    })
+    fetch('/api/settings', { headers })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: Array<{ key: string; value: string }> | null) => {
+        if (!data) return
+        const map: Record<string, string> = {}
+        for (const item of data) {
+          if ((THEME_KEYS as readonly string[]).includes(item.key) && item.value) {
+            map[item.key] = item.value
+          }
+        }
+        applySettingsFromMap(map)
+      })
+      .catch(() => {})
   }, [])
 
   return <>{children}</>

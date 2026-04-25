@@ -98,39 +98,30 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         }
 
         // Fetch security settings
-        fetch('/api/settings')
+        fetch('/api/auth/verify-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId, role: authUser.role }),
+        })
           .then(r => r.json())
           .then(data => {
-            if (Array.isArray(data)) {
-              for (const s of data) {
-                if (s.key === 'auto_logout_min') setAutoLogoutMin(parseInt(s.value || '0', 10) || 0)
-                if (s.key === 'logout_warning_sec') setLogoutWarningSec(parseInt(s.value || '0', 10) || 0)
-              }
-            }
-          })
-          .catch(() => {})
-
-        // Verify session on mount + sync permissions from server
-        if (authUser.sessionId) {
-          fetch('/api/auth/verify-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId, role: authUser.role }),
-          })
-          .then(r => r.json())
-          .then(data => {
-            if (!data.valid && data.warningMessage) {
-              setSessionWarning(data.warningMessage)
-              setForceLogoutAvailable(!!data.forceLogoutAvailable)
+            // Load security settings from verify-session response
+            if (data.securitySettings) {
+              setAutoLogoutMin(data.securitySettings.auto_logout_min || 0)
+              setLogoutWarningSec(data.securitySettings.logout_warning_sec || 0)
             }
             // Sync latest permissions from server to localStorage
             if (data.permissions && authUser.role) {
               saveRolePermissions(authUser.role, data.permissions.features, data.permissions.subPermissions)
-              setPermVersion(v => v + 1) // force re-render of Sidebar
+              setPermVersion(v => v + 1)
+            }
+            if (!data.valid && data.warningMessage) {
+              setSessionWarning(data.warningMessage)
+              setForceLogoutAvailable(!!data.forceLogoutAvailable)
             }
           })
           .catch(() => {})
-        }
+
       } catch {
         router.push('/login')
       } finally {
@@ -181,6 +172,11 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         if (data.permissions && authUser.role) {
           saveRolePermissions(authUser.role, data.permissions.features, data.permissions.subPermissions)
           setPermVersion(v => v + 1) // force re-render of Sidebar
+        }
+        // Sync security settings
+        if (data.securitySettings) {
+          setAutoLogoutMin(data.securitySettings.auto_logout_min || 0)
+          setLogoutWarningSec(data.securitySettings.logout_warning_sec || 0)
         }
       })
       .catch(() => {})

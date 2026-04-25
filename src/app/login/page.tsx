@@ -124,7 +124,8 @@ export default function LoginPage() {
         setDemoPopupOpen(true)
         setLoginLoading(false)
       } else {
-        await applyThemeAfterLogin()
+        // Apply theme in background, don't block redirect
+        applyThemeAfterLogin()
         router.push('/')
       }
     } catch (err) {
@@ -211,7 +212,7 @@ export default function LoginPage() {
           setDemoRemaining(data.demoRemainingDays ?? null)
           setDemoPopupOpen(true)
         } else {
-          await applyThemeAfterLogin()
+          applyThemeAfterLogin()
           setTimeout(() => router.push('/'), 1500)
         }
       } else {
@@ -611,14 +612,14 @@ export default function LoginPage() {
               <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{demoPopupMsg}</p>
             </div>
             <button
-              onClick={async () => { setDemoPopupOpen(false); await applyThemeAfterLogin(); router.push('/') }}
+              onClick={() => { setDemoPopupOpen(false); applyThemeAfterLogin(); router.push('/') }}
               className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl transition-colors"
               autoFocus
             >
               Ok
             </button>
             <button
-              onClick={async () => { setDemoPopupOpen(false); await applyThemeAfterLogin(); router.push('/') }}
+              onClick={() => { setDemoPopupOpen(false); applyThemeAfterLogin(); router.push('/') }}
               className="w-full text-sm text-slate-500 hover:text-slate-700 mt-3 py-1 transition-colors"
             >
               Masuk ke Dashboard
