@@ -1082,7 +1082,7 @@ function HitungCetakanPage() {
             </div>
           </div>{/* end COLUMN 2 */}
 
-          {/* ========== COLUMN 3: FINISHING, ONGKOS LEM & BIAYA TAMBAHAN (Desktop Only) ========== */}
+          {/* ========== COLUMN 3: FINISHING & ONGKOS LEM (Desktop Only) ========== */}
           <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
               {/* Finishing */}
@@ -1164,7 +1164,13 @@ function HitungCetakanPage() {
                 </div>
               </div>
 
-              {/* Biaya Tambahan */}
+            </div>
+          </div>{/* end COLUMN 3 */}
+
+          {/* ========== COLUMN 4: BIAYA TAMBAHAN, SUMMARY & DAFTAR (Desktop Only) ========== */}
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
+            {/* Biaya Tambahan Card */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <SectionHeader icon={<Banknote className="w-3.5 h-3.5 text-amber-600" />} label="Biaya Tambahan" />
               <div className="p-3">
                 <div className="grid grid-cols-2 gap-2">
@@ -1198,12 +1204,8 @@ function HitungCetakanPage() {
                   </div>
                 </div>
               </div>
-
             </div>
-          </div>{/* end COLUMN 3 */}
 
-          {/* ========== COLUMN 4: SUMMARY & DAFTAR (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
             {/* Summary Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col">
               <div className="p-3 space-y-2">
