@@ -236,8 +236,110 @@ function CalculatorPage() {
   }
 
   const handlePrint = () => {
-    const printContent = previewRef.current
-    if (!printContent) return
+    if (!results) return
+
+    const r = results
+    const scale = 5.94
+    const pw = r.paperWidth
+    const ph = r.paperHeight
+    const svgW = pw * scale
+    const svgH = ph * scale
+
+    // Gradient defs for blocks
+    const gradients = [
+      { id: 'pg1', c1: '#dbeafe', c2: '#bfdbfe' },  // blue
+      { id: 'pg2', c1: '#d1fae5', c2: '#a7f3d0' },  // green
+      { id: 'pg3', c1: '#fef3c7', c2: '#fde68a' },  // yellow
+      { id: 'pg4', c1: '#fecaca', c2: '#fca5a5' },  // red
+      { id: 'pg5', c1: '#e9d5ff', c2: '#d8b4fe' },  // purple
+    ]
+    const strokeColors = ['#93c5fd', '#6ee7b7', '#fcd34d', '#fca5a5', '#c4b5fd']
+
+    // Build SVG defs
+    let defsInner = gradients.map(g =>
+      `<linearGradient id="${g.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g.c1}"/><stop offset="100%" stop-color="${g.c2}"/></linearGradient>`
+    ).join('')
+
+    // Build waste rects per block
+    let wasteRects = ''
+    r.blocks.forEach((block: any, bi: number) => {
+      if (block.wasteWidth > 0.01) {
+        wasteRects += `<rect x="${(block.x + block.usedWidth) * scale}" y="${block.y * scale}" width="${block.wasteWidth * scale}" height="${block.usedHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
+        if (block.wasteHeight > 0.01) {
+          wasteRects += `<rect x="${(block.x + block.usedWidth) * scale}" y="${(block.y + block.usedHeight) * scale}" width="${block.wasteWidth * scale}" height="${block.wasteHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
+        }
+      }
+      if (block.wasteHeight > 0.01) {
+        wasteRects += `<rect x="${block.x * scale}" y="${(block.y + block.usedHeight) * scale}" width="${block.usedWidth * scale}" height="${block.wasteHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
+      }
+    })
+
+    // Build cut lines
+    let cutLines = ''
+    if (r.blocks.length > 1 && r.cutPosition !== undefined) {
+      cutLines += `<line x1="${r.cutPosition * scale}" y1="0" x2="${r.cutPosition * scale}" y2="${svgH}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
+    }
+    if (r.blocks.length > 1 && r.cutPositionY !== undefined) {
+      cutLines += `<line x1="0" y1="${r.cutPositionY * scale}" x2="${svgW}" y2="${r.cutPositionY * scale}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
+    }
+
+    // Build piece blocks
+    let pieceGroups = ''
+    r.blocks.forEach((block: any, bi: number) => {
+      const bx = block.x * scale
+      const by = block.y * scale
+      const pieceW = block.pieceWidth * scale
+      const pieceH = block.pieceHeight * scale
+      const gId = gradients[bi % gradients.length].id
+      const sCol = strokeColors[bi % strokeColors.length]
+      let num = 1
+      for (let i = 0; i < block.horizontal; i++) {
+        for (let j = 0; j < block.vertical; j++) {
+          const cx = bx + i * pieceW + pieceW / 2
+          const cy = by + j * pieceH + pieceH / 2
+          const cr = Math.max(4, Math.min(pieceW, pieceH) / 4)
+          pieceGroups += `<g><rect x="${bx + i * pieceW + 1}" y="${by + j * pieceH + 1}" width="${pieceW - 3}" height="${pieceH - 3}" fill="url(#${gId})" stroke="${sCol}" stroke-width="1.5"/><circle cx="${cx}" cy="${cy}" r="${cr}" fill="white" opacity="0.9"/><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="500" fill="#64748b">${num++}</text></g>`
+        }
+      }
+    })
+
+    const svgDiagram = `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:100%;max-height:130mm;border:1px solid #cbd5e1;border-radius:2px;background:linear-gradient(to bottom right,#fff,#f8fafc);"><defs>${defsInner}</defs><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#f1f5f9" opacity="0.3"/><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="none" stroke="#94a3b8" stroke-width="4" rx="2"/>${cutLines}${wasteRects}${pieceGroups}</svg>`
+
+    // Build steps HTML
+    const stepsHtml = r.steps.map((step: string, idx: number) =>
+      `<div style="display:flex;align-items:flex-start;gap:5px;padding:3px 0;">
+        <div style="flex-shrink:0;width:17px;height:17px;background:#2563eb;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${idx + 1}</div>
+        <span style="font-size:10px;color:#475569;padding-top:1px;line-height:1.4;">${step}</span>
+      </div>`
+    ).join('')
+
+    // Build block details HTML
+    const blockColors = [
+      { bg: '#eff6ff', border: '#bfdbfe', badgeBg: '#dbeafe', badgeText: '#1d4ed8', name: '#1e40af', detail: '#2563eb' },
+      { bg: '#ecfdf5', border: '#a7f3d0', badgeBg: '#d1fae5', badgeText: '#047857', name: '#065f46', detail: '#059669' },
+      { bg: '#fffbeb', border: '#fde68a', badgeBg: '#fef3c7', badgeText: '#b45309', name: '#92400e', detail: '#d97706' },
+      { bg: '#fff1f2', border: '#fca5a5', badgeBg: '#fecaca', badgeText: '#b91c1c', name: '#991b1b', detail: '#dc2626' },
+      { bg: '#faf5ff', border: '#d8b4fe', badgeBg: '#e9d5ff', badgeText: '#7e22ce', name: '#6b21a8', detail: '#9333ea' },
+    ]
+
+    const blocksHtml = r.blocks.map((block: any, idx: number) => {
+      const c = blockColors[idx % 5]
+      return `<div style="border:1px solid ${c.border};background:${c.bg};border-radius:5px;padding:4px 6px;margin-bottom:3px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1px;">
+          <span style="font-size:10px;font-weight:700;color:${c.name};">${block.name}</span>
+          <span style="padding:1px 6px;background:${c.badgeBg};color:${c.badgeText};border-radius:10px;font-size:8px;font-weight:600;">${block.pieces} pcs</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:9px;color:${c.detail};">
+          <span>Ukuran: <b>${block.width.toFixed(1)}×${block.height.toFixed(1)}</b></span>
+          <span>Layout: <b>${block.horizontal}×${block.vertical}${block.rotated ? ' (90°)' : ''}</b></span>
+        </div>
+      </div>`
+    }).join('')
+
+    // Build info grid items
+    const infoDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    const customerLabel = selectedCustomer?.name || printName || '-'
+    const paperLabel = selectedPaper?.name || 'Custom'
 
     const printWindow = window.open('', '_blank')
     if (!printWindow) {
@@ -245,51 +347,78 @@ function CalculatorPage() {
       return
     }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Preview Potong Kertas</title>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          @page { size: A4; margin: 10mm; }
-          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; }
-          .header { text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
-          .header h1 { font-size: 18px; font-weight: 700; color: #0f172a; }
-          .header p { font-size: 11px; color: #64748b; margin-top: 2px; }
-          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-          .info-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; }
-          .info-item .label { font-size: 9px; color: #64748b; font-weight: 500; }
-          .info-item .value { font-size: 13px; font-weight: 700; color: #0f172a; }
-          .info-item .value.green { color: #059669; }
-          .info-item .value.blue { color: #2563eb; }
-          .info-item .value.orange { color: #ea580c; }
-          .info-item .value.rose { color: #e11d48; }
-          .info-item .value.teal { color: #0d9488; }
-          .info-item .sub { font-size: 9px; color: #94a3b8; margin-top: 1px; }
-          .diagram { text-align: center; margin: 12px 0; page-break-inside: avoid; }
-          .diagram svg { max-width: 100%; max-height: 280px; }
-          .steps { margin: 10px 0; }
-          .steps h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
-          .step { display: flex; align-items: flex-start; gap: 6px; padding: 4px 0; }
-          .step-num { flex-shrink: 0; width: 18px; height: 18px; background: #2563eb; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
-          .step-text { font-size: 10px; color: #475569; padding-top: 1px; }
-          .blocks { margin: 10px 0; }
-          .blocks h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
-          .block-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; }
-          .block-card .name { font-size: 10px; font-weight: 700; color: #334155; }
-          .block-card .detail { font-size: 9px; color: #64748b; margin-top: 2px; }
-          .strategy { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; }
-          .strategy-label { font-size: 9px; font-weight: 700; color: #3730a3; }
-          .strategy-text { font-size: 10px; color: #4338ca; }
-        </style>
-      </head>
-      <body>
-        ${printContent.innerHTML}
-      </body>
-      </html>
-    `)
+    printWindow.document.write(`<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Potong Kertas</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  @page{size:A4;margin:5mm;}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#1e293b;width:210mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .page{width:100%;padding:2mm 3mm;}
+  @media print{body{width:210mm;}.page{padding:0;}}
+</style>
+</head><body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div style="text-align:center;margin-bottom:4mm;padding-bottom:3mm;border-bottom:2px solid #e2e8f0;">
+    <div style="font-size:14pt;font-weight:700;color:#0f172a;">Potong Kertas</div>
+    <div style="font-size:9pt;color:#64748b;margin-top:1mm;">${customerLabel} · ${paperLabel} · ${infoDate}</div>
+  </div>
+
+  <!-- INFO GRID -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;margin-bottom:3mm;">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#2563eb;font-weight:500;">Jumlah Diperlukan</div>
+      <div style="font-size:13pt;font-weight:700;color:#1d4ed8;">${r.quantity} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
+    </div>
+    <div style="background:#faf5ff;border:1px solid #d8b4fe;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#7e22ce;font-weight:500;">Potongan / Lembar</div>
+      <div style="font-size:13pt;font-weight:700;color:#6d28d9;">${r.totalPieces} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
+    </div>
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#059669;font-weight:500;">Lembar Kertas</div>
+      <div style="font-size:13pt;font-weight:700;color:#047857;">${r.sheetsNeeded} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
+    </div>
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#ea580c;font-weight:500;">Total Harga Kertas</div>
+      <div style="font-size:12pt;font-weight:700;color:#c2410c;">Rp ${r.totalPrice.toLocaleString('id-ID')}</div>
+    </div>
+    <div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#e11d48;font-weight:500;">Sisa Potongan</div>
+      <div style="font-size:13pt;font-weight:700;color:#be123c;">${r.totalWasteArea.toFixed(2)} <span style="font-size:8pt;font-weight:400;">cm²</span></div>
+    </div>
+    <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#0d9488;font-weight:500;">Efisiensi Bahan</div>
+      <div style="font-size:13pt;font-weight:700;color:#0f766e;">${r.efficiency.toFixed(2)}%</div>
+    </div>
+  </div>
+
+  <!-- STRATEGY -->
+  <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;padding:2mm 3mm;margin-bottom:3mm;text-align:center;">
+    <span style="font-size:7.5pt;font-weight:700;color:#3730a3;">Strategi Optimasi: </span>
+    <span style="font-size:10pt;font-weight:700;color:#4338ca;">${r.strategy}</span>
+  </div>
+
+  <!-- DIAGRAM -->
+  <div style="text-align:center;margin-bottom:3mm;">
+    ${svgDiagram}
+  </div>
+
+  <!-- STEPS + BLOCKS side by side -->
+  <div style="display:flex;gap:4mm;align-items:flex-start;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:1.5mm;">Cara Potong:</div>
+      ${stepsHtml}
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:1.5mm;">Detail per Blok:</div>
+      ${blocksHtml}
+    </div>
+  </div>
+
+</div>
+</body></html>`)
+
     printWindow.document.close()
     printWindow.onload = () => {
       printWindow.print()
