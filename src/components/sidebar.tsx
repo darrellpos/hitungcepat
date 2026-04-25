@@ -314,7 +314,7 @@ export function MobileHeader({ onMenuToggle, username }: { onMenuToggle: () => v
               </div>
             )}
           </div>
-          <span className="font-extrabold text-slate-800 text-sm lg:text-base truncate max-w-[200px]">{displayName}</span>
+          <span className="font-extrabold text-slate-800 text-sm lg:text-[17px] truncate max-w-[200px]">{displayName}</span>
         </div>
         <div className="w-8">
           {/* Spacer for balance */}
