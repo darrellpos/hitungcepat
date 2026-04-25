@@ -1256,13 +1256,13 @@ function HitungCetakanPage() {
 
             {/* Daftar Cetakan */}
             {calculations.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col min-h-0">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="px-2.5 py-1 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between flex-shrink-0">
                   <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">Daftar Cetakan</span>
                   <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{calculations.length}</span>
                 </div>
-                <div className="flex-1 divide-y divide-slate-50">
-                  {calculations.map((calc) => (
+                <div className="divide-y divide-slate-50 max-h-[260px] overflow-y-auto">
+                  {calculations.slice(0, 10).map((calc) => (
                     <div key={calc.id} className="px-2.5 py-1.5 hover:bg-slate-50 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
@@ -1282,7 +1282,7 @@ function HitungCetakanPage() {
                     </div>
                   ))}
                 </div>
-                <div className="px-2.5 py-1.5 border-t border-slate-200 bg-emerald-50 flex justify-between items-center flex-shrink-0">
+                <div className="px-2.5 py-1.5 border-t border-slate-200 bg-emerald-50 flex justify-between items-center">
                   <span className="text-[10px] font-semibold text-emerald-800">Total</span>
                   <span className="text-[11px] font-bold text-emerald-700">Rp {calculations.reduce((s, c) => s + c.totalPrice, 0).toLocaleString('id-ID')}</span>
                 </div>
