@@ -847,7 +847,7 @@ function HitungCetakanPage() {
                     </Button>
                   </div>
                   {selectedFinishingItems.length > 0 && (
-                    <div className="mt-2 space-y-1.5 max-h-40 overflow-y-auto">
+                    <div className="mt-2 space-y-1.5">
                       {selectedFinishingItems.map((fin) => {
                         const { cost } = getFinishingCost(fin)
                         return (
@@ -1103,7 +1103,7 @@ function HitungCetakanPage() {
                   </Button>
                 </div>
                 {selectedFinishingItems.length > 0 && (
-                  <div className="space-y-1 max-h-28 overflow-y-auto">
+                  <div className="space-y-1">
                     {selectedFinishingItems.map((fin) => {
                       const { cost } = getFinishingCost(fin)
                       return (
