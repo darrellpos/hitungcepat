@@ -304,16 +304,7 @@ export function MobileHeader({ onMenuToggle, username }: { onMenuToggle: () => v
         >
           <Menu className="w-5 h-5 text-slate-600" />
         </button>
-        <div className="flex items-center gap-2">
-          {(companyLogo || DEFAULT_LOGO) ? (
-            <img src={companyLogo || DEFAULT_LOGO} alt="Logo" className="w-[32px] h-[32px] rounded-lg object-cover animate-float shadow-md shadow-blue-500/15" />
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Scissors className="w-4 h-4 text-white" />
-            </div>
-          )}
-          <span className="font-bold text-slate-800 text-sm truncate max-w-[200px]">{displayName}</span>
-        </div>
+        <span className="font-bold text-slate-800 text-sm truncate max-w-[200px]">{displayName}</span>
         <div className="w-8">
           {/* Spacer for balance */}
         </div>
