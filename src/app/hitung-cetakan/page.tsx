@@ -1170,34 +1170,34 @@ function HitungCetakanPage() {
             {/* Biaya Tambahan Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <SectionHeader icon={<Banknote className="w-3.5 h-3.5 text-amber-600" />} label="Biaya Tambahan" />
-              <div className="px-2 py-1.5">
-                <div className="grid grid-cols-2 gap-x-1.5 gap-y-1">
+              <div className="px-2.5 py-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   <div>
                     <label className={labelClass}>{t('ongkos_packing')}</label>
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">Rp</span>
-                      <input type="number" placeholder="0" value={formData.packingCost} onChange={(e) => setFormData({ ...formData, packingCost: e.target.value })} className={`${inputClass} pl-8 !py-1 lg:!py-1`} />
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
+                      <input type="number" placeholder="0" value={formData.packingCost} onChange={(e) => setFormData({ ...formData, packingCost: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
                   <div>
                     <label className={labelClass}>{t('ongkos_kirim')}</label>
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">Rp</span>
-                      <input type="number" placeholder="0" value={formData.shippingCost} onChange={(e) => setFormData({ ...formData, shippingCost: e.target.value })} className={`${inputClass} pl-8 !py-1 lg:!py-1`} />
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
+                      <input type="number" placeholder="0" value={formData.shippingCost} onChange={(e) => setFormData({ ...formData, shippingCost: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
                   <div>
                     <label className={labelClass}>Biaya Bikin Piso</label>
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">Rp</span>
-                      <input type="number" placeholder="0" value={formData.biayaLain1} onChange={(e) => setFormData({ ...formData, biayaLain1: e.target.value })} className={`${inputClass} pl-8 !py-1 lg:!py-1`} />
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
+                      <input type="number" placeholder="0" value={formData.biayaLain1} onChange={(e) => setFormData({ ...formData, biayaLain1: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
                   <div>
-                    <input type="text" value={biayaLain2Label} onChange={(e) => setBiayaLain2Label(e.target.value)} className="w-full border border-slate-200 rounded px-1.5 py-0 text-[10px] text-slate-600 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                    <input type="text" value={biayaLain2Label} onChange={(e) => setBiayaLain2Label(e.target.value)} className="w-full border border-slate-200 rounded-md px-2 py-0.5 text-[10px] text-slate-600 mb-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">Rp</span>
-                      <input type="number" placeholder="0" value={formData.biayaLain2} onChange={(e) => setFormData({ ...formData, biayaLain2: e.target.value })} className={`${inputClass} pl-8 !py-1 lg:!py-1`} />
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
+                      <input type="number" placeholder="0" value={formData.biayaLain2} onChange={(e) => setFormData({ ...formData, biayaLain2: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
                 </div>
@@ -1206,31 +1206,33 @@ function HitungCetakanPage() {
 
             {/* Summary Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col">
-              <div className="px-2 py-1.5 space-y-1">
-                <div className="p-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
+              <div className="px-2.5 py-2 space-y-1.5">
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-medium text-slate-600">Sub Total</span>
+                    <span className="text-xs font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
+                <div className="p-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-1"><Percent className="w-3 h-3 text-amber-600" /><span className="text-[10px] font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
+                    <span className="text-[11px] font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
+                <div className="p-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-semibold text-emerald-100">Total</span>
                     <span className="text-xs font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
                   </div>
-                  <div className="flex justify-between items-center mt-0.5 pt-0.5 border-t border-white/30">
-                    <span className="text-[9px] font-medium text-emerald-100">Sub Total</span>
-                    <span className="text-[10px] font-bold text-emerald-100">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
-                  </div>
-                  {profitPercent > 0 && (
-                    <div className="flex justify-between items-center mt-0.5">
-                      <span className="text-[9px] font-medium text-emerald-200">Uang Capek ({profitPercent}%)</span>
-                      <span className="text-[10px] font-bold text-emerald-200">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-0.5 pt-0.5 border-t border-white/30">
-                      <span className="text-[9px] font-medium text-emerald-100">Harga/lembar</span>
-                      <span className="text-[10px] font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
+                      <span className="text-[9px] font-medium text-emerald-100">Harga Perlembar</span>
+                      <span className="text-xs font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
                     </div>
                   )}
                 </div>
                 {/* Perincian Harga Total - Terpisah */}
-                <div className="px-1 space-y-px">
+                <div className="px-1 pt-0.5 space-y-0.5">
                   <div className="flex justify-between text-[11px]"><span className="text-slate-500">Kertas</span><span className="text-slate-500 font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
                   {calculatedPrintingCost > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Cetak</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
                   {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Cetak 2</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
@@ -1243,12 +1245,12 @@ function HitungCetakanPage() {
                   {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Biaya Lain 2</span><span className="text-slate-500 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
-              <div className="px-2 pb-1.5 flex flex-col gap-0.5 mt-auto">
+              <div className="px-2.5 pb-2 flex flex-col gap-1 mt-auto">
                 <div className="flex gap-1">
-                  <Button onClick={handleSaveRiwayat} className="flex-1 h-6 bg-emerald-600 hover:bg-emerald-700 text-[9px]"><Save className="w-2.5 h-2.5 mr-0.5" /> Simpan Riwayat</Button>
-                  <Button onClick={handlePreview} className="flex-1 h-6 text-[9px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-2.5 h-2.5 mr-0.5" /> Preview</Button>
+                  <Button onClick={handleSaveRiwayat} className="flex-1 h-7 bg-emerald-600 hover:bg-emerald-700 text-[10px]"><Save className="w-3 h-3 mr-1" /> Simpan Riwayat</Button>
+                  <Button onClick={handlePreview} className="flex-1 h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3 h-3 mr-1" /> Preview</Button>
                 </div>
-                <Button onClick={resetForm} variant="outline" className="w-full h-6 text-[9px]"><RotateCcw className="w-2.5 h-2.5 mr-0.5" /> Reset Form</Button>
+                <Button onClick={resetForm} variant="outline" className="w-full h-7 text-[10px]"><RotateCcw className="w-3 h-3 mr-1" /> Reset Form</Button>
               </div>
             </div>
 
