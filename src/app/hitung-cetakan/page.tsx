@@ -682,7 +682,7 @@ function HitungCetakanPage() {
   return (
     <DashboardLayout title={t('hitung_cetakan')} subtitle={t('subtitle_potong_kertas')}>
       <div>
-        <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-[19px]">
+        <div className="lg:flex lg:gap-[19px]">
 
           {/* ========== COLUMN 1: INFO & HARGA ========== */}
           <div className="flex-1 min-w-0">
@@ -1002,7 +1002,7 @@ function HitungCetakanPage() {
           </div>{/* end COLUMN 1 */}
 
           {/* ========== COLUMN 2: ONGKOS CETAK (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               {/* Ongkos Cetak */}
               <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-purple-600" />} label={t('ongkos_cetak_label')} />
@@ -1083,7 +1083,7 @@ function HitungCetakanPage() {
           </div>{/* end COLUMN 2 */}
 
           {/* ========== COLUMN 3: FINISHING & ONGKOS LEM (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               {/* Finishing */}
               <SectionHeader icon={<Layers className="w-3.5 h-3.5 text-rose-600" />} label={t('finishing_label')} badge={selectedFinishingItems.length} />
@@ -1166,7 +1166,7 @@ function HitungCetakanPage() {
           </div>{/* end COLUMN 3 */}
 
           {/* ========== COLUMN 4: BIAYA TAMBAHAN, SUMMARY & DAFTAR (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-1 h-full">
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-1">
             {/* Biaya Tambahan Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <SectionHeader icon={<Banknote className="w-3.5 h-3.5 text-amber-600" />} label="Biaya Tambahan" />
