@@ -187,3 +187,21 @@ Stage Summary:
 - Complete printing cost calculator with paper, printing, finishing, and glue cost calculations
 - Results panel with all cost breakdowns and gradient total card
 - Print output generates A4-formatted HTML with styled cost breakdown
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Remove box/border from perincian section in preview dialogs - make text gray only
+
+Work Log:
+- Read hitung-cetakan/page.tsx and riwayat/page.tsx to understand the perincian/rincian total sections
+- In hitung-cetakan preview dialog: Removed `bg-slate-50 border border-slate-200 rounded-lg overflow-hidden` container and `border-b border-slate-100` dividers from Ringkasan Harga section
+- Changed all text colors from colored (teal-700, blue-700, amber-700, etc.) to `text-slate-400` for labels and values
+- Changed Sub Total text from `text-slate-700` to `text-slate-500`
+- In riwayat preview dialog: Removed `bg-slate-50 rounded` and `bg-slate-100 rounded border border-slate-200` from Rincian Total section rows
+- Changed all text colors to `text-slate-400`, Sub Total to `text-slate-500`, Profit to `text-slate-400`
+- Both preview dialogs now show perincian as plain gray text without any box/border/background styling
+
+Stage Summary:
+- Perincian sections in both hitung-cetakan and riwayat preview dialogs are now displayed as plain gray text (no box/border/background)
+- Consistent styling between both preview dialogs

@@ -1532,74 +1532,74 @@ function HitungCetakanPage() {
                 {/* === RINGKASAN HARGA === */}
                 <div>
                   <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Ringkasan Harga</p>
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                      <span className="text-xs text-slate-500">Harga Kertas</span>
-                      <span className="text-xs font-semibold text-teal-700">{formatRp(totalPaperPrice)}</span>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center justify-between px-1 py-1">
+                      <span className="text-[10px] text-slate-400">Harga Kertas</span>
+                      <span className="text-[10px] font-semibold text-slate-400">{formatRp(totalPaperPrice)}</span>
                     </div>
                     {calculatedPrintingCost > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Ongkos Cetak</span>
-                        <span className="text-xs font-semibold text-blue-700">{formatRp(calculatedPrintingCost)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Ongkos Cetak</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(calculatedPrintingCost)}</span>
                       </div>
                     )}
                     {calculatedPrintingCost2 > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Ongkos Cetak 2</span>
-                        <span className="text-xs font-semibold text-fuchsia-700">{formatRp(calculatedPrintingCost2)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Ongkos Cetak 2</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(calculatedPrintingCost2)}</span>
                       </div>
                     )}
                     {calculatedFinishingCost > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Finishing</span>
-                        <span className="text-xs font-semibold text-rose-700">{formatRp(calculatedFinishingCost)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Finishing</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(calculatedFinishingCost)}</span>
                       </div>
                     )}
                     {summaryPacking > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Ongkos Packing</span>
-                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryPacking)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Ongkos Packing</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryPacking)}</span>
                       </div>
                     )}
                     {summaryShipping > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Ongkos Kirim</span>
-                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryShipping)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Ongkos Kirim</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryShipping)}</span>
                       </div>
                     )}
                     {calculatedGlueCost > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Ongkos Lem</span>
-                        <span className="text-xs font-semibold text-amber-700">{formatRp(calculatedGlueCost)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Ongkos Lem</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(calculatedGlueCost)}</span>
                       </div>
                     )}
                     {calculatedGlueBoronganSheet > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Lem Borongan</span>
-                        <span className="text-xs font-semibold text-amber-700">{formatRp(calculatedGlueBoronganSheet)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Lem Borongan</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(calculatedGlueBoronganSheet)}</span>
                       </div>
                     )}
                     {summaryBiayaLain1 > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Biaya Lain-lain 1</span>
-                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryBiayaLain1)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Biaya Lain-lain 1</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryBiayaLain1)}</span>
                       </div>
                     )}
                     {summaryBiayaLain2 > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Biaya Lain-lain 2</span>
-                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryBiayaLain2)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Biaya Lain-lain 2</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryBiayaLain2)}</span>
                       </div>
                     )}
                     {summaryProfitAmount > 0 && (
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                        <span className="text-xs text-slate-500">Profit ({profitPercent}%)</span>
-                        <span className="text-xs font-semibold text-orange-700">{formatRp(summaryProfitAmount)}</span>
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <span className="text-[10px] text-slate-400">Profit ({profitPercent}%)</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryProfitAmount)}</span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <span className="text-xs font-medium text-slate-500">Sub Total</span>
-                      <span className="text-xs font-bold text-slate-700">{formatRp(summarySubTotal)}</span>
+                    <div className="flex items-center justify-between px-1 py-1">
+                      <span className="text-[10px] font-medium text-slate-500">Sub Total</span>
+                      <span className="text-[10px] font-bold text-slate-500">{formatRp(summarySubTotal)}</span>
                     </div>
                   </div>
                 </div>

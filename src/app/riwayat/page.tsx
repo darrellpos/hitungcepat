@@ -600,43 +600,43 @@ export default function RiwayatPage() {
                           </div>
                           <p className="text-xs font-bold text-slate-700">Rincian Total</p>
                         </div>
-                        <div className="space-y-1">
-                          <div className="flex justify-between items-center px-3 py-1.5 bg-slate-50 rounded">
-                            <span className="text-[10px] text-slate-500">Harga Kertas</span>
-                            <span className="text-xs font-semibold text-slate-700">{formatRp(previewItem.totalPaperPrice)}</span>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between items-center px-1 py-1">
+                            <span className="text-[10px] text-slate-400">Harga Kertas</span>
+                            <span className="text-[10px] font-semibold text-slate-400">{formatRp(previewItem.totalPaperPrice)}</span>
                           </div>
                           {previewItem.ongkosCetak > 0 && (
-                            <div className="flex justify-between items-center px-3 py-1.5 bg-slate-50 rounded">
-                              <span className="text-[10px] text-slate-500">{t('ongkos_cetak_label')}</span>
-                              <span className="text-xs font-semibold text-blue-700">{formatRp(previewItem.ongkosCetak)}</span>
+                            <div className="flex justify-between items-center px-1 py-1">
+                              <span className="text-[10px] text-slate-400">{t('ongkos_cetak_label')}</span>
+                              <span className="text-[10px] font-semibold text-slate-400">{formatRp(previewItem.ongkosCetak)}</span>
                             </div>
                           )}
                           {previewItem.finishingCost > 0 && (
-                            <div className="flex justify-between items-center px-3 py-1.5 bg-slate-50 rounded">
-                              <span className="text-[10px] text-slate-500">{t('finishing_label')}</span>
-                              <span className="text-xs font-semibold text-rose-700">{formatRp(previewItem.finishingCost)}</span>
+                            <div className="flex justify-between items-center px-1 py-1">
+                              <span className="text-[10px] text-slate-400">{t('finishing_label')}</span>
+                              <span className="text-[10px] font-semibold text-slate-400">{formatRp(previewItem.finishingCost)}</span>
                             </div>
                           )}
                           {previewItem.packingCost > 0 && (
-                            <div className="flex justify-between items-center px-3 py-1.5 bg-slate-50 rounded">
-                              <span className="text-[10px] text-slate-500">Ongkos Packing</span>
-                              <span className="text-xs font-semibold text-slate-700">{formatRp(previewItem.packingCost)}</span>
+                            <div className="flex justify-between items-center px-1 py-1">
+                              <span className="text-[10px] text-slate-400">Ongkos Packing</span>
+                              <span className="text-[10px] font-semibold text-slate-400">{formatRp(previewItem.packingCost)}</span>
                             </div>
                           )}
                           {previewItem.shippingCost > 0 && (
-                            <div className="flex justify-between items-center px-3 py-1.5 bg-slate-50 rounded">
-                              <span className="text-[10px] text-slate-500">Ongkos Kirim</span>
-                              <span className="text-xs font-semibold text-slate-700">{formatRp(previewItem.shippingCost)}</span>
+                            <div className="flex justify-between items-center px-1 py-1">
+                              <span className="text-[10px] text-slate-400">Ongkos Kirim</span>
+                              <span className="text-[10px] font-semibold text-slate-400">{formatRp(previewItem.shippingCost)}</span>
                             </div>
                           )}
-                          <div className="flex justify-between items-center px-3 py-1.5 bg-slate-100 rounded border border-slate-200">
-                            <span className="text-[10px] text-slate-600 font-medium">Sub Total</span>
-                            <span className="text-xs font-bold text-slate-800">{formatRp(previewItem.subTotal)}</span>
+                          <div className="flex justify-between items-center px-1 py-1">
+                            <span className="text-[10px] text-slate-500 font-medium">Sub Total</span>
+                            <span className="text-[10px] font-bold text-slate-500">{formatRp(previewItem.subTotal)}</span>
                           </div>
                           {previewItem.profitAmount > 0 && (
-                            <div className="flex justify-between items-center px-3 py-1.5 bg-slate-50 rounded">
-                              <span className="text-[10px] text-orange-600 font-medium">Profit ({previewItem.profitPercent}%)</span>
-                              <span className="text-xs font-semibold text-orange-700">+ {formatRp(previewItem.profitAmount)}</span>
+                            <div className="flex justify-between items-center px-1 py-1">
+                              <span className="text-[10px] text-slate-400 font-medium">Profit ({previewItem.profitPercent}%)</span>
+                              <span className="text-[10px] font-semibold text-slate-400">+ {formatRp(previewItem.profitAmount)}</span>
                             </div>
                           )}
                         </div>
