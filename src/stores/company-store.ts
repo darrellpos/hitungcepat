@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useEffect, useRef } from 'react'
 
 interface CompanyBrandingState {
   companyName: string | null
@@ -14,9 +15,11 @@ const BROADCAST_CHANNEL_NAME = 'company-branding-update'
 
 let broadcastChannel: BroadcastChannel | null = null
 try {
-  broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME)
+  if (typeof window !== 'undefined') {
+    broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME)
+  }
 } catch {
-  // BroadcastChannel not supported (e.g., SSR)
+  // BroadcastChannel not supported
 }
 
 export const useCompanyStore = create<CompanyBrandingState>((set, get) => ({
@@ -75,7 +78,7 @@ export const useCompanyStore = create<CompanyBrandingState>((set, get) => ({
   },
 
   resetBranding: () => {
-    set({ companyName: null, companyLogo: null })
+    set({ companyName: null, companyLogo: null, initialized: true })
     try {
       broadcastChannel?.postMessage({ companyName: null, companyLogo: null })
     } catch {
@@ -84,7 +87,7 @@ export const useCompanyStore = create<CompanyBrandingState>((set, get) => ({
   },
 }))
 
-// Subscribe to BroadcastChannel for cross-tab sync
+// Subscribe to BroadcastChannel for cross-tab sync (client-side only)
 if (typeof window !== 'undefined' && broadcastChannel) {
   broadcastChannel.onmessage = (event) => {
     const { companyName, companyLogo } = event.data
@@ -96,25 +99,32 @@ if (typeof window !== 'undefined' && broadcastChannel) {
   }
 }
 
+// Global flag to prevent duplicate fetches across components
+let fetchInitiated = false
+
 /**
- * Hook to auto-fetch company branding on mount.
+ * Hook to auto-fetch company branding once on first mount.
  * Uses Zustand store so all components share the same state.
- * Re-fetches every 30 seconds for real-time sync with other tabs/devices.
  */
 export function useCompanyBranding(isPublic = false) {
-  const { companyName, companyLogo, initialized, fetchBranding } = useCompanyStore()
+  const companyName = useCompanyStore((s) => s.companyName)
+  const companyLogo = useCompanyStore((s) => s.companyLogo)
+  const initialized = useCompanyStore((s) => s.initialized)
+  const fetchBranding = useCompanyStore((s) => s.fetchBranding)
+  const isPublicRef = useRef(isPublic)
+  isPublicRef.current = isPublic
 
-  // Use refs to avoid re-triggering effect
-  const isPublicRef = { current: isPublic }
-
-  // We use a global flag to ensure fetch only runs once per session
-  // unless explicitly triggered
-  if (typeof window !== 'undefined') {
-    const state = useCompanyStore.getState()
-    if (!state.initialized) {
-      state.fetchBranding(isPublicRef.current)
+  useEffect(() => {
+    if (!fetchInitiated) {
+      fetchInitiated = true
+      fetchBranding(isPublicRef.current)
     }
-  }
+  }, [fetchBranding])
 
-  return { companyName, companyLogo, initialized, refetch: () => fetchBranding(isPublicRef.current) }
+  return {
+    companyName,
+    companyLogo,
+    initialized,
+    refetch: () => fetchBranding(isPublicRef.current),
+  }
 }
