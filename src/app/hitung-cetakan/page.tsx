@@ -1006,8 +1006,8 @@ function HitungCetakanPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
               {/* Ongkos Cetak */}
               <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-purple-600" />} label={t('ongkos_cetak_label')} />
-              <div className="p-3">
-                <div className="grid grid-cols-1 gap-2">
+              <div className="px-2.5 py-2">
+                <div className="grid grid-cols-1 gap-1">
                   <div>
                     <label className={labelClass}>{t('nama_mesin')} <span className="text-red-500">*</span></label>
                     <select value={formData.machineId} onChange={(e) => setFormData({ ...formData, machineId: e.target.value })} className={selectClass}>
@@ -1015,7 +1015,7 @@ function HitungCetakanPage() {
                       {printingCosts.map((m) => <option key={m.id} value={m.id}>{m.machineName}</option>)}
                     </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1">
                     <div>
                       <label className={labelClass}>Warna <span className="text-red-500">*</span></label>
                       <div className="relative">
@@ -1031,21 +1031,23 @@ function HitungCetakanPage() {
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <label className={labelClass}>{t('harga_plat')}</label>
-                    <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${platTotal.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Total Ongkos</label>
-                    <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${calculatedPrintingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
+                  <div className="grid grid-cols-2 gap-1">
+                    <div>
+                      <label className={labelClass}>{t('harga_plat')}</label>
+                      <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${platTotal.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Total Ongkos</label>
+                      <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${calculatedPrintingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Ongkos Cetak 2 */}
               <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-fuchsia-600" />} label="Ongkos Cetak 2" />
-              <div className="p-3">
-                <div className="grid grid-cols-1 gap-2">
+              <div className="px-2.5 py-2">
+                <div className="grid grid-cols-1 gap-1">
                   <div>
                     <label className={labelClass}>{t('nama_mesin')}</label>
                     <select value={formData.machineId2} onChange={(e) => setFormData({ ...formData, machineId2: e.target.value })} className={selectClass}>
@@ -1053,7 +1055,7 @@ function HitungCetakanPage() {
                       {printingCosts.map((m) => <option key={m.id} value={m.id}>{m.machineName}</option>)}
                     </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1">
                     <div>
                       <label className={labelClass}>Warna</label>
                       <div className="relative">
@@ -1069,13 +1071,15 @@ function HitungCetakanPage() {
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <label className={labelClass}>{t('harga_plat')}</label>
-                    <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${platTotal2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Total Ongkos 2</label>
-                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                  <div className="grid grid-cols-2 gap-1">
+                    <div>
+                      <label className={labelClass}>{t('harga_plat')}</label>
+                      <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${platTotal2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Total Ongkos 2</label>
+                      <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                    </div>
                   </div>
                 </div>
               </div>
