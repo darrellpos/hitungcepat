@@ -689,12 +689,12 @@ function HitungCetakanPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 
               {/* Section 1: Informasi Cetakan */}
-              <div className="flex items-center gap-2 px-2 py-2 border-b border-slate-100 bg-slate-50/60">
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-100 bg-slate-50/60">
                 <div className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center"><Users className="w-3.5 h-3.5 text-blue-600" /></div>
                 <h2 className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</h2>
               </div>
-              <div className="px-4 py-2">
-                <div className="space-y-1.5">
+              <div className="px-4 py-3">
+                <div className="space-y-2">
                   <div>
                     <label className={labelClass}>{t('nama_customer')} <span className="text-red-500">*</span></label>
                     <select value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} className={selectClass}>
