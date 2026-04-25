@@ -716,15 +716,14 @@ function HitungCetakanPage() {
 
               {/* Section 2: Harga Bahan */}
               <SectionHeader icon={<FileText className="w-3.5 h-3.5 text-teal-600" />} label={t('harga_bahan')} />
-              <div className="px-3 py-3 lg:p-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2.5 lg:gap-3">
+              <div className="px-3 py-2 lg:px-3 lg:py-2">
+                <div className="space-y-1.5">
                   <div>
                     <label className={labelClass}>Nama Bahan <span className="text-red-500">*</span></label>
                     <select value={formData.paperId} onChange={(e) => setFormData({ ...formData, paperId: e.target.value })} className={selectClass}>
                       <option value="">Pilih bahan kertas</option>
                       {papers.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.grammage} gsm)</option>)}
                     </select>
-
                   </div>
                   <div>
                     <label className={labelClass}>Uk. Bahan (P×L cm)</label>
