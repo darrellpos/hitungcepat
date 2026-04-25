@@ -1166,7 +1166,7 @@ function HitungCetakanPage() {
           </div>{/* end COLUMN 3 */}
 
           {/* ========== COLUMN 4: BIAYA TAMBAHAN, SUMMARY & DAFTAR (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-2 h-full">
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-1 h-full">
             {/* Biaya Tambahan Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <SectionHeader icon={<Banknote className="w-3.5 h-3.5 text-amber-600" />} label="Biaya Tambahan" />
