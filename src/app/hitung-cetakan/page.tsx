@@ -133,6 +133,7 @@ function HitungCetakanPage() {
   const [calculatedGlueBoronganSheet, setCalculatedGlueBoronganSheet] = useState<number>(0)
   const [prefilled, setPrefilled] = useState(false)
   const [profitPercent, setProfitPercent] = useState<number>(0)
+  const [biayaLain2Label, setBiayaLain2Label] = useState('Biaya')
 
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewCalc, setPreviewCalc] = useState<PrintCalculation | null>(null)
@@ -941,7 +942,7 @@ function HitungCetakanPage() {
                       </div>
                     </div>
                     <div>
-                      <label className={labelClass}>Biaya Lain-lain 2</label>
+                      <input type="text" value={biayaLain2Label} onChange={(e) => setBiayaLain2Label(e.target.value)} className="w-full border border-slate-200 rounded-md px-2 py-0.5 text-[10px] text-slate-600 mb-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                       <div className="relative">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                         <input type="number" placeholder="0" value={formData.biayaLain2} onChange={(e) => setFormData({ ...formData, biayaLain2: e.target.value })} className={`${inputClass} pl-9`} />
@@ -1193,7 +1194,7 @@ function HitungCetakanPage() {
                     </div>
                   </div>
                   <div>
-                    <label className={labelClass}>Biaya Lain-lain 2</label>
+                    <input type="text" value={biayaLain2Label} onChange={(e) => setBiayaLain2Label(e.target.value)} className="w-full border border-slate-200 rounded-md px-2 py-0.5 text-[10px] text-slate-600 mb-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                       <input type="number" placeholder="0" value={formData.biayaLain2} onChange={(e) => setFormData({ ...formData, biayaLain2: e.target.value })} className={`${inputClass} pl-9`} />
@@ -1577,7 +1578,7 @@ function HitungCetakanPage() {
                           <div className="flex items-center gap-2">
                             <Banknote className="w-4 h-4 text-amber-500" />
                             <div>
-                              <p className="text-[9px] text-amber-500">Biaya Lain-lain 2</p>
+                              <p className="text-[9px] text-amber-500">{biayaLain2Label}</p>
                               <p className="text-sm font-bold text-amber-700">{formatRp(summaryBiayaLain2)}</p>
                             </div>
                           </div>
@@ -1663,7 +1664,7 @@ function HitungCetakanPage() {
                     )}
                     {summaryBiayaLain2 > 0 && (
                       <div className="flex items-center justify-between px-1 py-1">
-                        <span className="text-[10px] text-slate-400">Biaya Lain-lain 2</span>
+                        <span className="text-[10px] text-slate-400">{biayaLain2Label}</span>
                         <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryBiayaLain2)}</span>
                       </div>
                     )}
