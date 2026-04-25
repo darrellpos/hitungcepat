@@ -302,18 +302,18 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
 
         {/* Page Title - Sticky */}
         {(title || subtitle) && (
-          <div className="border-b border-slate-200 px-4 py-2.5 sticky top-[57px] z-20 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
+          <div className="border-b border-slate-200 px-4 py-1.5 sticky top-[57px] z-20 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
             <div className="flex items-center justify-between">
               <div>
-                {title && <h1 className="text-base font-bold text-slate-800">{title}</h1>}
-                {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+                {title && <h1 className="text-sm font-bold text-slate-800">{title}</h1>}
+                {subtitle && <p className="text-[10px] text-slate-500 mt-px">{subtitle}</p>}
               </div>
               <div className="text-right">
-                <span className="text-xs text-slate-500 block">
+                <span className="text-[10px] text-slate-500 block">
                   {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </span>
                 {userProfile?.createdAt && (
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="text-[9px] text-slate-400 block mt-px">
                     Daftar: {new Date(userProfile.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     {userProfile.validUntil && (
                       <> · Exp: {new Date(userProfile.validUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</>
