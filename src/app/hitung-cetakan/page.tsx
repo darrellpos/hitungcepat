@@ -934,7 +934,7 @@ function HitungCetakanPage() {
                       </div>
                     </div>
                     <div>
-                      <label className={labelClass}>Biaya Lain-lain 1</label>
+                      <label className={labelClass}>Biaya Bikin Piso</label>
                       <div className="relative">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                         <input type="number" placeholder="0" value={formData.biayaLain1} onChange={(e) => setFormData({ ...formData, biayaLain1: e.target.value })} className={`${inputClass} pl-9`} />
@@ -1186,7 +1186,7 @@ function HitungCetakanPage() {
                     </div>
                   </div>
                   <div>
-                    <label className={labelClass}>Biaya Lain-lain 1</label>
+                    <label className={labelClass}>Biaya Bikin Piso</label>
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                       <input type="number" placeholder="0" value={formData.biayaLain1} onChange={(e) => setFormData({ ...formData, biayaLain1: e.target.value })} className={`${inputClass} pl-9`} />
@@ -1568,7 +1568,7 @@ function HitungCetakanPage() {
                           <div className="flex items-center gap-2">
                             <Banknote className="w-4 h-4 text-amber-500" />
                             <div>
-                              <p className="text-[9px] text-amber-500">Biaya Lain-lain 1</p>
+                              <p className="text-[9px] text-amber-500">Biaya Bikin Piso</p>
                               <p className="text-sm font-bold text-amber-700">{formatRp(summaryBiayaLain1)}</p>
                             </div>
                           </div>
@@ -1657,7 +1657,7 @@ function HitungCetakanPage() {
                     )}
                     {summaryBiayaLain1 > 0 && (
                       <div className="flex items-center justify-between px-1 py-1">
-                        <span className="text-[10px] text-slate-400">Biaya Lain-lain 1</span>
+                        <span className="text-[10px] text-slate-400">Biaya Bikin Piso</span>
                         <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryBiayaLain1)}</span>
                       </div>
                     )}
