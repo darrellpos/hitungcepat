@@ -485,6 +485,33 @@ function HitungCetakanPage() {
     saveToStorage({ formData: nextFormData, selectedFinishings: [], totalPaperPrice })
   }
 
+  const handlePreview = () => {
+    if (!formData.printName || !formData.quantity) {
+      toast.error('Lengkapi Nama Cetakan dan Jumlah terlebih dahulu')
+      return
+    }
+    const packing = parseFloat(formData.packingCost) || 0
+    const shipping = parseFloat(formData.shippingCost) || 0
+    const priceSheet = parseFloat(formData.pricePerSheet) || 0
+    const qty = parseInt(formData.quantity) || 0
+    const biayaLain1Val = parseFloat(formData.biayaLain1) || 0
+    const biayaLain2Val = parseFloat(formData.biayaLain2) || 0
+    const totalCost = calculatedCost + packing + shipping + calculatedGlueCost + calculatedGlueBoronganSheet + biayaLain1Val + biayaLain2Val + (priceSheet * qty)
+    const previewData: PrintCalculation = {
+      id: 'preview',
+      printName: formData.printName, paperLength: formData.paperLength, paperWidth: formData.paperWidth,
+      quantity: formData.quantity, warna: formData.warna, warnaKhusus: formData.warnaKhusus,
+      hargaPlat: formData.hargaPlat, paperId: formData.paperId, paperName: selectedPaper?.name || 'Custom',
+      machineId: formData.machineId, machineName: selectedMachine?.machineName || '-',
+      printingCost: calculatedCost, finishingId: selectedFinishings.join(','),
+      finishingName: selectedFinishingItems.map(f => f.name).join(', '),
+      packingCost: formData.packingCost, shippingCost: formData.shippingCost,
+      pricePerSheet: formData.pricePerSheet, totalPrice: totalCost
+    }
+    setPreviewCalc(previewData)
+    setPreviewOpen(true)
+  }
+
   const handleDeleteCalculation = (id: string) => {
     setCalculations(calculations.filter(c => c.id !== id))
     toast.success('Cetakan berhasil dihapus dari daftar')
@@ -892,7 +919,7 @@ function HitungCetakanPage() {
               </div>
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
                 <Button onClick={handleSaveRiwayat} className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-700 text-sm"><Save className="w-4 h-4 mr-1.5" /> Simpan Riwayat</Button>
-                <Button onClick={handleAddCalculation} className="flex-1 h-10 text-sm"><Plus className="w-4 h-4 mr-1.5" /> Tambah</Button>
+                <Button onClick={handlePreview} className="flex-1 h-10 text-sm bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-4 h-4 mr-1.5" /> Preview</Button>
                 <Button onClick={resetForm} variant="outline" className="flex-1 h-10 text-sm"><RotateCcw className="w-4 h-4 mr-1.5" /> Reset</Button>
               </div>
               </div>{/* end mobile-only wrapper */}
@@ -1054,7 +1081,7 @@ function HitungCetakanPage() {
               </div>
               <div className="px-3 pb-3 flex flex-col gap-1.5 mt-auto">
                 <Button onClick={handleSaveRiwayat} className="w-full h-8 bg-emerald-600 hover:bg-emerald-700 text-[11px]"><Save className="w-3.5 h-3.5 mr-1" /> Simpan Riwayat</Button>
-                <Button onClick={handleAddCalculation} className="w-full h-8 text-[11px]"><Plus className="w-3.5 h-3.5 mr-1" /> Tambah Cetakan</Button>
+                <Button onClick={handlePreview} className="w-full h-8 text-[11px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3.5 h-3.5 mr-1" /> Preview</Button>
                 <Button onClick={resetForm} variant="outline" className="w-full h-8 text-[11px]"><RotateCcw className="w-3.5 h-3.5 mr-1" /> Reset Form</Button>
               </div>
             </div>
