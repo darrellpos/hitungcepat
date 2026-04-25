@@ -681,7 +681,7 @@ function HitungCetakanPage() {
   const ValueBox = ({ label, value, gradient }: { label: string; value: string; gradient: string }) => (
     <div className={`w-full h-[28px] flex items-center justify-between px-2.5 ${gradient} border rounded-lg`}>
       <span className="text-[10px] font-medium text-slate-600">{label}</span>
-      <span className="text-[11px] font-bold">{value}</span>
+      <span className="text-[14px] font-bold">{value}</span>
     </div>
   )
 
