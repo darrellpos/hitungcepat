@@ -1,6 +1,6 @@
 'use client'
 
-import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye } from 'lucide-react'
+import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard-layout'
@@ -137,6 +137,7 @@ function HitungCetakanPage() {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [previewCalc, setPreviewCalc] = useState<PrintCalculation | null>(null)
   const previewRef = useRef<HTMLDivElement>(null)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
   // === localStorage persistence ===
   const loadFromStorage = () => {
@@ -436,7 +437,7 @@ function HitungCetakanPage() {
     setCalculatedCost(calculatedPrintingCost + calculatedPrintingCost2 + calculatedFinishingCost)
   }, [selectedMachine, selectedMachine2, selectedFinishingItems, formData.quantity, formData.warna, formData.warnaKhusus, formData.hargaPlat, formData.warna2, formData.warnaKhusus2, formData.hargaPlat2, formData.cutWidth, formData.cutHeight, formData.glueLengthCm, formData.glueCostPerCm, formData.glueBoronganPerSheet, calculatedPrintingCost, calculatedPrintingCost2, calculatedFinishingCost])
 
-  const handlePrint = (calc: PrintCalculation) => {
+  const handlePrintCalc = (calc: PrintCalculation) => {
     const printWindow = window.open('', '', 'height=900,width=800')
     if (!printWindow) { toast.error('Gagal membuka jendela print'); return }
     const ongkosCetak = calc.printingCost
@@ -448,6 +449,64 @@ function HitungCetakanPage() {
     printWindow.document.close()
     setTimeout(() => { printWindow.print() }, 250)
     toast.success('Mencetak detail cetakan...')
+  }
+
+  const handlePrint = () => {
+    const el = previewRef.current
+    if (!el) { toast.error('Preview tidak tersedia'); return }
+    const pw = window.open('', '_blank')
+    if (!pw) { toast.error('Popup diblokir'); return }
+    pw.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview - ${formData.printName}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @page { size: A4; margin: 10mm; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; }
+        .header { text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+        .header h1 { font-size: 16px; font-weight: 700; color: #0f172a; }
+        .header p { font-size: 10px; color: #64748b; margin-top: 2px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        .cell { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 6px 8px; }
+        .cell .lbl { font-size: 8px; color: #64748b; font-weight: 500; }
+        .cell .val { font-size: 12px; font-weight: 700; color: #0f172a; }
+        .cell .val.grn { color: #059669; }
+        .cell .val.red { color: #e11d48; }
+        .row { display: flex; gap: 6px; margin-bottom: 6px; }
+        .row .full { flex: 1; }
+        .breakdown { background: #fef2f2; border: 1px solid #fecaca; border-radius: 5px; padding: 6px 8px; margin-bottom: 8px; }
+        .breakdown-title { font-size: 9px; font-weight: 700; color: #991b1b; margin-bottom: 3px; }
+        .breakdown-text { font-size: 9px; color: #7f1d1d; white-space: pre-line; }
+        .total-bar { background: #0f172a; color: white; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
+        .total-bar .lbl { font-size: 9px; color: #94a3b8; }
+        .total-bar .val { font-size: 16px; font-weight: 800; color: #22c55e; }
+      </style>
+    </head><body>${el.innerHTML}</body></html>`)
+    pw.document.close()
+    pw.onload = () => pw.print()
+  }
+
+  const handlePdf = async () => {
+    const el = previewRef.current
+    if (!el) return
+    setIsGeneratingPdf(true)
+    try {
+      const html2canvas = (await import('html2canvas')).default
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+      const imgData = canvas.toDataURL('image/jpeg', 0.95)
+      const { jsPDF } = await import('jspdf')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfW = pdf.internal.pageSize.getWidth()
+      const pdfH = pdf.internal.pageSize.getHeight()
+      const margin = 8
+      const cw = pdfW - margin * 2
+      const ih = (canvas.height * cw) / canvas.width
+      const maxH = pdfH - margin * 2
+      let fw = cw, fh = ih
+      if (fh > maxH) { fw = (maxH * cw) / ih; fh = maxH }
+      pdf.addImage(imgData, 'JPEG', margin + (cw - fw) / 2, margin, fw, fh)
+      pdf.save(`hitung-cetakan-${Date.now()}.pdf`)
+      toast.success('PDF berhasil diunduh!')
+    } catch { toast.error('Gagal menghasilkan PDF') }
+    finally { setIsGeneratingPdf(false) }
   }
 
   const handleAddCalculation = () => {
@@ -616,6 +675,8 @@ function HitungCetakanPage() {
       <span className="text-xs font-bold">{value}</span>
     </div>
   )
+
+  const formatRp = (n: number) => `Rp ${n.toLocaleString('id-ID')}`
 
   return (
     <DashboardLayout title={t('hitung_cetakan')} subtitle={t('subtitle_potong_kertas')}>
@@ -1106,7 +1167,7 @@ function HitungCetakanPage() {
                           <span className="text-xs font-bold text-emerald-600">Rp {calc.totalPrice.toLocaleString('id-ID')}</span>
                           <div className="flex gap-0.5">
                             <button onClick={() => { setPreviewCalc(calc); setPreviewOpen(true) }} className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-violet-600 hover:bg-violet-50"><Eye className="w-3 h-3" /></button>
-                            <button onClick={() => handlePrint(calc)} className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Printer className="w-3 h-3" /></button>
+                            <button onClick={() => handlePrintCalc(calc)} className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Printer className="w-3 h-3" /></button>
                             <button onClick={() => handleDeleteCalculation(calc.id)} className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50"><Trash2 className="w-3 h-3" /></button>
                           </div>
                         </div>
@@ -1151,7 +1212,7 @@ function HitungCetakanPage() {
                           <span className="text-sm font-bold text-emerald-600">Rp {calc.totalPrice.toLocaleString('id-ID')}</span>
                           <div className="flex gap-1">
                             <Button onClick={() => { setPreviewCalc(calc); setPreviewOpen(true) }} variant="outline" size="sm" className="h-7 text-[11px] text-violet-600"><Eye className="w-3 h-3" /></Button>
-                            <Button onClick={() => handlePrint(calc)} variant="outline" size="sm" className="h-7 text-[11px]"><Printer className="w-3 h-3" /></Button>
+                            <Button onClick={() => handlePrintCalc(calc)} variant="outline" size="sm" className="h-7 text-[11px]"><Printer className="w-3 h-3" /></Button>
                             <Button onClick={() => handleDeleteCalculation(calc.id)} variant="outline" size="sm" className="h-7 text-[11px] text-red-600"><Trash2 className="w-3 h-3" /></Button>
                           </div>
                         </div>
@@ -1171,79 +1232,374 @@ function HitungCetakanPage() {
 
       {/* ===== PREVIEW DIALOG ===== */}
       <Dialog open={previewOpen} onOpenChange={(open) => { setPreviewOpen(open); if (!open) setPreviewCalc(null) }}>
-        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-0 ">
+        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-0">
           <DialogHeader className="p-4 pb-0">
-            <DialogTitle>Preview Hitung Cetakan</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-violet-600" />
+              Detail Rincian Cetakan
+            </DialogTitle>
           </DialogHeader>
-          {previewCalc && (
-            <div ref={previewRef} className="p-4 bg-white">
-              <div className="text-center mb-4 pb-3 border-b-2 border-slate-200">
-                <h1 className="text-lg font-bold text-slate-900">Preview Hitung Cetakan</h1>
-                <p className="text-xs text-slate-500 mt-0.5">{previewCalc.printName} · {previewCalc.paperName} · {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                  <p className="text-[11px] text-blue-600 font-medium">Jumlah Cetakan</p>
-                  <p className="text-xl font-bold text-blue-700">{parseInt(previewCalc.quantity).toLocaleString('id-ID')} <span className="text-xs font-normal">lembar</span></p>
-                </div>
-                <div className="bg-purple-50 border border-purple-100 rounded-lg p-3">
-                  <p className="text-[11px] text-purple-600 font-medium">Ukuran Bahan</p>
-                  <p className="text-xl font-bold text-purple-700">{previewCalc.paperLength} × {previewCalc.paperWidth} <span className="text-xs font-normal">cm</span></p>
-                </div>
-                <div className="bg-violet-50 border border-violet-100 rounded-lg p-3">
-                  <p className="text-[11px] text-violet-600 font-medium">{t('nama_mesin')}</p>
-                  <p className="text-sm font-bold text-violet-700">{previewCalc.machineName}</p>
-                </div>
-                <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
-                  <p className="text-[11px] text-rose-600 font-medium">Warna</p>
-                  <p className="text-sm font-bold text-rose-700">{previewCalc.warna} warna{previewCalc.warnaKhusus && parseInt(previewCalc.warnaKhusus) > 0 ? ` + ${previewCalc.warnaKhusus} khusus` : ''}</p>
-                </div>
-                <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
-                  <p className="text-[11px] text-orange-600 font-medium">{t('ongkos_cetak_label')}</p>
-                  <p className="text-lg font-bold text-orange-700">Rp {previewCalc.printingCost.toLocaleString('id-ID')}</p>
 
+          {previewCalc && (
+            <>
+              <div ref={previewRef} className="p-4 bg-white space-y-3">
+                {/* Header */}
+                <div className="text-center pb-3 border-b-2 border-slate-200">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <Calculator className="w-5 h-5 text-blue-600" />
+                    <h1 className="text-lg font-bold text-slate-900">Rincian Harga Cetakan</h1>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {previewCalc.printName} · {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
                 </div>
-                <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
-                  <p className="text-[11px] text-teal-600 font-medium">Harga Kertas</p>
-                  <p className="text-lg font-bold text-teal-700">Rp {((parseFloat(previewCalc.pricePerSheet) || 0) * (parseInt(previewCalc.quantity) || 0)).toLocaleString('id-ID')}</p>
-                </div>
-              </div>
-              {previewCalc.finishingName && (
-                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg">
-                  <p className="text-[11px] font-bold text-rose-700 mb-1">{t('finishing_label')}:</p>
-                  <p className="text-xs text-rose-600 font-medium">{previewCalc.finishingName}</p>
-                </div>
-              )}
-              <div className="mb-4">
-                <h3 className="text-xs font-bold text-slate-700 mb-2">Biaya Tambahan</h3>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs"><span className="text-slate-500">{t('ongkos_packing')}</span><span className="font-medium text-slate-700">{previewCalc.packingCost && parseInt(previewCalc.packingCost) > 0 ? `Rp ${parseInt(previewCalc.packingCost).toLocaleString('id-ID')}` : '-'}</span></div>
-                  <div className="flex justify-between text-xs"><span className="text-slate-500">{t('ongkos_kirim')}</span><span className="font-medium text-slate-700">{previewCalc.shippingCost && parseInt(previewCalc.shippingCost) > 0 ? `Rp ${parseInt(previewCalc.shippingCost).toLocaleString('id-ID')}` : '-'}</span></div>
-                </div>
-              </div>
-              <div className="p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-white">Total Harga</span>
-                  <span className="text-2xl font-extrabold text-white">Rp {previewCalc.totalPrice.toLocaleString('id-ID')}</span>
-                </div>
-                {(() => {
-                  const previewQty = parseInt(previewCalc.quantity) || 0
-                  const previewHPL = previewQty > 0 ? previewCalc.totalPrice / previewQty : 0
-                  return previewQty > 0 ? (
-                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/30">
-                      <span className="text-xs font-medium text-emerald-100">Harga Perlembar</span>
-                      <span className="text-2xl font-extrabold text-white">Rp {previewHPL.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
+
+                {/* === INFORMASI CETAKAN === */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-5 h-5 rounded bg-blue-100 flex items-center justify-center">
+                      <FileText className="w-3 h-3 text-blue-600" />
                     </div>
-                  ) : null
-                })()}
+                    <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-2.5">
+                      <p className="text-[10px] text-blue-500 font-medium">Nama Customer</p>
+                      <p className="text-sm font-bold text-blue-800">{formData.customerName || '-'}</p>
+                    </div>
+                    <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5">
+                      <p className="text-[10px] text-indigo-500 font-medium">Nama Cetakan</p>
+                      <p className="text-sm font-bold text-indigo-800">{previewCalc.printName || '-'}</p>
+                    </div>
+                    <div className="bg-purple-50 border border-purple-100 rounded-lg p-2.5">
+                      <p className="text-[10px] text-purple-500 font-medium">Jumlah Cetakan</p>
+                      <p className="text-sm font-bold text-purple-800">{parseInt(previewCalc.quantity || '0').toLocaleString('id-ID')} <span className="text-xs font-normal text-purple-500">lembar</span></p>
+                    </div>
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                      <p className="text-[10px] text-slate-500 font-medium">Ukuran Potongan</p>
+                      <p className="text-sm font-bold text-slate-700">{formData.cutWidth && formData.cutHeight ? `${formData.cutWidth} × ${formData.cutHeight} cm` : '-'}</p>
+                    </div>
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                      <p className="text-[10px] text-slate-500 font-medium">Warna Cetak</p>
+                      <p className="text-sm font-bold text-slate-700">
+                        {previewCalc.warna || 0} warna
+                        {previewCalc.warnaKhusus && parseInt(previewCalc.warnaKhusus) > 0 ? ` + ${previewCalc.warnaKhusus} khusus` : ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* === HARGA BAHAN KERTAS === */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-5 h-5 rounded bg-teal-100 flex items-center justify-center">
+                      <FileText className="w-3 h-3 text-teal-600" />
+                    </div>
+                    <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Harga Bahan Kertas</p>
+                  </div>
+                  <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div>
+                        <p className="text-sm font-bold text-teal-800">{previewCalc.paperName || '-'}</p>
+                        <p className="text-[10px] text-teal-500">
+                          {selectedPaper?.grammage || 0} gsm · Ukuran Bahan: {previewCalc.paperLength || '-'}×{previewCalc.paperWidth || '-'} cm
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-extrabold text-teal-700">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : formatRp((parseFloat(previewCalc.pricePerSheet) || 0) * (parseInt(previewCalc.quantity) || 0))}</p>
+                        <p className="text-[9px] text-teal-500">Total harga kertas</p>
+                      </div>
+                    </div>
+                    {parseInt(previewCalc.quantity || '0') > 0 && (
+                      <div className="mt-1.5 pt-1.5 border-t border-teal-200 text-[10px] text-teal-600">
+                        Harga per lembar: <strong>{formatRp(Math.round((totalPaperPrice || (parseFloat(previewCalc.pricePerSheet) || 0) * (parseInt(previewCalc.quantity) || 0)) / parseInt(previewCalc.quantity || '1')))}</strong>
+                        <span className="text-teal-400 ml-1">({parseInt(previewCalc.quantity || '0').toLocaleString('id-ID')} lbr)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* === ONGKOS CETAK === */}
+                {calculatedPrintingCost > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="w-5 h-5 rounded bg-blue-100 flex items-center justify-center">
+                        <Calculator className="w-3 h-3 text-blue-600" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">{t('ongkos_cetak_label')}</p>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-bold text-blue-800">Total Ongkos Cetak</p>
+                        <p className="text-lg font-extrabold text-blue-700">{formatRp(calculatedPrintingCost)}</p>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Nama Mesin</span>
+                          <span className="font-semibold text-slate-700">{previewCalc.machineName || '-'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Jumlah Warna</span>
+                          <span className="font-semibold text-slate-700">
+                            {previewCalc.warna || 0} warna
+                            {previewCalc.warnaKhusus && parseInt(previewCalc.warnaKhusus) > 0 ? <span className="text-amber-600"> + {previewCalc.warnaKhusus} khusus</span> : ''}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Harga Plat</span>
+                          <span className="font-semibold text-slate-700">{formatRp(platTotal)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* === ONGKOS CETAK 2 === */}
+                {calculatedPrintingCost2 > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="w-5 h-5 rounded bg-fuchsia-100 flex items-center justify-center">
+                        <Calculator className="w-3 h-3 text-fuchsia-600" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Ongkos Cetak 2</p>
+                    </div>
+                    <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-bold text-fuchsia-800">Total Ongkos Cetak 2</p>
+                        <p className="text-lg font-extrabold text-fuchsia-700">{formatRp(calculatedPrintingCost2)}</p>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Nama Mesin</span>
+                          <span className="font-semibold text-slate-700">{selectedMachine2?.machineName || '-'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Harga Plat</span>
+                          <span className="font-semibold text-slate-700">{formatRp(platTotal2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* === FINISHING === */}
+                {previewCalc.finishingName && previewCalc.finishingName !== '' && calculatedFinishingCost > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="w-5 h-5 rounded bg-rose-100 flex items-center justify-center">
+                        <Layers className="w-3 h-3 text-rose-600" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">{t('finishing_label')}</p>
+                    </div>
+                    <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-bold text-rose-800">{previewCalc.finishingName}</p>
+                        <p className="text-lg font-extrabold text-rose-700">{formatRp(calculatedFinishingCost)}</p>
+                      </div>
+                      {selectedFinishingItems.length > 0 && (
+                        <div className="mt-1.5 pt-1.5 border-t border-rose-200">
+                          <p className="text-[9px] text-rose-500 font-medium mb-0.5">Detail:</p>
+                          <div className="space-y-1">
+                            {selectedFinishingItems.map((f, i) => {
+                              const r = getFinishingCost(f)
+                              return <p key={i} className="text-[9px] text-rose-600 leading-relaxed">{f.name}: {r.breakdown}</p>
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* === BIAYA TAMBAHAN === */}
+                {(summaryPacking > 0 || summaryShipping > 0 || calculatedGlueCost > 0 || calculatedGlueBoronganSheet > 0 || summaryBiayaLain1 > 0 || summaryBiayaLain2 > 0) && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="w-5 h-5 rounded bg-amber-100 flex items-center justify-center">
+                        <Truck className="w-3 h-3 text-amber-600" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Biaya Tambahan</p>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        {summaryPacking > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Package className="w-4 h-4 text-amber-500" />
+                            <div>
+                              <p className="text-[9px] text-amber-500">Ongkos Packing</p>
+                              <p className="text-sm font-bold text-amber-700">{formatRp(summaryPacking)}</p>
+                            </div>
+                          </div>
+                        )}
+                        {summaryShipping > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Truck className="w-4 h-4 text-amber-500" />
+                            <div>
+                              <p className="text-[9px] text-amber-500">Ongkos Kirim</p>
+                              <p className="text-sm font-bold text-amber-700">{formatRp(summaryShipping)}</p>
+                            </div>
+                          </div>
+                        )}
+                        {calculatedGlueCost > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Cog className="w-4 h-4 text-amber-500" />
+                            <div>
+                              <p className="text-[9px] text-amber-500">Ongkos Lem</p>
+                              <p className="text-sm font-bold text-amber-700">{formatRp(calculatedGlueCost)}</p>
+                            </div>
+                          </div>
+                        )}
+                        {calculatedGlueBoronganSheet > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Cog className="w-4 h-4 text-amber-500" />
+                            <div>
+                              <p className="text-[9px] text-amber-500">Lem Borongan</p>
+                              <p className="text-sm font-bold text-amber-700">{formatRp(calculatedGlueBoronganSheet)}</p>
+                            </div>
+                          </div>
+                        )}
+                        {summaryBiayaLain1 > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Banknote className="w-4 h-4 text-amber-500" />
+                            <div>
+                              <p className="text-[9px] text-amber-500">Biaya Lain-lain 1</p>
+                              <p className="text-sm font-bold text-amber-700">{formatRp(summaryBiayaLain1)}</p>
+                            </div>
+                          </div>
+                        )}
+                        {summaryBiayaLain2 > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Banknote className="w-4 h-4 text-amber-500" />
+                            <div>
+                              <p className="text-[9px] text-amber-500">Biaya Lain-lain 2</p>
+                              <p className="text-sm font-bold text-amber-700">{formatRp(summaryBiayaLain2)}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* === PROFIT === */}
+                {profitPercent > 0 && summaryProfitAmount > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="w-5 h-5 rounded bg-orange-100 flex items-center justify-center">
+                        <Percent className="w-3 h-3 text-orange-600" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Profit</p>
+                    </div>
+                    <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-orange-600">Profit ({profitPercent}%)</p>
+                        <p className="text-lg font-bold text-orange-700">{formatRp(summaryProfitAmount)}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* === RINGKASAN HARGA === */}
+                <div>
+                  <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Ringkasan Harga</p>
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                      <span className="text-xs text-slate-500">Harga Kertas</span>
+                      <span className="text-xs font-semibold text-teal-700">{formatRp(totalPaperPrice)}</span>
+                    </div>
+                    {calculatedPrintingCost > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Ongkos Cetak</span>
+                        <span className="text-xs font-semibold text-blue-700">{formatRp(calculatedPrintingCost)}</span>
+                      </div>
+                    )}
+                    {calculatedPrintingCost2 > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Ongkos Cetak 2</span>
+                        <span className="text-xs font-semibold text-fuchsia-700">{formatRp(calculatedPrintingCost2)}</span>
+                      </div>
+                    )}
+                    {calculatedFinishingCost > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Finishing</span>
+                        <span className="text-xs font-semibold text-rose-700">{formatRp(calculatedFinishingCost)}</span>
+                      </div>
+                    )}
+                    {summaryPacking > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Ongkos Packing</span>
+                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryPacking)}</span>
+                      </div>
+                    )}
+                    {summaryShipping > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Ongkos Kirim</span>
+                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryShipping)}</span>
+                      </div>
+                    )}
+                    {calculatedGlueCost > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Ongkos Lem</span>
+                        <span className="text-xs font-semibold text-amber-700">{formatRp(calculatedGlueCost)}</span>
+                      </div>
+                    )}
+                    {calculatedGlueBoronganSheet > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Lem Borongan</span>
+                        <span className="text-xs font-semibold text-amber-700">{formatRp(calculatedGlueBoronganSheet)}</span>
+                      </div>
+                    )}
+                    {summaryBiayaLain1 > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Biaya Lain-lain 1</span>
+                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryBiayaLain1)}</span>
+                      </div>
+                    )}
+                    {summaryBiayaLain2 > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Biaya Lain-lain 2</span>
+                        <span className="text-xs font-semibold text-amber-700">{formatRp(summaryBiayaLain2)}</span>
+                      </div>
+                    )}
+                    {summaryProfitAmount > 0 && (
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs text-slate-500">Profit ({profitPercent}%)</span>
+                        <span className="text-xs font-semibold text-orange-700">{formatRp(summaryProfitAmount)}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <span className="text-xs font-medium text-slate-500">Sub Total</span>
+                      <span className="text-xs font-bold text-slate-700">{formatRp(summarySubTotal)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* === GRAND TOTAL === */}
+                <div className="bg-slate-900 text-white rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-slate-400">Grand Total</p>
+                    <p className="text-2xl font-extrabold text-emerald-400">{formatRp(summaryGrandTotal)}</p>
+                  </div>
+                  <div className="text-right text-[10px] text-slate-400 space-y-0.5">
+                    <p>Sub Total: {formatRp(summarySubTotal)}</p>
+                    {summaryProfitAmount > 0 && <p>Profit: {formatRp(summaryProfitAmount)}</p>}
+                  </div>
+                </div>
               </div>
-            </div>
+
+              {/* Action Buttons */}
+              <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-3">
+                <button onClick={handlePrint}
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+                  <Printer className="w-4 h-4" /> Cetak
+                </button>
+                <button onClick={handlePdf} disabled={isGeneratingPdf}
+                  className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors">
+                  {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />PDF...</> : <><FileImage className="w-4 h-4" /> PDF</>}
+                </button>
+              </div>
+            </>
           )}
-          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-3">
-            <button onClick={() => { if (previewCalc) handlePrint(previewCalc) }} className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
-              <Printer className="w-4 h-4" /> Cetak
-            </button>
-          </div>
         </DialogContent>
       </Dialog>
     </DashboardLayout>
