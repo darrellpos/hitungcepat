@@ -685,7 +685,7 @@ function HitungCetakanPage() {
         <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-[19px]">
 
           {/* ========== COLUMN 1: INFO & HARGA ========== */}
-          <div className="flex-1 lg:overflow-y-auto min-w-0 hide-scrollbar">
+          <div className="flex-1 min-w-0">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 
               {/* Section 1: Informasi Cetakan */}
@@ -1003,7 +1003,7 @@ function HitungCetakanPage() {
 
           {/* ========== COLUMN 2: ONGKOS CETAK (Desktop Only) ========== */}
           <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               {/* Ongkos Cetak */}
               <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-purple-600" />} label={t('ongkos_cetak_label')} />
               <div className="px-2.5 py-2">
@@ -1084,7 +1084,7 @@ function HitungCetakanPage() {
 
           {/* ========== COLUMN 3: FINISHING & ONGKOS LEM (Desktop Only) ========== */}
           <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               {/* Finishing */}
               <SectionHeader icon={<Layers className="w-3.5 h-3.5 text-rose-600" />} label={t('finishing_label')} badge={selectedFinishingItems.length} />
               <div className="px-2.5 py-2 space-y-1.5">
