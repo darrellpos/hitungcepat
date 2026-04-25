@@ -113,9 +113,9 @@ export function PotongKertasPreview({ results, customerName, paperName }: Potong
       </div>
 
       {/* Strategy */}
-      <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 max-w-[85%] mx-auto mb-4">
-        <p className="text-[10px] text-indigo-600 font-medium">Strategi Optimasi</p>
-        <p className="text-sm font-bold text-indigo-700">{strategy}</p>
+      <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-4">
+        <p className="text-[10px] text-indigo-600 font-medium text-center">Strategi Optimasi</p>
+        <p className="text-sm font-bold text-indigo-700 text-center">{strategy}</p>
       </div>
 
       {/* Diagram - wrapped in error boundary */}
@@ -235,9 +235,9 @@ export function PotongKertasPreviewPrint({ results, customerName, paperName }: P
         </div>
       </div>
 
-      <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 max-w-[85%] mx-auto">
-        <p className="text-[10px] text-indigo-600 font-medium">Strategi Optimasi</p>
-        <p className="text-sm font-bold text-indigo-700">{strategy}</p>
+      <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+        <p className="text-[10px] text-indigo-600 font-medium text-center">Strategi Optimasi</p>
+        <p className="text-sm font-bold text-indigo-700 text-center">{strategy}</p>
       </div>
 
       {/* Steps */}

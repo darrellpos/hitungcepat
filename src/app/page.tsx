@@ -794,9 +794,9 @@ function CalculatorPage() {
             </div>
 
             {/* Strategy */}
-            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 max-w-[85%] mx-auto">
-              <p className="text-[10px] text-indigo-600 font-medium">Strategi Optimasi</p>
-              <p className="text-xl font-bold text-indigo-700">{results?.strategy}</p>
+            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+              <p className="text-[10px] text-indigo-600 font-medium text-center">Strategi Optimasi</p>
+              <p className="text-xl font-bold text-indigo-700 text-center">{results?.strategy}</p>
             </div>
 
             {/* Diagram */}
