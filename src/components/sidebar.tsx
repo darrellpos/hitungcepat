@@ -173,17 +173,17 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                 <img
                   src={companyLogo || DEFAULT_LOGO}
                   alt="Logo"
-                  className="w-[59px] h-[59px] rounded-xl object-cover shadow-md"
+                  className="w-[65px] h-[65px] rounded-xl object-cover shadow-md"
                 />
               </div>
             ) : (
-              <div className="w-[54px] h-[54px] rounded-xl bg-blue-600 flex items-center justify-center">
-                <Scissors className="w-6 h-6 text-white" />
+              <div className="w-[59px] h-[59px] rounded-xl bg-blue-600 flex items-center justify-center">
+                <Scissors className="w-7 h-7 text-white" />
               </div>
             )}
             <div className="text-center">
-              <h1 className="text-base font-bold" style={{ color: 'var(--app-sidebar-text)' }}>{displayName}</h1>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--app-sidebar-text-muted)' }}>{t('app_tagline')}</p>
+              <h1 className="text-lg font-bold" style={{ color: 'var(--app-sidebar-text)' }}>{displayName}</h1>
+              <p className="text-[13px] mt-0.5" style={{ color: 'var(--app-sidebar-text-muted)' }}>{t('app_tagline')}</p>
             </div>
           </div>
 
