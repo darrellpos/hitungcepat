@@ -989,7 +989,6 @@ function HitungCetakanPage() {
                   {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
                   {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Lain 1</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
                   {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Lain 2</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
-                  {summaryProfitAmount > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Profit ({profitPercent}%)</span><span className="text-slate-400 font-medium">{formatRp(summaryProfitAmount)}</span></div>}
                 </div>
               </div>
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
@@ -1165,7 +1164,6 @@ function HitungCetakanPage() {
                   {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
                   {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Lain 1</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
                   {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Lain 2</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
-                  {summaryProfitAmount > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Profit ({profitPercent}%)</span><span className="text-slate-400 font-medium">{formatRp(summaryProfitAmount)}</span></div>}
                 </div>
               </div>
               <div className="px-3 pb-3 flex flex-col gap-1.5 mt-auto">
@@ -1587,12 +1585,6 @@ function HitungCetakanPage() {
                       <div className="flex items-center justify-between px-1 py-1">
                         <span className="text-[10px] text-slate-400">Biaya Lain-lain 2</span>
                         <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryBiayaLain2)}</span>
-                      </div>
-                    )}
-                    {summaryProfitAmount > 0 && (
-                      <div className="flex items-center justify-between px-1 py-1">
-                        <span className="text-[10px] text-slate-400">Profit ({profitPercent}%)</span>
-                        <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryProfitAmount)}</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between px-1 py-1">
