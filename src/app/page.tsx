@@ -19,6 +19,8 @@ const CuttingDiagram = dynamic(
 
 // Form state keys for localStorage persistence
 const STORAGE_KEY = 'potong-kertas-form'
+const STORAGE_VERSION_KEY = 'potong-kertas-form-version'
+const STORAGE_VERSION = 'v3' // increment to force reset on deploy
 
 interface FormData {
   paperWidth: string
@@ -44,6 +46,12 @@ function getInitialFormState(): FormData {
     }
   }
   try {
+    const savedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+    if (savedVersion !== STORAGE_VERSION) {
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION)
+      return null
+    }
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) return JSON.parse(saved)
   } catch {}
