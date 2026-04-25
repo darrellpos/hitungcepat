@@ -173,17 +173,17 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                 <img
                   src={companyLogo || DEFAULT_LOGO}
                   alt="Logo"
-                  className="w-[60px] h-[60px] rounded-xl object-cover shadow-md"
+                  className="w-[44px] h-[44px] rounded-xl object-cover shadow-md"
                 />
               </div>
             ) : (
-              <div className="w-[56px] h-[56px] rounded-xl bg-blue-600 flex items-center justify-center">
-                <Scissors className="w-7 h-7 text-white" />
+              <div className="w-[40px] h-[40px] rounded-xl bg-blue-600 flex items-center justify-center">
+                <Scissors className="w-5 h-5 text-white" />
               </div>
             )}
             <div className="text-center">
-              <h1 className="text-sm font-bold" style={{ color: 'var(--app-sidebar-text)' }}>{displayName}</h1>
-              <p className="text-[10px] mt-0.5" style={{ color: 'var(--app-sidebar-text-muted)' }}>{t('app_tagline')}</p>
+              <h1 className="text-xs font-bold" style={{ color: 'var(--app-sidebar-text)' }}>{displayName}</h1>
+              <p className="text-[9px] mt-0.5" style={{ color: 'var(--app-sidebar-text-muted)' }}>{t('app_tagline')}</p>
             </div>
           </div>
 
@@ -306,13 +306,13 @@ export function MobileHeader({ onMenuToggle, username }: { onMenuToggle: () => v
         </button>
         <div className="flex items-center gap-2">
           {(companyLogo || DEFAULT_LOGO) ? (
-            <img src={companyLogo || DEFAULT_LOGO} alt="Logo" className="w-[40px] h-[40px] rounded-xl object-cover animate-float shadow-md shadow-blue-500/15" />
+            <img src={companyLogo || DEFAULT_LOGO} alt="Logo" className="w-[32px] h-[32px] rounded-lg object-cover animate-float shadow-md shadow-blue-500/15" />
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-              <Scissors className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+              <Scissors className="w-4 h-4 text-white" />
             </div>
           )}
-          <span className="font-bold text-slate-800 text-base truncate max-w-[200px]">{displayName}</span>
+          <span className="font-bold text-slate-800 text-sm truncate max-w-[200px]">{displayName}</span>
         </div>
         <div className="w-8">
           {/* Spacer for balance */}
