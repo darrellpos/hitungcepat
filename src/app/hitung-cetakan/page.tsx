@@ -658,10 +658,10 @@ function HitungCetakanPage() {
   })()
 
   // Section header component
-  const SectionHeader = ({ icon, label, badge }: { icon: React.ReactNode; label: string; badge?: number }) => (
+  const SectionHeader = ({ icon, label, badge }: { icon: React.ReactNode; label: React.ReactNode; badge?: number }) => (
     <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-100 bg-slate-50/60">
       <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">{icon}</div>
-      <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">{label}</h2>
+      <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide flex-1 min-w-0">{label}</h2>
       {badge !== undefined && badge > 0 && (
         <span className="text-[11px] font-semibold text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded-full">{badge}</span>
       )}
@@ -871,9 +871,9 @@ function HitungCetakanPage() {
               </div>
 
               {/* Ongkos Lem */}
-              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
+              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label={<>Ongkos Lem <span className="ml-auto text-[11px] font-bold text-cyan-600">{calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : ''}</span></>} />
               <div className="px-3 py-3">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Cm yang mau dilem</label>
                     <div className="relative">
@@ -888,29 +888,19 @@ function HitungCetakanPage() {
                       <input type="number" step="0.01" placeholder="0" value={formData.glueCostPerCm} onChange={(e) => setFormData({ ...formData, glueCostPerCm: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
-                  <div>
-                    <label className={labelClass}>Total Ongkos Lem</label>
-                    <ValueBox label="Total Lem" value={calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-sky-50 border-cyan-200" />
-                  </div>
                 </div>
               </div>
 
               {/* Ongkos Lem Borongan moved to right column (desktop) */}
               {/* Mobile-only Ongkos Lem Borongan */}
               <div className="lg:hidden">
-                <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label="Ongkos Lem Borongan" />
+                <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label={<>Ongkos Lem Borongan <span className="ml-auto text-[11px] font-bold text-indigo-600">{calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : ''}</span></>} />
                 <div className="px-3 py-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className={labelClass}>Harga Lem per Lembar</label>
-                      <div className="relative">
-                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
-                        <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
-                      </div>
-                    </div>
-                    <div>
-                      <label className={labelClass}>Total Harga Lem per Lembar</label>
-                      <ValueBox label="Total Borongan" value={calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200" />
+                  <div>
+                    <label className={labelClass}>Harga Lem per Lembar</label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
+                      <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
                 </div>
@@ -1126,9 +1116,9 @@ function HitungCetakanPage() {
               </div>
 
               {/* Ongkos Lem */}
-              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
+              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label={<>Ongkos Lem <span className="ml-auto text-[11px] font-bold text-cyan-600">{calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : ''}</span></>} />
               <div className="p-3">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Cm dilem</label>
                     <div className="relative">
@@ -1143,27 +1133,17 @@ function HitungCetakanPage() {
                       <input type="number" step="0.01" placeholder="0" value={formData.glueCostPerCm} onChange={(e) => setFormData({ ...formData, glueCostPerCm: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
                   </div>
-                  <div>
-                    <label className={labelClass}>Total</label>
-                    <ValueBox label="Total Lem" value={calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-sky-50 border-cyan-200" />
-                  </div>
                 </div>
               </div>
 
               {/* Ongkos Lem Borongan */}
-              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label="Ongkos Lem Borongan" />
+              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label={<>Ongkos Lem Borongan <span className="ml-auto text-[11px] font-bold text-indigo-600">{calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : ''}</span></>} />
               <div className="p-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelClass}>Harga/Lembar</label>
-                    <div className="relative">
-                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
-                      <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Total Harga</label>
-                    <ValueBox label="Total Borongan" value={calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200" />
+                <div>
+                  <label className={labelClass}>Harga/Lembar</label>
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
+                    <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
                   </div>
                 </div>
               </div>
