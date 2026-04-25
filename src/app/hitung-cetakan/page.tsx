@@ -701,7 +701,7 @@ function HitungCetakanPage() {
                       {customers.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-1 gap-1">
                     <div>
                       <label className={labelClass}>{t('nama_cetakan')} <span className="text-red-500">*</span></label>
                       <input type="text" placeholder="Nama cetakan" value={formData.printName} onChange={(e) => setFormData({ ...formData, printName: e.target.value })} className={inputClass} />
