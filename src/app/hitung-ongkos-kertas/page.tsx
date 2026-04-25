@@ -125,64 +125,156 @@ export default function HitungOngkosKertasPage() {
 
   const handlePrint = () => {
     if (!calculations) { toast.error('Lengkapi semua data terlebih dahulu'); return }
-    const printWindow = window.open('', '', 'height=800,width=700')
+    const printWindow = window.open('', '', 'height=900,width=700')
     if (!printWindow) { toast.error('Gagal membuka jendela print'); return }
     const now = new Date().toLocaleString('id-ID')
     const paperName = selectedPaper ? selectedPaper.name : 'Custom'
+    const utilColor = calculations.utilization >= 70 ? '#10b981' : calculations.utilization >= 50 ? '#f59e0b' : '#ef4444'
+    const utilBg = calculations.utilization >= 70 ? '#ecfdf5' : calculations.utilization >= 50 ? '#fffbeb' : '#fef2f2'
+    const utilBorder = calculations.utilization >= 70 ? '#a7f3d0' : calculations.utilization >= 50 ? '#fde68a' : '#fecaca'
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hitung Ongkos Kertas</title>
-      <style>body{font-family:Arial,sans-serif;padding:20px;font-size:12px;color:#1e293b}
-      h1{text-align:center;font-size:18px;margin-bottom:4px}
-      .subtitle{text-align:center;color:#64748b;font-size:11px;margin-bottom:16px}
-      .info{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:16px;font-size:11px}
-      .info span{color:#64748b}
-      table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px}
-      th{background:#f8fafc;border:1px solid #ddd;padding:6px;font-weight:600;text-align:left}
-      td{border:1px solid #ddd;padding:6px}
-      .right{text-align:right}
-      .total{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-      .total .label{font-size:13px;font-weight:600}
-      .total .value{font-size:20px;font-weight:800}
-      .warn{background:#fef3c7;border:1px solid #fbbf24;border-radius:6px;padding:8px 12px;margin-bottom:16px;font-size:11px;color:#92400e}
-      .footer{text-align:center;color:#94a3b8;font-size:10px;margin-top:16px}
+      <style>
+        @page { size: A4; margin: 10mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #1e293b; width: 190mm; min-height: 277mm; }
+        
+        .page { width: 100%; min-height: 100%; display: flex; flex-direction: column; }
+        
+        .header { text-align: center; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; }
+        .header h1 { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+        .header .subtitle { font-size: 11px; color: #64748b; }
+        
+        .main { flex: 1; display: flex; gap: 14px; }
+        
+        .left { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .right { width: 160px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+        
+        .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; padding: 6px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .section-title .icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        
+        .info-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .info-item { background: #f8fafc; border-radius: 6px; padding: 6px 8px; }
+        .info-item .label { font-size: 9px; color: #64748b; font-weight: 500; }
+        .info-item .value { font-size: 11px; font-weight: 700; color: #1e293b; margin-top: 1px; }
+        .info-full { grid-column: span 2; }
+        
+        .preview-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+        .preview-label { font-size: 9px; color: #64748b; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+        .paper-preview { border: 2px dashed #cbd5e1; border-radius: 4px; margin: 0 auto; max-width: 160px; position: relative; overflow: hidden; }
+        .paper-grid { position: absolute; inset: 4px; display: grid; gap: 2px; }
+        .paper-cell { background: rgba(52, 211, 153, 0.3); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 1px; }
+        .preview-note { text-align: center; font-size: 9px; color: #64748b; margin-top: 6px; }
+        
+        .detail-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .detail-table th { background: #f1f5f9; padding: 5px 8px; text-align: left; font-weight: 600; border: 1px solid #e2e8f0; font-size: 9px; text-transform: uppercase; color: #475569; }
+        .detail-table td { padding: 5px 8px; border: 1px solid #e2e8f0; }
+        .detail-table tr:nth-child(even) td { background: #f8fafc; }
+        .text-right { text-align: right; }
+        .text-bold { font-weight: 700; }
+        
+        .warning-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 10px; font-size: 10px; color: #92400e; display: flex; align-items: flex-start; gap: 6px; }
+        
+        .value-box { height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; border-radius: 6px; border: 1px solid; }
+        .value-box .lbl { font-size: 9px; font-weight: 500; color: #475569; }
+        .value-box .val { font-size: 10px; font-weight: 700; color: #1e293b; }
+        
+        .total-card { background: linear-gradient(135deg, #f59e0b, #ea580c); border-radius: 10px; padding: 12px; color: white; }
+        .total-card .row1 { display: flex; justify-content: space-between; align-items: center; }
+        .total-card .row1 .label { font-size: 11px; font-weight: 600; }
+        .total-card .row1 .value { font-size: 16px; font-weight: 800; }
+        .total-card .divider { height: 1px; background: rgba(255,255,255,0.25); margin: 8px 0; }
+        .total-card .row2 { display: flex; justify-content: space-between; align-items: center; }
+        .total-card .row2 .label { font-size: 9px; opacity: 0.8; }
+        .total-card .row2 .value { font-size: 10px; font-weight: 700; }
+        
+        .sub-row { height: 24px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; background: #f8fafc; border-radius: 5px; }
+        .sub-row .lbl { font-size: 9px; color: #64748b; }
+        .sub-row .val { font-size: 10px; font-weight: 600; color: #334155; }
+        
+        .footer { text-align: center; padding-top: 10px; border-top: 1px solid #e2e8f0; margin-top: auto; }
+        .footer p { font-size: 9px; color: #94a3b8; }
+        
+        @media print {
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
       </style></head><body>
-      <h1>Hitung Ongkos Kertas</h1>
-      <p class="subtitle">${namaCetakan || '-'} · Dicetak: ${now}</p>
-      <div class="info">
-        <span>Kertas:</span> <strong>${paperName}</strong> &nbsp;|&nbsp;
-        <span>Ukuran Kertas:</span> <strong>${paperWidth} × ${paperHeight} cm</strong> &nbsp;|&nbsp;
-        <span>Ukuran Potong:</span> <strong>${cw} × ${ch} cm</strong> &nbsp;|&nbsp;
-        <span>Jumlah:</span> <strong>${qty.toLocaleString('id-ID')} pcs</strong>
+      <div class="page">
+        <div class="header">
+          <h1>Hitung Ongkos Kertas</h1>
+          <div class="subtitle">${namaCetakan || 'Tanpa Nama'} · Dicetak: ${now}</div>
+        </div>
+        
+        <div class="main">
+          <div class="left">
+            <div class="section-title"><span class="icon" style="background:#dbeafe;color:#2563eb;">&#9432;</span> Informasi Kertas</div>
+            <div class="info-card">
+              <div class="info-grid">
+                <div class="info-item"><div class="label">Jenis Kertas</div><div class="value">${paperName}</div></div>
+                <div class="info-item"><div class="label">Ukuran Kertas</div><div class="value">${paperWidth} × ${paperHeight} cm</div></div>
+                <div class="info-item"><div class="label">Gramatur</div><div class="value">${grammage} gsm</div></div>
+                <div class="info-item"><div class="label">Harga per Rim</div><div class="value">Rp ${pricePerRim.toLocaleString('id-ID')}</div></div>
+                <div class="info-item"><div class="label">Ukuran Potongan</div><div class="value">${cw} × ${ch} cm</div></div>
+                <div class="info-item"><div class="label">Jumlah Pesanan</div><div class="value">${qty.toLocaleString('id-ID')} pcs</div></div>
+              </div>
+            </div>
+            
+            ${calculations.utilization < 50 ? '<div class="warning-card">⚠️ Pemanfaatan kertas rendah (' + calculations.utilization.toFixed(1) + '%). Pertimbangkan ukuran kertas yang lebih sesuai.</div>' : ''}
+            
+            <div class="section-title"><span class="icon" style="background:#dcfce7;color:#16a34a;">&#9986;</span> Preview Tata Letak</div>
+            <div class="preview-card">
+              <div class="paper-preview" style="aspect-ratio: ${paperWidth}/${paperHeight};">
+                <div class="paper-grid" style="grid-template-columns: repeat(${calculations.piecesX}, 1fr); grid-template-rows: repeat(${calculations.piecesY}, 1fr);">
+                  ${Array.from({ length: calculations.piecesPerSheet }).map(() => '<div class="paper-cell"></div>').join('')}
+                </div>
+              </div>
+              <div class="preview-note">${calculations.piecesX} × ${calculations.piecesY} = ${calculations.piecesPerSheet} pcs/lembar</div>
+            </div>
+            
+            <div class="section-title"><span class="icon" style="background:#fef3c7;color:#d97706;">&#9776;</span> Detail Perhitungan</div>
+            <table class="detail-table">
+              <thead><tr><th>Keterangan</th><th class="text-right">Nilai</th></tr></thead>
+              <tbody>
+                <tr><td>Potongan per Baris (X)</td><td class="text-right">${calculations.piecesX} pcs</td></tr>
+                <tr><td>Potongan per Kolom (Y)</td><td class="text-right">${calculations.piecesY} pcs</td></tr>
+                <tr><td class="text-bold">Potongan per Lembar</td><td class="text-right text-bold">${calculations.piecesPerSheet} pcs</td></tr>
+                <tr><td>Lembar Dibutuhkan (persis)</td><td class="text-right">${calculations.sheetsExact.toFixed(2)} lbr</td></tr>
+                <tr><td>Lembar Dibutuhkan (+waste ${waste}%)</td><td class="text-right text-bold">${calculations.sheetsWithWaste} lbr</td></tr>
+                <tr><td>Total Potongan (termasuk sisa)</td><td class="text-right">${calculations.actualPieces.toLocaleString('id-ID')} pcs</td></tr>
+                <tr><td>Sisa Potongan</td><td class="text-right">${calculations.wastePcs.toLocaleString('id-ID')} pcs</td></tr>
+                <tr><td>Harga per Lembar Kertas</td><td class="text-right">Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="right">
+            <div class="section-title" style="padding:5px 8px;"><span class="icon" style="background:#dcfce7;color:#16a34a;font-size:8px;">&#9638;</span> Hasil</div>
+            
+            <div class="value-box" style="background:#eff6ff;border-color:#bfdbfe;"><span class="lbl">Potongan/Lembar</span><span class="val">${calculations.piecesPerSheet} pcs (${calculations.piecesX}×${calculations.piecesY})</span></div>
+            <div class="value-box" style="background:${utilBg};border-color:${utilBorder};"><span class="lbl">Pemanfaatan Kertas</span><span class="val" style="color:${utilColor};">${calculations.utilization.toFixed(1)}%</span></div>
+            <div class="value-box" style="background:#f5f3ff;border-color:#ddd6fe;"><span class="lbl">Lembar Dibutuhkan</span><span class="val">${calculations.sheetsWithWaste} lbr (+${waste}%)</span></div>
+            <div class="value-box" style="background:#ecfeff;border-color:#a5f3fc;"><span class="lbl">Total Potongan</span><span class="val">${calculations.actualPieces.toLocaleString('id-ID')} pcs</span></div>
+            <div class="value-box" style="background:#fff7ed;border-color:#fed7aa;"><span class="lbl">Sisa Potongan</span><span class="val">${calculations.wastePcs.toLocaleString('id-ID')} pcs</span></div>
+            
+            <div style="border-top:1px solid #e2e8f0;padding-top:8px;margin-top:4px;">
+              <div class="sub-row"><span class="lbl">Ongkos / Potongan</span><span class="val">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</span></div>
+              <div class="sub-row" style="margin-top:4px;"><span class="lbl">Total Berat</span><span class="val">${calculations.totalWeightKg.toFixed(2)} kg</span></div>
+            </div>
+            
+            <div class="total-card">
+              <div class="row1"><span class="label">Total Ongkos Kertas</span><span class="value">Rp ${calculations.totalPaperCost.toLocaleString('id-ID')}</span></div>
+              <div class="divider"></div>
+              <div class="row2"><span class="label">Untuk ${qty.toLocaleString('id-ID')} pcs</span><span class="value">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}/pcs</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer"><p>DarrellPOS · Kalkulator Hitung Cetakan</p></div>
       </div>
-      ${calculations.utilization < 50 ? '<div class="warn">⚠️ Pemanfaatan kertas rendah (' + calculations.utilization.toFixed(1) + '%). Pertimbangkan ukuran kertas yang lebih sesuai.</div>' : ''}
-      <table>
-        <thead><tr><th>Keterangan</th><th class="right">Nilai</th></tr></thead>
-        <tbody>
-          <tr><td>Jumlah per Baris (X)</td><td class="right">${calculations.piecesX} pcs</td></tr>
-          <tr><td>Jumlah per Kolom (Y)</td><td class="right">${calculations.piecesY} pcs</td></tr>
-          <tr><td><strong>Potongan per Lembar</strong></td><td class="right"><strong>${calculations.piecesPerSheet} pcs</strong></td></tr>
-          <tr><td>Pemanfaatan Kertas</td><td class="right">${calculations.utilization.toFixed(1)}%</td></tr>
-          <tr><td>Lembar Dibutuhkan (persis)</td><td class="right">${calculations.sheetsExact.toFixed(1)} lbr</td></tr>
-          <tr><td>Lembar Dibutuhkan (+waste ${waste}%)</td><td class="right"><strong>${calculations.sheetsWithWaste} lbr</strong></td></tr>
-          <tr><td>Total Potongan (termasuk sisa)</td><td class="right">${calculations.actualPieces.toLocaleString('id-ID')} pcs</td></tr>
-          <tr><td>Sisa Potongan</td><td class="right">${calculations.wastePcs.toLocaleString('id-ID')} pcs</td></tr>
-          <tr><td>Harga per Lembar Kertas</td><td class="right">Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}</td></tr>
-        </tbody>
-      </table>
-      <div class="total">
-        <span class="label">Total Ongkos Kertas</span>
-        <span class="value">Rp ${calculations.totalPaperCost.toLocaleString('id-ID')}</span>
-      </div>
-      <table style="margin-top:12px">
-        <tbody>
-          <tr><td>Ongkos per Potongan</td><td class="right"><strong>Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</strong></td></tr>
-          <tr><td>Total Berat Kertas</td><td class="right">${calculations.totalWeightKg.toFixed(2)} kg</td></tr>
-        </tbody>
-      </table>
-      <div class="footer">DarrellPOS · Kalkulator Hitung Cetakan</div>
       </body></html>`
     printWindow.document.write(html)
     printWindow.document.close()
-    setTimeout(() => { printWindow.print() }, 250)
+    setTimeout(() => { printWindow.print() }, 400)
     toast.success('Mencetak...')
   }
 
