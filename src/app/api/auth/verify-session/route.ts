@@ -86,12 +86,26 @@ export async function POST(request: NextRequest) {
     // Admin and superadmin always have session tracking (regardless of single_device setting)
     const isAdminRole = role === 'admin' || role === 'superadmin'
 
+    // Load security settings (auto-logout, warning) in the same response
+    let securitySettings: { auto_logout_min: number; logout_warning_sec: number } = { auto_logout_min: 0, logout_warning_sec: 0 }
+    try {
+      const allSettings = await db.setting.findMany({
+        where: { key: { in: ['auto_logout_min', 'logout_warning_sec'] } }
+      })
+      for (const s of allSettings) {
+        if (s.key === 'auto_logout_min') securitySettings.auto_logout_min = parseInt(s.value || '0', 10) || 0
+        if (s.key === 'logout_warning_sec') securitySettings.logout_warning_sec = parseInt(s.value || '0', 10) || 0
+      }
+    } catch {}
+
     // Check single device setting
     const singleDeviceSetting = await db.setting.findUnique({ where: { key: 'single_device' } })
     const singleDevice = singleDeviceSetting?.value !== 'false'
 
+    const responseBase = { valid: true as const, permissions, securitySettings }
+
     if (!singleDevice && !isAdminRole) {
-      return NextResponse.json({ valid: true, permissions })
+      return NextResponse.json(responseBase)
     }
 
     // Get stored session for this username
@@ -101,7 +115,7 @@ export async function POST(request: NextRequest) {
 
     // If no stored session or session matches, it's valid
     if (!stored || stored.value === sessionId) {
-      return NextResponse.json({ valid: true, permissions })
+      return NextResponse.json(responseBase)
     }
 
     // Session mismatch - another device logged in
@@ -113,6 +127,7 @@ export async function POST(request: NextRequest) {
       warningMessage,
       forceLogoutAvailable: isAdminRole,
       permissions,
+      securitySettings,
     })
   } catch (error) {
     console.error('Verify session error:', error)
