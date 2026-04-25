@@ -72,3 +72,4 @@ run-server.sh
 push-to-github.sh
 watchdog.sh
 daemon.cjs
+.vercel
