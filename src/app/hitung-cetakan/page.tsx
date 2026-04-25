@@ -680,7 +680,7 @@ function HitungCetakanPage() {
 
   return (
     <DashboardLayout title={t('hitung_cetakan')} subtitle={t('subtitle_potong_kertas')}>
-      <div className="max-w-[1800px] mx-auto">
+      <div>
         <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-[19px]">
 
           {/* ========== COLUMN 1: INFO & HARGA ========== */}
