@@ -9,7 +9,6 @@ import { getAuthHeaders } from '@/lib/auth'
 import { useLanguage } from '@/contexts/language-context'
 import { Language, TranslationKey } from '@/lib/i18n'
 import { useCompanyStore } from '@/stores/company-store'
-import { useCompanyStore } from '@/stores/company-store'
 
 // Preset color palettes with stabilo (bright neon highlighter) colors
 // Background lightened 17% total, popup lightened 25% total
