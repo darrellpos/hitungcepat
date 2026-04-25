@@ -7,6 +7,7 @@ import { getAuthUser } from '@/lib/auth'
 import { useLanguage } from '@/contexts/language-context'
 import { toast } from 'sonner'
 import { applyThemeAfterLogin } from '@/contexts/theme-context'
+import { useCompanyBranding } from '@/stores/company-store'
 
 const DEFAULT_LOGO = '/company-logo.png'
 
@@ -41,8 +42,7 @@ export default function LoginPage() {
   const [demoRemaining, setDemoRemaining] = useState<number | null>(null)
 
   // Company branding
-  const [companyName, setCompanyName] = useState<string | null>(null)
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
+  const { companyName, companyLogo } = useCompanyBranding(true)
   const [loginBgColor, setLoginBgColor] = useState<string | null>(null)
 
   const router = useRouter()
@@ -59,12 +59,10 @@ export default function LoginPage() {
       return
     }
 
-    // Fetch company branding (public endpoint, no auth needed)
+    // Fetch login bg color (public endpoint, no auth needed)
     fetch('/api/public-settings')
       .then(r => r.json())
       .then(data => {
-        if (data.company_name?.trim()) setCompanyName(data.company_name.trim())
-        if (data.company_logo?.trim()) setCompanyLogo(data.company_logo.trim())
         if (data.theme_login_color?.trim()) {
           setLoginBgColor(data.theme_login_color.trim())
           document.documentElement.style.setProperty('--app-login-bg', data.theme_login_color.trim())
