@@ -629,6 +629,7 @@ export default function RiwayatPage() {
                             <span className="text-[10px] font-bold text-slate-500">{formatRp(previewItem.subTotal)}</span>
                           </div>
                       </div>
+                      </div>
 
                       {/* Grand Total */}
                       <div className="bg-slate-900 text-white rounded-lg p-4 mt-3 flex items-center justify-between">
