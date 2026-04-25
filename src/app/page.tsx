@@ -517,14 +517,14 @@ function CalculatorPage() {
         {/* ===== LEFT: FORM ===== */}
         <div className="lg:w-[480px] xl:w-[510px] flex-shrink-0 flex flex-col gap-1.5 lg:overflow-y-auto lg:min-h-0 hide-scrollbar">
           {/* Info Cetak */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 lg:p-2">
-            <p className="text-[18px] lg:text-[16px] font-bold text-slate-700 mb-3 lg:mb-1">{t('info_cetak')}</p>
-            <div className="space-y-10 lg:space-y-6">
-              <div className="grid grid-cols-2 gap-3 lg:gap-1.5">
+          <div className="bg-white rounded-xl border border-slate-200 p-4">
+            <p className="text-[18px] font-bold text-slate-700 mb-3">{t('info_cetak')}</p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={lbl}>{t('nama_customer')}</label>
                   <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
-                    <SelectTrigger className="w-full h-10 lg:h-7 text-base lg:text-xs"><SelectValue placeholder={t('pilih_customer')} /></SelectTrigger>
+                    <SelectTrigger className="w-full h-10 text-base"><SelectValue placeholder={t('pilih_customer')} /></SelectTrigger>
                     <SelectContent>
                       {customers.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
                     </SelectContent>
@@ -538,7 +538,7 @@ function CalculatorPage() {
               <div>
                 <label className={lbl}>{t('nama_bahan_kertas')}</label>
                 <Select value={selectedPaperId} onValueChange={handlePaperChange}>
-                  <SelectTrigger className="w-full h-10 lg:h-7 text-base lg:text-xs"><SelectValue placeholder={t('pilih_kertas')} /></SelectTrigger>
+                  <SelectTrigger className="w-full h-10 text-base"><SelectValue placeholder={t('pilih_kertas')} /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="custom">
                       <div className="flex items-center gap-1.5">
@@ -550,7 +550,7 @@ function CalculatorPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3 lg:gap-1.5">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={lbl}>{t('gramatur')}</label>
                   <input type="number" step="1" min="0" placeholder="150" value={grammage} onChange={(e) => setGrammage(e.target.value)} className={inp} />
