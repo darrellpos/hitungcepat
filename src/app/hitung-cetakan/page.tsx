@@ -71,7 +71,7 @@ interface PrintCalculation {
 
 const inputClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors lg:py-1.5'
 const selectClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors bg-white appearance-none cursor-pointer lg:py-1.5'
-const labelClass = 'flex items-center gap-1.5 text-xs font-medium text-slate-700 mb-1.5'
+const labelClass = 'flex items-center gap-1.5 text-xs font-medium text-slate-700 mb-1'
 
 export default function HitungCetakanPageWrapper() {
   return (
@@ -659,8 +659,8 @@ function HitungCetakanPage() {
 
   // Section header component
   const SectionHeader = ({ icon, label, badge }: { icon: React.ReactNode; label: React.ReactNode; badge?: number }) => (
-    <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-100 bg-slate-50/60">
-      <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">{icon}</div>
+    <div className="flex items-center gap-2 px-4 py-1.5 border-b border-slate-100 bg-slate-50/60">
+      <div className="w-5 h-5 rounded-md bg-emerald-100 flex items-center justify-center">{icon}</div>
       <h2 className="text-[13px] font-bold text-slate-700 uppercase tracking-wide flex-1 min-w-0">{label}</h2>
       {badge !== undefined && badge > 0 && (
         <span className="text-[11px] font-semibold text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded-full">{badge}</span>
@@ -670,9 +670,9 @@ function HitungCetakanPage() {
 
   // Display value box
   const ValueBox = ({ label, value, gradient }: { label: string; value: string; gradient: string }) => (
-    <div className={`w-full h-[32px] flex items-center justify-between px-2.5 ${gradient} border rounded-lg`}>
-      <span className="text-[11px] font-medium text-slate-600">{label}</span>
-      <span className="text-xs font-bold">{value}</span>
+    <div className={`w-full h-[28px] flex items-center justify-between px-2.5 ${gradient} border rounded-lg`}>
+      <span className="text-[10px] font-medium text-slate-600">{label}</span>
+      <span className="text-[11px] font-bold">{value}</span>
     </div>
   )
 
@@ -1087,8 +1087,8 @@ function HitungCetakanPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
               {/* Finishing */}
               <SectionHeader icon={<Layers className="w-3.5 h-3.5 text-rose-600" />} label={t('finishing_label')} badge={selectedFinishingItems.length} />
-              <div className="p-3 space-y-2.5">
-                <div className="flex gap-2">
+              <div className="px-2.5 py-2 space-y-1.5">
+                <div className="flex gap-1.5">
                   <select id="finishing-select-desktop" className={selectClass} defaultValue="">
                     <option value="">-- Pilih finishing --</option>
                     {finishings.filter(f => !selectedFinishings.includes(f.id)).map((f) => (
@@ -1104,16 +1104,16 @@ function HitungCetakanPage() {
                   </Button>
                 </div>
                 {selectedFinishingItems.length > 0 && (
-                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                  <div className="space-y-1 max-h-28 overflow-y-auto">
                     {selectedFinishingItems.map((fin) => {
                       const { cost } = getFinishingCost(fin)
                       return (
-                        <div key={fin.id} className="flex items-center gap-1.5 p-1.5 bg-rose-50/80 border border-rose-200 rounded-lg">
-                          <div className="w-5 h-5 rounded bg-rose-100 flex items-center justify-center flex-shrink-0"><Layers className="w-2.5 h-2.5 text-rose-600" /></div>
+                        <div key={fin.id} className="flex items-center gap-1 p-1 bg-rose-50/80 border border-rose-200 rounded-lg">
+                          <div className="w-4 h-4 rounded bg-rose-100 flex items-center justify-center flex-shrink-0"><Layers className="w-2 h-2 text-rose-600" /></div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-medium text-slate-800 truncate">{fin.name}</p>
+                            <p className="text-[10px] font-medium text-slate-800 truncate">{fin.name}</p>
                           </div>
-                          <span className="text-[11px] font-bold text-rose-700 flex-shrink-0">Rp {cost.toLocaleString('id-ID')}</span>
+                          <span className="text-[10px] font-bold text-rose-700 flex-shrink-0">Rp {cost.toLocaleString('id-ID')}</span>
                           <button onClick={() => handleRemoveFinishing(fin.id)} className="w-4 h-4 rounded bg-white border border-rose-200 hover:bg-rose-100 flex items-center justify-center flex-shrink-0"><X className="w-2.5 h-2.5 text-rose-500" /></button>
                         </div>
                       )
@@ -1125,8 +1125,8 @@ function HitungCetakanPage() {
 
               {/* Ongkos Lem */}
               <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
-              <div className="p-3">
-                <div className="grid grid-cols-2 gap-2">
+              <div className="px-2.5 py-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   <div>
                     <label className={labelClass}>Cm dilem</label>
                     <div className="relative">
@@ -1142,15 +1142,14 @@ function HitungCetakanPage() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-2">
-                  <label className={labelClass}>Total Lem</label>
+                <div className="mt-1.5">
                   <ValueBox label="Ongkos Lem" value={calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-teal-50 border-cyan-200" />
                 </div>
               </div>
 
               {/* Ongkos Lem Borongan */}
               <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label="Ongkos Lem Borongan" />
-              <div className="p-3">
+              <div className="px-2.5 py-2">
                 <div>
                   <label className={labelClass}>Harga/Lembar</label>
                   <div className="relative">
@@ -1158,8 +1157,7 @@ function HitungCetakanPage() {
                     <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
                   </div>
                 </div>
-                <div className="mt-2">
-                  <label className={labelClass}>Total Borongan</label>
+                <div className="mt-1.5">
                   <ValueBox label="Lem Borongan" value={calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200" />
                 </div>
               </div>
