@@ -615,20 +615,20 @@ function CalculatorPage() {
           {/* Action Buttons */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-1.5">
             <button onClick={handleCalculateCuts} disabled={isCalculating}
-              className="flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-sm lg:text-[10px] font-semibold py-2.5 lg:py-1.5 rounded-lg transition-colors">
+              className="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors">
               {isCalculating ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
               {t('hitung_potongan')}
             </button>
             <button onClick={handleSave} disabled={!results}
-              className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm lg:text-[10px] font-semibold py-2.5 lg:py-1.5 rounded-lg transition-colors" title={t('simpan')}>
+              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('simpan')}>
               {t('simpan')}
             </button>
             <button onClick={() => { if (!results) { toast.error('Hitung potongan terlebih dahulu!'); return; } setPreviewOpen(true) }} disabled={!results}
-              className="flex items-center justify-center gap-1 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm lg:text-[10px] font-semibold py-2.5 lg:py-1.5 rounded-lg transition-colors" title={t('preview')}>
+              className="flex items-center justify-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('preview')}>
               {t('preview')}
             </button>
             <button onClick={handleReset}
-              className="flex items-center justify-center gap-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm lg:text-[10px] font-semibold py-2.5 lg:py-1.5 rounded-lg transition-colors" title={t('reset')}>
+              className="flex items-center justify-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('reset')}>
               <RotateCcw className="w-3 h-3" />
               <span className="hidden xl:inline">{t('reset')}</span>
             </button>
