@@ -707,7 +707,7 @@ function CalculatorPage() {
                 </div>
                 <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-3">
                   <p className="text-xs lg:text-xs text-orange-600 font-medium leading-tight">Total Harga</p>
-                  <p className="text-xl lg:text-xl font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
+                  <p className="text-[23px] lg:text-[23px] font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
                 </div>
                 <div className="bg-teal-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-teal-600 font-medium leading-tight">Efisiensi</p>
@@ -821,7 +821,7 @@ function CalculatorPage() {
               </div>
               <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
                 <p className="text-[10px] text-orange-600 font-medium">Total Harga Kertas</p>
-                <p className="text-lg font-bold text-orange-700">Rp {results?.totalPrice.toLocaleString('id-ID')}</p>
+                <p className="text-[21px] font-bold text-orange-700">Rp {results?.totalPrice.toLocaleString('id-ID')}</p>
               </div>
               <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
                 <p className="text-[10px] text-rose-600 font-medium">Sisa Potongan</p>
