@@ -158,3 +158,32 @@ Stage Summary:
 - PDF no longer fails - uses browser's built-in "Save as PDF" via print dialog
 - Print and PDF output identical (same buildFullPrintHtml function)
 - WhatsApp share button sends formatted calculation summary to WhatsApp
+---
+Task ID: 5
+Agent: Main Agent
+Task: Rewrite hitung-ongkos-kertas page to become "Hitung Ongkos Cetak" (Printing Cost Calculator)
+
+Work Log:
+- Completely rewrote `/src/app/hitung-ongkos-kertas/page.tsx` from a paper-only calculator to a comprehensive printing cost calculator
+- Implemented 6 calculation sections:
+  1. **Bahan Kertas (Paper)**: Select from master papers or custom input, auto-fills price per sheet from pricePerRim/500
+  2. **Ongkos Cetak (Printing)**: Select machine from master, set warna/warna khusus, auto-fills harga plat, calculates using formula: ongkos = (pricePerColor × warna) + (specialColorPrice × warnaKhusus) + above-min surcharge + plat cost
+  3. **Finishing**: Add multiple finishing items from master data, calculates with pond vs non-pond logic
+  4. **Ongkos Lem (Glue)**: Optional glue cost (cm × price/cm × qty)
+  5. **Jumlah Lembar**: Quantity input driving all calculations
+  6. **Harga Kertas per Lembar**: Editable, auto-calculated from paper selection
+- Built sticky results panel (280px right column) with gradient value boxes showing all cost breakdowns
+- Total card with amber-to-orange gradient showing grand total and per-sheet price
+- Print (Cetak) button opens A4-formatted window with complete cost breakdown table
+- Reset button clears all form fields
+- Mobile responsive: stacked layout on small screens, side-by-side on large
+- Follows existing UI patterns: rounded-2xl cards, section headers with colored icons, value boxes with gradient backgrounds
+- Uses existing APIs: /api/papers, /api/printing-costs, /api/finishings with auth headers
+- Exported as `HitungOngkosCetakPage` (default export)
+- Verified compilation successful via dev.log (all 200 responses, no errors)
+
+Stage Summary:
+- Page fully functional at `/hitung-ongkos-kertas` route (sidebar menu "Hitung Ongkos Cetak")
+- Complete printing cost calculator with paper, printing, finishing, and glue cost calculations
+- Results panel with all cost breakdowns and gradient total card
+- Print output generates A4-formatted HTML with styled cost breakdown
