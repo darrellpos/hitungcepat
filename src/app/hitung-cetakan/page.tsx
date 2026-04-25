@@ -988,8 +988,8 @@ function HitungCetakanPage() {
                   {summaryShipping > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Kirim</span><span className="text-slate-400 font-medium">{formatRp(summaryShipping)}</span></div>}
                   {calculatedGlueCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Ongkos Lem</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
                   {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
-                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Lain 1</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
-                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Lain 2</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
+                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Bikin Piso</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">{biayaLain2Label}</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
@@ -1241,8 +1241,8 @@ function HitungCetakanPage() {
                   {summaryShipping > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Kirim</span><span className="text-slate-400 font-medium">{formatRp(summaryShipping)}</span></div>}
                   {calculatedGlueCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Ongkos Lem</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
                   {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
-                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Lain 1</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
-                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Lain 2</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
+                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Bikin Piso</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">{biayaLain2Label}</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
               <div className="px-2.5 pb-2 flex flex-col gap-1">
