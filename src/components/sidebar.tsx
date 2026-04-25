@@ -173,39 +173,40 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Logo */}
-        <div className="p-4 lg:p-6 border-b border-slate-200 relative" style={{ borderColor: 'var(--app-sidebar-border)' }}>
+        {/* Close button - top right */}
+        <div className="flex justify-end px-2 pt-2">
           <button
             onClick={onToggle}
-            className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" style={{ color: 'var(--app-sidebar-text-muted)' }} />
           </button>
-          <div className="flex flex-col items-center gap-3">
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-4 pb-4 space-y-1">
+          {/* Logo + Company Name - Centered */}
+          <div className="flex flex-col items-center gap-2 mb-3 mt-1">
             {(companyLogo || DEFAULT_LOGO) ? (
               <div className="relative">
                 <img
                   src={companyLogo || DEFAULT_LOGO}
                   alt="Logo"
-                  className="w-[92px] h-[92px] rounded-2xl object-cover animate-float shadow-lg shadow-blue-500/20"
+                  className="w-[60px] h-[60px] rounded-xl object-cover shadow-md"
                 />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-400/10 to-teal-400/10 animate-shimmer pointer-events-none" />
               </div>
             ) : (
-              <div className="w-[84px] h-[84px] rounded-2xl bg-blue-600 flex items-center justify-center">
-                <Scissors className="w-10 h-10 text-white" />
+              <div className="w-[56px] h-[56px] rounded-xl bg-blue-600 flex items-center justify-center">
+                <Scissors className="w-7 h-7 text-white" />
               </div>
             )}
-            <div className={cn("transition-opacity text-center", !isOpen && "lg:opacity-100 opacity-0")}>
-              <h1 className="text-2xl font-bold" style={{ color: 'var(--app-sidebar-text)' }}>{displayName}</h1>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--app-sidebar-text-muted)' }}>{t('app_tagline')}</p>
+            <div className="text-center">
+              <h1 className="text-sm font-bold" style={{ color: 'var(--app-sidebar-text)' }}>{displayName}</h1>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--app-sidebar-text-muted)' }}>{t('app_tagline')}</p>
             </div>
           </div>
-        </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          {filteredMenuItems.map((item) => (
+          {filteredMenuItems.map((item, idx) => (
             <div key={item.href}>
               {item.submenu ? (
                 <div>
@@ -220,6 +221,7 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                     )}
                     style={isActive(item.href) ? undefined : { color: 'var(--app-sidebar-text)' }}
                   >
+                    {idx === 0 && <Menu className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--app-sidebar-text-muted)' }} />}
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span className={cn("transition-opacity", !isOpen && "lg:opacity-100 opacity-0")}>{t(item.titleKey)}</span>
                   </Link>
@@ -258,6 +260,7 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                   )}
                   style={isActive(item.href) ? undefined : { color: 'var(--app-sidebar-text)' }}
                 >
+                  {idx === 0 && <Menu className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--app-sidebar-text-muted)' }} />}
                   <item.icon className="w-5 h-5 flex-shrink-0" />
                   <span className={cn("transition-opacity", !isOpen && "lg:opacity-100 opacity-0")}>{t(item.titleKey)}</span>
                 </Link>
