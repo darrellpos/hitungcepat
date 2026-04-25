@@ -157,10 +157,10 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
 
   return (
     <>
-      {/* Mobile Backdrop */}
+      {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={onToggle}
         />
       )}
@@ -168,16 +168,16 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-screen w-64 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-screen w-64 flex flex-col transition-transform duration-300 ease-in-out shadow-xl",
           "[background-color:var(--app-sidebar-bg)] [border-color:var(--app-sidebar-border)]",
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
         <div className="p-4 lg:p-6 border-b border-slate-200 relative" style={{ borderColor: 'var(--app-sidebar-border)' }}>
           <button
             onClick={onToggle}
-            className="lg:hidden absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" style={{ color: 'var(--app-sidebar-text-muted)' }} />
           </button>
@@ -325,7 +325,7 @@ export function MobileHeader({ onMenuToggle, username }: { onMenuToggle: () => v
   const displayName = (companyName && companyName.trim()) || t('app_name')
 
   return (
-    <header className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30">
+    <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30">
       <div className="flex items-center justify-between">
         <button
           onClick={onMenuToggle}
@@ -335,13 +335,13 @@ export function MobileHeader({ onMenuToggle, username }: { onMenuToggle: () => v
         </button>
         <div className="flex items-center gap-2">
           {(companyLogo || DEFAULT_LOGO) ? (
-            <img src={companyLogo || DEFAULT_LOGO} alt="Logo" className="w-[53px] h-[53px] rounded-xl object-cover animate-float shadow-md shadow-blue-500/15" />
+            <img src={companyLogo || DEFAULT_LOGO} alt="Logo" className="w-[40px] h-[40px] rounded-xl object-cover animate-float shadow-md shadow-blue-500/15" />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
-              <Scissors className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+              <Scissors className="w-5 h-5 text-white" />
             </div>
           )}
-          <span className="font-bold text-slate-800 text-lg truncate max-w-[200px]">{displayName}</span>
+          <span className="font-bold text-slate-800 text-base truncate max-w-[200px]">{displayName}</span>
         </div>
         <div className="w-8">
           {/* Spacer for balance */}

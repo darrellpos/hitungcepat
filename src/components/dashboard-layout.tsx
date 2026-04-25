@@ -257,7 +257,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
         />
-        <div className="lg:ml-64 transition-all duration-300">
+        <div className="transition-all duration-300">
           <MobileHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} username={user?.username} />
           <main className="p-4 lg:p-8">
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -294,40 +294,34 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         permVersion={permVersion}
       />
 
-      <div className="lg:ml-64 transition-all duration-300">
+      <div className="transition-all duration-300">
         <MobileHeader
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
           username={user?.username}
         />
 
-        {/* Desktop Header - Sticky */}
-        <header className="hidden lg:block border-b border-slate-200 px-6 py-3 sticky top-0 z-30 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              {title && <h1 className="text-lg font-bold text-slate-800">{title}</h1>}
-              {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
-            </div>
-            <div className="text-right">
-              <span className="text-sm text-slate-600 block">
-                {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </span>
-              {userProfile?.createdAt && (
-                <span className="text-[11px] text-slate-400 block mt-0.5">
-                  Daftar: {new Date(userProfile.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  {userProfile.validUntil && (
-                    <> · Exp: {new Date(userProfile.validUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</>
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Mobile Page Title - Sticky */}
+        {/* Page Title - Sticky */}
         {(title || subtitle) && (
-          <div className="lg:hidden border-b border-slate-200 px-4 py-2.5 sticky top-0 z-30 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
-            {title && <h1 className="text-base font-bold text-slate-800">{title}</h1>}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+          <div className="border-b border-slate-200 px-4 py-2.5 sticky top-[57px] z-20 backdrop-blur-sm" style={{ backgroundColor: 'var(--app-banner-bg)' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                {title && <h1 className="text-base font-bold text-slate-800">{title}</h1>}
+                {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-slate-500 block">
+                  {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+                {userProfile?.createdAt && (
+                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                    Daftar: {new Date(userProfile.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {userProfile.validUntil && (
+                      <> · Exp: {new Date(userProfile.validUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
