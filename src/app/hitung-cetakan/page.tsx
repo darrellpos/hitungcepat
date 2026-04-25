@@ -661,7 +661,7 @@ function HitungCetakanPage() {
   const SectionHeader = ({ icon, label, badge }: { icon: React.ReactNode; label: React.ReactNode; badge?: number }) => (
     <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-100 bg-slate-50/60">
       <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">{icon}</div>
-      <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide flex-1 min-w-0">{label}</h2>
+      <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wide flex-1 min-w-0">{label}</h2>
       {badge !== undefined && badge > 0 && (
         <span className="text-[11px] font-semibold text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded-full">{badge}</span>
       )}
@@ -690,7 +690,7 @@ function HitungCetakanPage() {
               {/* Section 1: Informasi Cetakan */}
               <div className="flex items-center gap-2 px-2 py-2 border-b border-slate-100 bg-slate-50/60">
                 <div className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center"><Users className="w-3.5 h-3.5 text-blue-600" /></div>
-                <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Informasi Cetakan</h2>
+                <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</h2>
               </div>
               <div className="px-2 py-1">
                 <div className="space-y-1">
@@ -1258,7 +1258,7 @@ function HitungCetakanPage() {
             {calculations.length > 0 && (
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col min-h-0">
                 <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between flex-shrink-0">
-                  <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide">Daftar Cetakan</span>
+                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">Daftar Cetakan</span>
                   <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{calculations.length}</span>
                 </div>
                 <div className="flex-1 overflow-y-auto divide-y divide-slate-50 ">
