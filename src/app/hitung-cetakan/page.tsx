@@ -965,8 +965,8 @@ function HitungCetakanPage() {
               <div className="lg:hidden mx-3 mb-3 space-y-2">
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-medium text-slate-600">Sub Total</span>
-                    <span className="text-sm font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-sm font-medium text-slate-600">Sub Total</span>
+                    <span className="text-base font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
@@ -1218,8 +1218,8 @@ function HitungCetakanPage() {
               <div className="px-2.5 py-2 space-y-1.5">
                 <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-medium text-slate-600">Sub Total</span>
-                    <span className="text-xs font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[12px] font-medium text-slate-600">Sub Total</span>
+                    <span className="text-sm font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div className="p-1.5 bg-amber-50 border border-amber-200 rounded-lg">
