@@ -1245,8 +1245,10 @@ function HitungCetakanPage() {
                 </div>
               </div>
               <div className="px-2.5 pb-2 flex flex-col gap-1 mt-auto">
-                <Button onClick={handleSaveRiwayat} className="w-full h-7 bg-emerald-600 hover:bg-emerald-700 text-[10px]"><Save className="w-3 h-3 mr-1" /> Simpan Riwayat</Button>
-                <Button onClick={handlePreview} className="w-full h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3 h-3 mr-1" /> Preview</Button>
+                <div className="flex gap-1">
+                  <Button onClick={handleSaveRiwayat} className="flex-1 h-7 bg-emerald-600 hover:bg-emerald-700 text-[10px]"><Save className="w-3 h-3 mr-1" /> Simpan Riwayat</Button>
+                  <Button onClick={handlePreview} className="flex-1 h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3 h-3 mr-1" /> Preview</Button>
+                </div>
                 <Button onClick={resetForm} variant="outline" className="w-full h-7 text-[10px]"><RotateCcw className="w-3 h-3 mr-1" /> Reset Form</Button>
               </div>
             </div>
