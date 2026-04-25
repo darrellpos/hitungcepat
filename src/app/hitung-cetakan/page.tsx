@@ -1166,12 +1166,12 @@ function HitungCetakanPage() {
           </div>{/* end COLUMN 3 */}
 
           {/* ========== COLUMN 4: BIAYA TAMBAHAN, SUMMARY & DAFTAR (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-2 h-full">
             {/* Biaya Tambahan Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <SectionHeader icon={<Banknote className="w-3.5 h-3.5 text-amber-600" />} label="Biaya Tambahan" />
-              <div className="p-3">
-                <div className="grid grid-cols-2 gap-2">
+              <div className="px-2.5 py-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   <div>
                     <label className={labelClass}>{t('ongkos_packing')}</label>
                     <div className="relative">
@@ -1206,33 +1206,33 @@ function HitungCetakanPage() {
 
             {/* Summary Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col">
-              <div className="p-3 space-y-2">
-                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+              <div className="px-2.5 py-2 space-y-1.5">
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-medium text-slate-600">Sub Total</span>
-                    <span className="text-sm font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[10px] font-medium text-slate-600">Sub Total</span>
+                    <span className="text-xs font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
-                <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="p-1.5 bg-amber-50 border border-amber-200 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5"><Percent className="w-3.5 h-3.5 text-amber-600" /><span className="text-[11px] font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
-                    <span className="text-xs font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
+                    <div className="flex items-center gap-1"><Percent className="w-3 h-3 text-amber-600" /><span className="text-[10px] font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
+                    <span className="text-[11px] font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
-                <div className="p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
+                <div className="p-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-semibold text-emerald-100">Total</span>
-                    <span className="text-sm font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[10px] font-semibold text-emerald-100">Total</span>
+                    <span className="text-xs font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
-                    <div className="flex justify-between items-center mt-1 pt-1 border-t border-white/30">
+                    <div className="flex justify-between items-center mt-0.5 pt-0.5 border-t border-white/30">
                       <span className="text-[9px] font-medium text-emerald-100">Harga Perlembar</span>
-                      <span className="text-sm font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
+                      <span className="text-xs font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
                     </div>
                   )}
                 </div>
                 {/* Perincian Harga Total - Terpisah */}
-                <div className="px-1 pt-1 space-y-0.5">
+                <div className="px-1 pt-0.5 space-y-0.5">
                   <div className="flex justify-between text-[11px]"><span className="text-slate-500">Kertas</span><span className="text-slate-500 font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
                   {calculatedPrintingCost > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Cetak</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
                   {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Cetak 2</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
@@ -1245,10 +1245,10 @@ function HitungCetakanPage() {
                   {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Biaya Lain 2</span><span className="text-slate-500 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
-              <div className="px-3 pb-3 flex flex-col gap-1.5 mt-auto">
-                <Button onClick={handleSaveRiwayat} className="w-full h-8 bg-emerald-600 hover:bg-emerald-700 text-[11px]"><Save className="w-3.5 h-3.5 mr-1" /> Simpan Riwayat</Button>
-                <Button onClick={handlePreview} className="w-full h-8 text-[11px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3.5 h-3.5 mr-1" /> Preview</Button>
-                <Button onClick={resetForm} variant="outline" className="w-full h-8 text-[11px]"><RotateCcw className="w-3.5 h-3.5 mr-1" /> Reset Form</Button>
+              <div className="px-2.5 pb-2 flex flex-col gap-1 mt-auto">
+                <Button onClick={handleSaveRiwayat} className="w-full h-7 bg-emerald-600 hover:bg-emerald-700 text-[10px]"><Save className="w-3 h-3 mr-1" /> Simpan Riwayat</Button>
+                <Button onClick={handlePreview} className="w-full h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3 h-3 mr-1" /> Preview</Button>
+                <Button onClick={resetForm} variant="outline" className="w-full h-7 text-[10px]"><RotateCcw className="w-3 h-3 mr-1" /> Reset Form</Button>
               </div>
             </div>
 
