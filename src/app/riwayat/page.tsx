@@ -628,13 +628,6 @@ export default function RiwayatPage() {
                             <span className="text-[10px] text-slate-500 font-medium">Sub Total</span>
                             <span className="text-[10px] font-bold text-slate-500">{formatRp(previewItem.subTotal)}</span>
                           </div>
-                          {previewItem.profitAmount > 0 && (
-                            <div className="flex justify-between items-center px-1 py-1">
-                              <span className="text-[10px] text-slate-400 font-medium">Profit ({previewItem.profitPercent}%)</span>
-                              <span className="text-[10px] font-semibold text-slate-400">+ {formatRp(previewItem.profitAmount)}</span>
-                            </div>
-                          )}
-                        </div>
                       </div>
 
                       {/* Grand Total */}
