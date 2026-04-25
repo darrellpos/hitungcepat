@@ -978,7 +978,7 @@ function HitungCetakanPage() {
                 <div className="p-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-semibold text-white">Total Hitung Cetakan</span>
-                    <span className="text-[23px] font-semibold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[26px] font-semibold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-white/30">
@@ -1231,7 +1231,7 @@ function HitungCetakanPage() {
                 <div className="p-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-semibold text-emerald-100">Total</span>
-                    <span className="text-[17px] font-semibold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[20px] font-semibold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-0.5 pt-0.5 border-t border-white/30">
