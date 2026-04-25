@@ -526,7 +526,7 @@ function CalculatorPage() {
         <div className="lg:w-[480px] xl:w-[510px] flex-shrink-0 flex flex-col gap-1.5 lg:overflow-y-auto lg:min-h-0 hide-scrollbar">
           {/* Info Cetak */}
           <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-[19px] font-bold text-slate-700 mb-3 uppercase">{t('info_cetak')}</p>
+            <p className="text-[18px] font-bold text-slate-700 mb-3 uppercase">{t('info_cetak')}</p>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
