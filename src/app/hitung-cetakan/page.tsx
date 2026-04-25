@@ -961,7 +961,7 @@ function HitungCetakanPage() {
                 </div>
                 <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5"><Percent className="w-3.5 h-3.5 text-amber-600" /><span className="text-xs font-medium text-amber-800">Profit ({profitPercent}%)</span></div>
+                    <div className="flex items-center gap-1.5"><Percent className="w-3.5 h-3.5 text-amber-600" /><span className="text-xs font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
                     <span className="text-xs font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
@@ -1136,7 +1136,7 @@ function HitungCetakanPage() {
                 </div>
                 <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5"><Percent className="w-3.5 h-3.5 text-amber-600" /><span className="text-[11px] font-medium text-amber-800">Profit ({profitPercent}%)</span></div>
+                    <div className="flex items-center gap-1.5"><Percent className="w-3.5 h-3.5 text-amber-600" /><span className="text-[11px] font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
                     <span className="text-xs font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
@@ -1514,11 +1514,11 @@ function HitungCetakanPage() {
                       <div className="w-5 h-5 rounded bg-orange-100 flex items-center justify-center">
                         <Percent className="w-3 h-3 text-orange-600" />
                       </div>
-                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Profit</p>
+                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Uang Capek</p>
                     </div>
                     <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm text-orange-600">Profit ({profitPercent}%)</p>
+                        <p className="text-sm text-orange-600">Uang Capek ({profitPercent}%)</p>
                         <p className="text-lg font-bold text-orange-700">{formatRp(summaryProfitAmount)}</p>
                       </div>
                     </div>
@@ -1602,7 +1602,7 @@ function HitungCetakanPage() {
                   </div>
                   <div className="text-right text-[10px] text-slate-400 space-y-0.5">
                     <p>Sub Total: {formatRp(summarySubTotal)}</p>
-                    {summaryProfitAmount > 0 && <p>Profit: {formatRp(summaryProfitAmount)}</p>}
+                    {summaryProfitAmount > 0 && <p>Uang Capek: {formatRp(summaryProfitAmount)}</p>}
                   </div>
                 </div>
               </div>
