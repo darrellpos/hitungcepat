@@ -976,6 +976,21 @@ function HitungCetakanPage() {
                       <span className="text-lg font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
                     </div>
                   )}
+                  {/* Perincian Harga Total */}
+                  <div className="mt-2 pt-2 border-t border-white/30 space-y-0.5">
+                    <p className="text-[9px] font-bold text-emerald-200/70 uppercase tracking-wider mb-0.5">Perincian</p>
+                    <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Kertas</span><span className="text-white font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
+                    {calculatedPrintingCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Ongkos Cetak</span><span className="text-white font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
+                    {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Ongkos Cetak 2</span><span className="text-white font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
+                    {calculatedFinishingCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Finishing</span><span className="text-white font-medium">{formatRp(calculatedFinishingCost)}</span></div>}
+                    {summaryPacking > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Packing</span><span className="text-white font-medium">{formatRp(summaryPacking)}</span></div>}
+                    {summaryShipping > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Kirim</span><span className="text-white font-medium">{formatRp(summaryShipping)}</span></div>}
+                    {calculatedGlueCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Ongkos Lem</span><span className="text-white font-medium">{formatRp(calculatedGlueCost)}</span></div>}
+                    {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Lem Borongan</span><span className="text-white font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
+                    {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Biaya Lain 1</span><span className="text-white font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                    {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Biaya Lain 2</span><span className="text-white font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
+                    {summaryProfitAmount > 0 && <div className="flex justify-between text-[10px]"><span className="text-emerald-100/70">Profit ({profitPercent}%)</span><span className="text-white font-medium">{formatRp(summaryProfitAmount)}</span></div>}
+                  </div>
                 </div>
               </div>
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
@@ -1138,6 +1153,21 @@ function HitungCetakanPage() {
                       <span className="text-sm font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
                     </div>
                   )}
+                  {/* Perincian Harga Total */}
+                  <div className="mt-1.5 pt-1.5 border-t border-white/30 space-y-0.5">
+                    <p className="text-[8px] font-bold text-emerald-200/70 uppercase tracking-wider mb-0.5">Perincian</p>
+                    <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Kertas</span><span className="text-white font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
+                    {calculatedPrintingCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Ongkos Cetak</span><span className="text-white font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
+                    {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Ongkos Cetak 2</span><span className="text-white font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
+                    {calculatedFinishingCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Finishing</span><span className="text-white font-medium">{formatRp(calculatedFinishingCost)}</span></div>}
+                    {summaryPacking > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Packing</span><span className="text-white font-medium">{formatRp(summaryPacking)}</span></div>}
+                    {summaryShipping > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Kirim</span><span className="text-white font-medium">{formatRp(summaryShipping)}</span></div>}
+                    {calculatedGlueCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Ongkos Lem</span><span className="text-white font-medium">{formatRp(calculatedGlueCost)}</span></div>}
+                    {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Lem Borongan</span><span className="text-white font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
+                    {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Biaya Lain 1</span><span className="text-white font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                    {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Biaya Lain 2</span><span className="text-white font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
+                    {summaryProfitAmount > 0 && <div className="flex justify-between text-[9px]"><span className="text-emerald-100/70">Profit ({profitPercent}%)</span><span className="text-white font-medium">{formatRp(summaryProfitAmount)}</span></div>}
+                  </div>
                 </div>
               </div>
               <div className="px-3 pb-3 flex flex-col gap-1.5 mt-auto">
