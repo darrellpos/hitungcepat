@@ -57,12 +57,6 @@ const menuItems = [
     featureId: 'hitung-ongkos-kertas',
   },
   {
-    titleKey: 'hitung_harga_kertas' as TranslationKey,
-    href: '/hitung-harga-kertas',
-    icon: Sheet,
-    featureId: 'hitung-harga-kertas',
-  },
-  {
     titleKey: 'master_harga_kertas' as TranslationKey,
     href: '/master-harga-kertas',
     icon: FileText,
