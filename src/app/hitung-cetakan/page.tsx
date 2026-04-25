@@ -969,12 +969,12 @@ function HitungCetakanPage() {
                 <div className="p-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-semibold text-white">Total Hitung Cetakan</span>
-                    <span className="text-lg font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-xl font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-white/30">
-                      <span className="text-[10px] font-medium text-emerald-100">Harga Perlembar</span>
-                      <span className="text-lg font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
+                      <span className="text-xs font-medium text-emerald-100">Harga Perlembar</span>
+                      <span className="text-xl font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
                     </div>
                   )}
                 </div>
@@ -1222,12 +1222,12 @@ function HitungCetakanPage() {
                 <div className="p-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-semibold text-emerald-100">Total</span>
-                    <span className="text-xs font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-sm font-extrabold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-0.5 pt-0.5 border-t border-white/30">
-                      <span className="text-[9px] font-medium text-emerald-100">Harga Perlembar</span>
-                      <span className="text-xs font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
+                      <span className="text-[11px] font-medium text-emerald-100">Harga Perlembar</span>
+                      <span className="text-sm font-extrabold text-white">Rp {summaryHargaPerlembar.toLocaleString('id-ID', { maximumFractionDigits: 0 })}</span>
                     </div>
                   )}
                 </div>
