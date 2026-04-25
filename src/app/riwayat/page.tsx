@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { History, Search, Filter, RotateCcw, Eye, Trash2, Printer, FileImage, Loader2, Calculator, Users, Layers, Truck, Banknote } from 'lucide-react'
+import { History, Search, Filter, RotateCcw, Eye, Trash2, Printer, FileImage, Loader2, Calculator, Users, Layers, Truck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { MobileTable } from '@/components/mobile-table'
@@ -593,13 +593,8 @@ export default function RiwayatPage() {
                       )}
 
                       {/* Section 8: Rincian Total */}
-                      <div className="mb-2">
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <div className="w-5 h-5 rounded bg-emerald-100 flex items-center justify-center">
-                            <Banknote className="w-3 h-3 text-emerald-600" />
-                          </div>
-                          <p className="text-xs font-bold text-slate-700">Rincian Total</p>
-                        </div>
+                      <div className="mt-4">
+                        <p className="text-xs font-bold text-slate-500 mb-2">Rincian</p>
                         <div className="space-y-0.5">
                           <div className="flex justify-between items-center px-1 py-1">
                             <span className="text-[10px] text-slate-400">Harga Kertas</span>
