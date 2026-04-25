@@ -680,7 +680,7 @@ function HitungCetakanPage() {
 
   return (
     <DashboardLayout title={t('hitung_cetakan')} subtitle={t('subtitle_potong_kertas')}>
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1800px] mx-auto">
         <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-[19px]">
 
           {/* ========== COLUMN 1: INFO & HARGA ========== */}
@@ -749,6 +749,8 @@ function HitungCetakanPage() {
                 </div>
               </div>
 
+              {/* Mobile-only: Ongkos Cetak + Ongkos Cetak 2 (desktop has its own column) */}
+              <div className="lg:hidden">
               {/* Section 3: Ongkos Cetak */}
               <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-purple-600" />} label={t('ongkos_cetak_label')} />
               <div className="px-3 py-3 lg:p-4">
@@ -820,6 +822,7 @@ function HitungCetakanPage() {
                   </div>
               </div>
               </div>
+              </div>{/* end mobile-only ongkos cetak */}
 
               {/* Mobile-only: Finishing, Ongkos Lem, Ongkos Lem Borongan, Biaya Tambahan, Summary, Buttons */}
               <div className="lg:hidden">
@@ -1000,9 +1003,90 @@ function HitungCetakanPage() {
             </div>{/* end column 1 card */}
           </div>{/* end COLUMN 1 */}
 
-          {/* ========== COLUMN 2: FINISHING & ONGKOS LEM (Desktop Only) ========== */}
+          {/* ========== COLUMN 2: ONGKOS CETAK (Desktop Only) ========== */}
           <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
+              {/* Ongkos Cetak */}
+              <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-purple-600" />} label={t('ongkos_cetak_label')} />
+              <div className="p-3">
+                <div className="grid grid-cols-1 gap-2">
+                  <div>
+                    <label className={labelClass}>{t('nama_mesin')} <span className="text-red-500">*</span></label>
+                    <select value={formData.machineId} onChange={(e) => setFormData({ ...formData, machineId: e.target.value })} className={selectClass}>
+                      <option value="">Pilih mesin</option>
+                      {printingCosts.map((m) => <option key={m.id} value={m.id}>{m.machineName}</option>)}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className={labelClass}>Warna <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <Palette className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                        <input type="number" min="1" placeholder="4" value={formData.warna} onChange={(e) => setFormData({ ...formData, warna: e.target.value })} className={`${inputClass} pl-9`} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Warna Khusus</label>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-500">★</span>
+                        <input type="number" min="0" placeholder="0" value={formData.warnaKhusus} onChange={(e) => setFormData({ ...formData, warnaKhusus: e.target.value })} className={`${inputClass} pl-9`} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('harga_plat')}</label>
+                    <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${platTotal.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Total Ongkos</label>
+                    <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${calculatedPrintingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Ongkos Cetak 2 */}
+              <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-fuchsia-600" />} label="Ongkos Cetak 2" />
+              <div className="p-3">
+                <div className="grid grid-cols-1 gap-2">
+                  <div>
+                    <label className={labelClass}>{t('nama_mesin')}</label>
+                    <select value={formData.machineId2} onChange={(e) => setFormData({ ...formData, machineId2: e.target.value })} className={selectClass}>
+                      <option value="">Pilih mesin</option>
+                      {printingCosts.map((m) => <option key={m.id} value={m.id}>{m.machineName}</option>)}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className={labelClass}>Warna</label>
+                      <div className="relative">
+                        <Palette className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                        <input type="number" min="1" placeholder="4" value={formData.warna2} onChange={(e) => setFormData({ ...formData, warna2: e.target.value })} className={`${inputClass} pl-9`} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Warna Khusus</label>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-500">★</span>
+                        <input type="number" min="0" placeholder="0" value={formData.warnaKhusus2} onChange={(e) => setFormData({ ...formData, warnaKhusus2: e.target.value })} className={`${inputClass} pl-9`} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t('harga_plat')}</label>
+                    <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${platTotal2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Total Ongkos 2</label>
+                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>{/* end COLUMN 2 */}
+
+          {/* ========== COLUMN 3: FINISHING, ONGKOS LEM & BIAYA TAMBAHAN (Desktop Only) ========== */}
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:overflow-y-auto hide-scrollbar">
               {/* Finishing */}
               <SectionHeader icon={<Layers className="w-3.5 h-3.5 text-rose-600" />} label={t('finishing_label')} badge={selectedFinishingItems.length} />
               <div className="p-3 space-y-2.5">
@@ -1084,16 +1168,10 @@ function HitungCetakanPage() {
                 </div>
               </div>
 
-            </div>
-          </div>{/* end COLUMN 2 */}
-
-          {/* ========== COLUMN 3: SUMMARY & DAFTAR (Desktop Only) ========== */}
-          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
-            {/* Biaya Tambahan */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              {/* Biaya Tambahan */}
               <SectionHeader icon={<Banknote className="w-3.5 h-3.5 text-amber-600" />} label="Biaya Tambahan" />
-              <div className="px-2 py-1">
-                <div className="grid grid-cols-2 gap-1">
+              <div className="p-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>{t('ongkos_packing')}</label>
                     <div className="relative">
@@ -1124,7 +1202,12 @@ function HitungCetakanPage() {
                   </div>
                 </div>
               </div>
+
             </div>
+          </div>{/* end COLUMN 3 */}
+
+          {/* ========== COLUMN 4: SUMMARY & DAFTAR (Desktop Only) ========== */}
+          <div className="hidden lg:flex flex-col flex-1 flex-shrink-0 gap-3 h-full">
             {/* Summary Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col">
               <div className="p-3 space-y-2">
