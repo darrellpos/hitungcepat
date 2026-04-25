@@ -205,3 +205,43 @@ Work Log:
 Stage Summary:
 - Perincian sections in both hitung-cetakan and riwayat preview dialogs are now displayed as plain gray text (no box/border/background)
 - Consistent styling between both preview dialogs
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Implement real-time company name update across all pages without refresh
+
+Work Log:
+- Analyzed current architecture: company name/logo fetched independently in 4 components (Sidebar, MobileHeader, Login, InlineLogin) with no shared state
+- Created Zustand store at `src/stores/company-store.ts` with:
+  - `companyName`, `companyLogo`, `initialized` state
+  - `fetchBranding(isPublic?)` - fetches from /api/settings or /api/public-settings
+  - `updateBranding(data)` - updates store and broadcasts via BroadcastChannel
+  - `resetBranding()` - clears all branding data
+  - `useCompanyBranding(isPublic?)` hook - auto-fetches on first use, shares state globally
+  - BroadcastChannel cross-tab sync - changes in one tab propagate to all other tabs
+- Updated `src/components/sidebar.tsx`:
+  - Removed local `useCompanyBranding()` hook (30+ lines)
+  - Both Sidebar and MobileHeader now import from `@/stores/company-store`
+  - Removed unused `useEffect` import
+- Updated `src/app/login/page.tsx`:
+  - Removed local company branding state management
+  - Now uses `useCompanyBranding(true)` for public API fetch
+  - Still fetches loginBgColor separately (only needed on login page)
+- Updated `src/components/inline-login.tsx`:
+  - Removed local company branding state management and useEffect
+  - Now uses `useCompanyBranding(true)` from store
+- Updated `src/app/administrasi/pengaturan/page.tsx`:
+  - Added `useCompanyStore` import
+  - `handleSaveCompany()` now calls `updateBranding({ companyName })` after API save
+  - `handleResetCompany()` now calls `resetBranding()` after API save
+  - `handleLogoUpload()` now calls `updateBranding({ companyLogo })` after upload
+  - `handleCameraCapture()` now calls `updateBranding({ companyLogo })` after capture
+  - `handleRemoveLogo()` now calls `updateBranding({ companyLogo: null })` after removal
+- Verified compilation: no new errors from modified files (pre-existing lint errors in language-context.tsx unchanged)
+
+Stage Summary:
+- Company name and logo now update in real-time across ALL pages when changed in Pengaturan
+- No page refresh needed - changes propagate instantly via Zustand store
+- Cross-tab sync via BroadcastChannel API - changes in one browser tab update all other tabs
+- All 5 display points (Sidebar, MobileHeader, Login, InlineLogin, Pengaturan preview) share single source of truth

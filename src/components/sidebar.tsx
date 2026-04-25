@@ -4,8 +4,9 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useCompanyBranding } from '@/stores/company-store'
 import {
   Calculator,
   Scissors,
@@ -97,26 +98,6 @@ const menuItems = [
     ]
   }
 ]
-
-// Hook to fetch company branding settings
-function useCompanyBranding() {
-  const [companyName, setCompanyName] = useState<string | null>(null)
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetch('/api/settings?key=company_name')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.value?.trim()) setCompanyName(data.value.trim()) })
-      .catch(() => {})
-
-    fetch('/api/settings?key=company_logo')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.value?.trim()) setCompanyLogo(data.value.trim()) })
-      .catch(() => {})
-  }, [])
-
-  return { companyName, companyLogo }
-}
 
 interface SidebarProps {
   username?: string
@@ -309,21 +290,8 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
 }
 
 export function MobileHeader({ onMenuToggle, username }: { onMenuToggle: () => void; username?: string }) {
-  const [companyName, setCompanyName] = useState<string | null>(null)
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
+  const { companyName, companyLogo } = useCompanyBranding()
   const { t } = useLanguage()
-
-  useEffect(() => {
-    fetch('/api/settings?key=company_name')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.value?.trim()) setCompanyName(data.value.trim()) })
-      .catch(() => {})
-
-    fetch('/api/settings?key=company_logo')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.value?.trim()) setCompanyLogo(data.value.trim()) })
-      .catch(() => {})
-  }, [])
 
   const displayName = (companyName && companyName.trim()) || t('app_name')
 

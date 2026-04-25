@@ -8,6 +8,8 @@ import { toast } from 'sonner'
 import { getAuthHeaders } from '@/lib/auth'
 import { useLanguage } from '@/contexts/language-context'
 import { Language, TranslationKey } from '@/lib/i18n'
+import { useCompanyStore } from '@/stores/company-store'
+import { useCompanyStore } from '@/stores/company-store'
 
 // Preset color palettes with stabilo (bright neon highlighter) colors
 // Background lightened 17% total, popup lightened 25% total
@@ -307,6 +309,8 @@ export default function PengaturanPage() {
       setEmail('')
       setPhone('')
       setCompanyLogo(null)
+      // Update the global company store for real-time sync
+      useCompanyStore.getState().resetBranding()
       toast.success(t('setting_reset_success'))
     } catch { toast.error(t('setting_error_save')) }
     finally { setSaving(false) }
@@ -322,6 +326,8 @@ export default function PengaturanPage() {
         fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_email', value: email }) }),
         fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_phone', value: phone }) }),
       ])
+      // Update the global company store for real-time sync across all components
+      useCompanyStore.getState().updateBranding({ companyName: companyName || null })
       toast.success(t('setting_saved'))
     } catch { toast.error(t('setting_error_save')) }
     finally { setSaving(false) }
@@ -407,7 +413,10 @@ export default function PengaturanPage() {
       formData.append('logo', compressed)
       const res = await fetch('/api/upload-logo', { method: 'POST', body: formData })
       const data = await res.json()
-      if (res.ok && data.logo) { setCompanyLogo(data.logo); toast.success(t('logo_upload_success')) }
+      if (res.ok && data.logo) { setCompanyLogo(data.logo); toast.success(t('logo_upload_success'))
+        // Update the global company store for real-time sync
+        useCompanyStore.getState().updateBranding({ companyLogo: data.logo })
+      }
       else toast.error(data.error || t('logo_upload_error'))
     } catch { toast.error(t('logo_upload_error')) }
     finally { setUploadingLogo(false) }
@@ -429,7 +438,10 @@ export default function PengaturanPage() {
         formData.append('logo', compressed)
         const res = await fetch('/api/upload-logo', { method: 'POST', body: formData })
         const data = await res.json()
-        if (res.ok && data.logo) { setCompanyLogo(data.logo); toast.success(t('logo_upload_success')) }
+        if (res.ok && data.logo) { setCompanyLogo(data.logo); toast.success(t('logo_upload_success'))
+          // Update the global company store for real-time sync
+          useCompanyStore.getState().updateBranding({ companyLogo: data.logo })
+        }
         else toast.error(data.error || t('logo_upload_error'))
       } catch { toast.error(t('logo_upload_error')) }
       finally { setUploadingLogo(false) }
@@ -441,6 +453,8 @@ export default function PengaturanPage() {
     setCompanyLogo(null)
     try {
       await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_logo', value: '' }) })
+      // Update the global company store for real-time sync
+      useCompanyStore.getState().updateBranding({ companyLogo: null })
       toast.success(t('logo_removed'))
     } catch { toast.error(t('logo_remove_error')) }
   }

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Key, Eye, EyeOff, Phone, Mail, User as UserIcon, Loader2, AlertCircle, Info } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
+import { useCompanyBranding } from '@/stores/company-store'
 
 const DEFAULT_LOGO = '/company-logo.png'
 
@@ -35,18 +36,7 @@ export function InlineLogin({ onSuccess }: { onSuccess: (user: any) => void }) {
   const [demoRemaining, setDemoRemaining] = useState<number | null>(null)
 
   // Company branding
-  const [companyName, setCompanyName] = useState<string | null>(null)
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetch('/api/public-settings')
-      .then(r => r.json())
-      .then(data => {
-        if (data.company_name?.trim()) setCompanyName(data.company_name.trim())
-        if (data.company_logo?.trim()) setCompanyLogo(data.company_logo.trim())
-      })
-      .catch(() => {})
-  }, [])
+  const { companyName, companyLogo } = useCompanyBranding(true)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
