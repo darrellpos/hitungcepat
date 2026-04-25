@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight } from 'lucide-react'
+import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight, Share2 } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { useLanguage } from '@/contexts/language-context'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -235,9 +235,9 @@ function CalculatorPage() {
     }
   }
 
-  const handlePrint = () => {
-    if (!results) return
-
+  // Build SVG diagram HTML for print/PDF/WhatsApp
+  const buildDiagramHtml = useCallback(() => {
+    if (!results) return ''
     const r = results
     const scale = 5.94
     const pw = r.paperWidth
@@ -245,22 +245,19 @@ function CalculatorPage() {
     const svgW = pw * scale
     const svgH = ph * scale
 
-    // Gradient defs for blocks
     const gradients = [
-      { id: 'pg1', c1: '#dbeafe', c2: '#bfdbfe' },  // blue
-      { id: 'pg2', c1: '#d1fae5', c2: '#a7f3d0' },  // green
-      { id: 'pg3', c1: '#fef3c7', c2: '#fde68a' },  // yellow
-      { id: 'pg4', c1: '#fecaca', c2: '#fca5a5' },  // red
-      { id: 'pg5', c1: '#e9d5ff', c2: '#d8b4fe' },  // purple
+      { id: 'pg1', c1: '#dbeafe', c2: '#bfdbfe' },
+      { id: 'pg2', c1: '#d1fae5', c2: '#a7f3d0' },
+      { id: 'pg3', c1: '#fef3c7', c2: '#fde68a' },
+      { id: 'pg4', c1: '#fecaca', c2: '#fca5a5' },
+      { id: 'pg5', c1: '#e9d5ff', c2: '#d8b4fe' },
     ]
     const strokeColors = ['#93c5fd', '#6ee7b7', '#fcd34d', '#fca5a5', '#c4b5fd']
 
-    // Build SVG defs
     let defsInner = gradients.map(g =>
       `<linearGradient id="${g.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g.c1}"/><stop offset="100%" stop-color="${g.c2}"/></linearGradient>`
     ).join('')
 
-    // Build waste rects per block
     let wasteRects = ''
     r.blocks.forEach((block: any, bi: number) => {
       if (block.wasteWidth > 0.01) {
@@ -274,7 +271,6 @@ function CalculatorPage() {
       }
     })
 
-    // Build cut lines
     let cutLines = ''
     if (r.blocks.length > 1 && r.cutPosition !== undefined) {
       cutLines += `<line x1="${r.cutPosition * scale}" y1="0" x2="${r.cutPosition * scale}" y2="${svgH}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
@@ -283,7 +279,6 @@ function CalculatorPage() {
       cutLines += `<line x1="0" y1="${r.cutPositionY * scale}" x2="${svgW}" y2="${r.cutPositionY * scale}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
     }
 
-    // Build piece blocks
     let pieceGroups = ''
     r.blocks.forEach((block: any, bi: number) => {
       const bx = block.x * scale
@@ -303,9 +298,15 @@ function CalculatorPage() {
       }
     })
 
-    const svgDiagram = `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:100%;max-height:130mm;border:1px solid #cbd5e1;border-radius:2px;background:linear-gradient(to bottom right,#fff,#f8fafc);"><defs>${defsInner}</defs><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#f1f5f9" opacity="0.3"/><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="none" stroke="#94a3b8" stroke-width="4" rx="2"/>${cutLines}${wasteRects}${pieceGroups}</svg>`
+    return `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:100%;max-height:130mm;border:1px solid #cbd5e1;border-radius:2px;background:linear-gradient(to bottom right,#fff,#f8fafc);"><defs>${defsInner}</defs><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#f1f5f9" opacity="0.3"/><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="none" stroke="#94a3b8" stroke-width="4" rx="2"/>${cutLines}${wasteRects}${pieceGroups}</svg>`
+  }, [results])
 
-    // Build steps HTML
+  // Build the full print/PDF body HTML
+  const buildFullPrintHtml = useCallback(() => {
+    if (!results) return ''
+    const r = results
+    const svgDiagram = buildDiagramHtml()
+
     const stepsHtml = r.steps.map((step: string, idx: number) =>
       `<div style="display:flex;align-items:flex-start;gap:5px;padding:3px 0;">
         <div style="flex-shrink:0;width:17px;height:17px;background:#2563eb;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${idx + 1}</div>
@@ -313,7 +314,6 @@ function CalculatorPage() {
       </div>`
     ).join('')
 
-    // Build block details HTML
     const blockColors = [
       { bg: '#eff6ff', border: '#bfdbfe', badgeBg: '#dbeafe', badgeText: '#1d4ed8', name: '#1e40af', detail: '#2563eb' },
       { bg: '#ecfdf5', border: '#a7f3d0', badgeBg: '#d1fae5', badgeText: '#047857', name: '#065f46', detail: '#059669' },
@@ -336,18 +336,11 @@ function CalculatorPage() {
       </div>`
     }).join('')
 
-    // Build info grid items
     const infoDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
     const customerLabel = selectedCustomer?.name || printName || '-'
     const paperLabel = selectedPaper?.name || 'Custom'
 
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      toast.error('Popup diblokir. Izinkan popup untuk mencetak.')
-      return
-    }
-
-    printWindow.document.write(`<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Potong Kertas</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -417,8 +410,19 @@ function CalculatorPage() {
   </div>
 
 </div>
-</body></html>`)
+</body></html>`
+  }, [results, selectedCustomer, selectedPaper, printName, buildDiagramHtml])
 
+  const handlePrint = () => {
+    if (!results) return
+    const html = buildFullPrintHtml()
+    if (!html) return
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      toast.error('Popup diblokir. Izinkan popup untuk mencetak.')
+      return
+    }
+    printWindow.document.write(html)
     printWindow.document.close()
     printWindow.onload = () => {
       printWindow.print()
@@ -426,51 +430,79 @@ function CalculatorPage() {
   }
 
   const handlePdf = async () => {
-    const el = previewRef.current
-    if (!el) return
+    if (!results) return
 
     setIsGeneratingPdf(true)
     try {
-      const html2canvas = (await import('html2canvas')).default
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-      })
+      const html = buildFullPrintHtml()
+      if (!html) { toast.error('Tidak ada data'); return }
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95)
-
-      const { jsPDF } = await import('jspdf')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
-      const margin = 8
-      const contentWidth = pdfWidth - margin * 2
-
-      const imgWidth = contentWidth
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-
-      const maxHeight = pdfHeight - margin * 2
-      let finalWidth = imgWidth
-      let finalHeight = imgHeight
-      if (finalHeight > maxHeight) {
-        finalWidth = (maxHeight * imgWidth) / imgHeight
-        finalHeight = maxHeight
+      const printWindow = window.open('', '_blank')
+      if (!printWindow) {
+        toast.error('Popup diblokir. Izinkan popup untuk membuat PDF.')
+        return
       }
 
-      const offsetX = margin + (contentWidth - finalWidth) / 2
-      const offsetY = margin
+      // Inject auto-PDF script into the HTML
+      const pdfHtml = html.replace('</body>', `
+  <script>
+    window.onload = function() {
+      // Small delay for SVG rendering
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    }
+  </script>
+</body>`)
 
-      pdf.addImage(imgData, 'JPEG', offsetX, offsetY, finalWidth, finalHeight)
-      pdf.save(`potong-kertas-${Date.now()}.pdf`)
-
-      toast.success('PDF berhasil diunduh!')
+      printWindow.document.write(pdfHtml)
+      printWindow.document.close()
+      toast.success('PDF dibuka! Pilih "Save as PDF" di dialog print.')
     } catch (err) {
       console.error('PDF generation error:', err)
       toast.error('Gagal menghasilkan PDF')
     } finally {
       setIsGeneratingPdf(false)
+    }
+  }
+
+  const handleShareWhatsApp = async () => {
+    if (!results) return
+
+    try {
+      const r = results
+      const customerLabel = selectedCustomer?.name || printName || '-'
+      const paperLabel = selectedPaper?.name || 'Custom'
+      const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+
+      const message = [
+        `📋 *POTONG KERTAS*`,
+        ``,
+        `👤 ${customerLabel}`,
+        `📄 ${paperLabel}`,
+        `📅 ${date}`,
+        ``,
+        `📐 *Ukuran:* ${r.cutWidth} × ${r.cutHeight} cm`,
+        `📊 *Strategi:* ${r.strategy}`,
+        ``,
+        `🔢 Jumlah Diperlukan: *${r.quantity} lembar*`,
+        `📦 Potongan/Lembar: *${r.totalPieces} pcs*`,
+        `📝 Lembar Kertas: *${r.sheetsNeeded} lembar*`,
+        `💰 Total Harga: *Rp ${r.totalPrice.toLocaleString('id-ID')}*`,
+        `🗑️ Sisa Potongan: *${r.totalWasteArea.toFixed(2)} cm²*`,
+        `📈 Efisiensi: *${r.efficiency.toFixed(2)}%*`,
+        ``,
+        `_${r.blocks.map((b: any) => `• ${b.name}: ${b.horizontal}×${b.vertical}${b.rotated ? ' (90°)' : ''}`).join('\\n')}_`,
+        ``,
+        `—— DarrellPOS ——`,
+      ].join('\\n')
+
+      const encoded = encodeURIComponent(message)
+      window.open(`https://wa.me/?text=${encoded}`, '_blank')
+      toast.success('WhatsApp terbuka!')
+    } catch (err) {
+      console.error('WhatsApp share error:', err)
+      toast.error('Gagal membuka WhatsApp')
     }
   }
 
@@ -844,14 +876,18 @@ function CalculatorPage() {
           </div>
 
           {/* Action buttons at bottom of dialog */}
-          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-3">
+          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-2">
             <button onClick={handlePrint}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
               <Printer className="w-4 h-4" /> {t('cetak')}
             </button>
             <button onClick={handlePdf} disabled={isGeneratingPdf}
-              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors">
-              {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />Membuat PDF...</> : <><FileImage className="w-4 h-4" /> PDF (JPG)</>}
+              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+              {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />PDF...</> : <><FileImage className="w-4 h-4" /> PDF</>}
+            </button>
+            <button onClick={handleShareWhatsApp}
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm">
+              <Share2 className="w-4 h-4" /> WA
             </button>
           </div>
         </DialogContent>

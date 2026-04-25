@@ -138,3 +138,23 @@ Stage Summary:
 - Two new calculator pages live at `/hitung-harga-kertas` and `/hitung-ongkos-kertas`
 - Available to all roles (superadmin, admin, manager, demo, user)
 - Following existing calculator page pattern (hitung-finishing style)
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Fix PDF generation, make output match preview, add WhatsApp share
+
+Work Log:
+- Investigated PDF failure: html2canvas was failing on dynamic SVG diagram content
+- Rewrote handlePdf to use the same print HTML approach instead of html2canvas canvas capture
+- Extracted SVG diagram and full print HTML into reusable useCallback functions (buildDiagramHtml, buildFullPrintHtml)
+- handlePrint now uses buildFullPrintHtml() - same output for print and PDF
+- handlePdf opens the same HTML in a new window and auto-triggers print dialog (user selects "Save as PDF")
+- Added handleShareWhatsApp function that generates formatted WhatsApp text with all calculation results
+- Added green WA button next to Print and PDF buttons
+- Fixed "Strategi Optimasi" box to be centered (full width + text-center) in potong-kertas-preview.tsx and page.tsx
+
+Stage Summary:
+- PDF no longer fails - uses browser's built-in "Save as PDF" via print dialog
+- Print and PDF output identical (same buildFullPrintHtml function)
+- WhatsApp share button sends formatted calculation summary to WhatsApp
