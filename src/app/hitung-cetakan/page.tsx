@@ -685,7 +685,8 @@ function HitungCetakanPage() {
     </div>
   )
 
-  const formatRp = (n: number) => `Rp ${n.toLocaleString('id-ID')}`
+  const fmtNum = (n: number) => n.toLocaleString('id-ID')
+  const formatRp = (n: number) => `Rp ${fmtNum(n)}`
 
   return (
     <DashboardLayout title={t('hitung_cetakan')} subtitle={t('subtitle_potong_kertas')}>
