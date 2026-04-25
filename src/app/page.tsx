@@ -45,7 +45,11 @@ function getInitialFormState(): FormData {
   }
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      parsed.printName = '' // Nama cetakan tidak disimpan agar hilang saat refresh
+      return parsed
+    }
   } catch {}
   return {
     paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
