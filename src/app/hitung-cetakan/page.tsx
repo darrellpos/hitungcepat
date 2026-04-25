@@ -980,16 +980,16 @@ function HitungCetakanPage() {
                 </div>
                 {/* Perincian Harga Total - Terpisah */}
                 <div className="px-1 pt-1 space-y-0.5">
-                  <div className="flex justify-between text-[10px]"><span className="text-slate-400">Kertas</span><span className="text-slate-400 font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
-                  {calculatedPrintingCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Ongkos Cetak</span><span className="text-slate-400 font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
-                  {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Ongkos Cetak 2</span><span className="text-slate-400 font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
-                  {calculatedFinishingCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Finishing</span><span className="text-slate-400 font-medium">{formatRp(calculatedFinishingCost)}</span></div>}
-                  {summaryPacking > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Packing</span><span className="text-slate-400 font-medium">{formatRp(summaryPacking)}</span></div>}
-                  {summaryShipping > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Kirim</span><span className="text-slate-400 font-medium">{formatRp(summaryShipping)}</span></div>}
-                  {calculatedGlueCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Ongkos Lem</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
-                  {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
-                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Lain 1</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
-                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Lain 2</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
+                  <div className="flex justify-between text-xs"><span className="text-slate-500">Kertas</span><span className="text-slate-500 font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
+                  {calculatedPrintingCost > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Ongkos Cetak</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
+                  {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Ongkos Cetak 2</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
+                  {calculatedFinishingCost > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Finishing</span><span className="text-slate-500 font-medium">{formatRp(calculatedFinishingCost)}</span></div>}
+                  {summaryPacking > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Packing</span><span className="text-slate-500 font-medium">{formatRp(summaryPacking)}</span></div>}
+                  {summaryShipping > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Kirim</span><span className="text-slate-500 font-medium">{formatRp(summaryShipping)}</span></div>}
+                  {calculatedGlueCost > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Ongkos Lem</span><span className="text-slate-500 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
+                  {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Lem Borongan</span><span className="text-slate-500 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
+                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Biaya Lain 1</span><span className="text-slate-500 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500">Biaya Lain 2</span><span className="text-slate-500 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
@@ -1233,16 +1233,16 @@ function HitungCetakanPage() {
                 </div>
                 {/* Perincian Harga Total - Terpisah */}
                 <div className="px-1 pt-1 space-y-0.5">
-                  <div className="flex justify-between text-[9px]"><span className="text-slate-400">Kertas</span><span className="text-slate-400 font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
-                  {calculatedPrintingCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Ongkos Cetak</span><span className="text-slate-400 font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
-                  {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Ongkos Cetak 2</span><span className="text-slate-400 font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
-                  {calculatedFinishingCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Finishing</span><span className="text-slate-400 font-medium">{formatRp(calculatedFinishingCost)}</span></div>}
-                  {summaryPacking > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Packing</span><span className="text-slate-400 font-medium">{formatRp(summaryPacking)}</span></div>}
-                  {summaryShipping > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Kirim</span><span className="text-slate-400 font-medium">{formatRp(summaryShipping)}</span></div>}
-                  {calculatedGlueCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Ongkos Lem</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
-                  {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
-                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Lain 1</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
-                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Lain 2</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
+                  <div className="flex justify-between text-[11px]"><span className="text-slate-500">Kertas</span><span className="text-slate-500 font-medium">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : '-'}</span></div>
+                  {calculatedPrintingCost > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Cetak</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost)}</span></div>}
+                  {calculatedPrintingCost2 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Cetak 2</span><span className="text-slate-500 font-medium">{formatRp(calculatedPrintingCost2)}</span></div>}
+                  {calculatedFinishingCost > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Finishing</span><span className="text-slate-500 font-medium">{formatRp(calculatedFinishingCost)}</span></div>}
+                  {summaryPacking > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Packing</span><span className="text-slate-500 font-medium">{formatRp(summaryPacking)}</span></div>}
+                  {summaryShipping > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Kirim</span><span className="text-slate-500 font-medium">{formatRp(summaryShipping)}</span></div>}
+                  {calculatedGlueCost > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Ongkos Lem</span><span className="text-slate-500 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
+                  {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Lem Borongan</span><span className="text-slate-500 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
+                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Biaya Lain 1</span><span className="text-slate-500 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                  {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[11px]"><span className="text-slate-500">Biaya Lain 2</span><span className="text-slate-500 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
               <div className="px-3 pb-3 flex flex-col gap-1.5 mt-auto">
