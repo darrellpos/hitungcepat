@@ -692,8 +692,8 @@ function HitungCetakanPage() {
                 <div className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center"><Users className="w-3.5 h-3.5 text-blue-600" /></div>
                 <h2 className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</h2>
               </div>
-              <div className="px-2 py-1">
-                <div className="space-y-1">
+              <div className="px-4 py-2">
+                <div className="space-y-1.5">
                   <div>
                     <label className={labelClass}>{t('nama_customer')} <span className="text-red-500">*</span></label>
                     <select value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} className={selectClass}>
@@ -701,7 +701,7 @@ function HitungCetakanPage() {
                       {customers.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
-                  <div className="grid grid-cols-1 gap-1">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className={labelClass}>{t('nama_cetakan')} <span className="text-red-500">*</span></label>
                       <input type="text" placeholder="Nama cetakan" value={formData.printName} onChange={(e) => setFormData({ ...formData, printName: e.target.value })} className={inputClass} />
