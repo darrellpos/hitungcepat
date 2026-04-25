@@ -871,7 +871,7 @@ function HitungCetakanPage() {
               </div>
 
               {/* Ongkos Lem */}
-              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label={<>Ongkos Lem <span className="ml-auto text-[11px] font-bold text-cyan-600">{calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : ''}</span></>} />
+              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
               <div className="px-3 py-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -889,12 +889,16 @@ function HitungCetakanPage() {
                     </div>
                   </div>
                 </div>
+                <div className="mt-2">
+                  <label className={labelClass}>Total Lem</label>
+                  <ValueBox label="Ongkos Lem" value={calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-teal-50 border-cyan-200" />
+                </div>
               </div>
 
               {/* Ongkos Lem Borongan moved to right column (desktop) */}
               {/* Mobile-only Ongkos Lem Borongan */}
               <div className="lg:hidden">
-                <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label={<>Ongkos Lem Borongan <span className="ml-auto text-[11px] font-bold text-indigo-600">{calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : ''}</span></>} />
+                <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label="Ongkos Lem Borongan" />
                 <div className="px-3 py-3">
                   <div>
                     <label className={labelClass}>Harga Lem per Lembar</label>
@@ -902,6 +906,10 @@ function HitungCetakanPage() {
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                       <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
                     </div>
+                  </div>
+                  <div className="mt-2">
+                    <label className={labelClass}>Total Borongan</label>
+                    <ValueBox label="Lem Borongan" value={calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200" />
                   </div>
                 </div>
               </div>
@@ -1116,7 +1124,7 @@ function HitungCetakanPage() {
               </div>
 
               {/* Ongkos Lem */}
-              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label={<>Ongkos Lem <span className="ml-auto text-[11px] font-bold text-cyan-600">{calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : ''}</span></>} />
+              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
               <div className="p-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -1134,10 +1142,14 @@ function HitungCetakanPage() {
                     </div>
                   </div>
                 </div>
+                <div className="mt-2">
+                  <label className={labelClass}>Total Lem</label>
+                  <ValueBox label="Ongkos Lem" value={calculatedGlueCost > 0 ? `Rp ${Math.round(calculatedGlueCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-teal-50 border-cyan-200" />
+                </div>
               </div>
 
               {/* Ongkos Lem Borongan */}
-              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label={<>Ongkos Lem Borongan <span className="ml-auto text-[11px] font-bold text-indigo-600">{calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : ''}</span></>} />
+              <SectionHeader icon={<Package className="w-3.5 h-3.5 text-indigo-600" />} label="Ongkos Lem Borongan" />
               <div className="p-3">
                 <div>
                   <label className={labelClass}>Harga/Lembar</label>
@@ -1145,6 +1157,10 @@ function HitungCetakanPage() {
                     <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                     <input type="number" step="0.01" placeholder="0" value={formData.glueBoronganPerSheet} onChange={(e) => setFormData({ ...formData, glueBoronganPerSheet: e.target.value })} className={`${inputClass} pl-9`} />
                   </div>
+                </div>
+                <div className="mt-2">
+                  <label className={labelClass}>Total Borongan</label>
+                  <ValueBox label="Lem Borongan" value={calculatedGlueBoronganSheet > 0 ? `Rp ${Math.round(calculatedGlueBoronganSheet).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-indigo-50 to-violet-50 border-indigo-200" />
                 </div>
               </div>
 
