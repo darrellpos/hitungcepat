@@ -661,7 +661,7 @@ function HitungCetakanPage() {
   const SectionHeader = ({ icon, label, badge }: { icon: React.ReactNode; label: React.ReactNode; badge?: number }) => (
     <div className="flex items-center gap-2 px-4 py-2 border-b border-slate-100 bg-slate-50/60">
       <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">{icon}</div>
-      <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wide flex-1 min-w-0">{label}</h2>
+      <h2 className="text-[13px] font-bold text-slate-700 uppercase tracking-wide flex-1 min-w-0">{label}</h2>
       {badge !== undefined && badge > 0 && (
         <span className="text-[11px] font-semibold text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded-full">{badge}</span>
       )}
@@ -690,7 +690,7 @@ function HitungCetakanPage() {
               {/* Section 1: Informasi Cetakan */}
               <div className="flex items-center gap-2 px-2 py-2 border-b border-slate-100 bg-slate-50/60">
                 <div className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center"><Users className="w-3.5 h-3.5 text-blue-600" /></div>
-                <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</h2>
+                <h2 className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</h2>
               </div>
               <div className="px-2 py-1">
                 <div className="space-y-1">
@@ -1258,7 +1258,7 @@ function HitungCetakanPage() {
             {calculations.length > 0 && (
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col min-h-0">
                 <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between flex-shrink-0">
-                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">Daftar Cetakan</span>
+                  <span className="text-[12px] font-bold text-slate-600 uppercase tracking-wide">Daftar Cetakan</span>
                   <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{calculations.length}</span>
                 </div>
                 <div className="flex-1 overflow-y-auto divide-y divide-slate-50 ">
@@ -1367,7 +1367,7 @@ function HitungCetakanPage() {
                     <div className="w-5 h-5 rounded bg-blue-100 flex items-center justify-center">
                       <FileText className="w-3 h-3 text-blue-600" />
                     </div>
-                    <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</p>
+                    <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Informasi Cetakan</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-2.5">
@@ -1402,7 +1402,7 @@ function HitungCetakanPage() {
                     <div className="w-5 h-5 rounded bg-teal-100 flex items-center justify-center">
                       <FileText className="w-3 h-3 text-teal-600" />
                     </div>
-                    <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Harga Bahan Kertas</p>
+                    <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Harga Bahan Kertas</p>
                   </div>
                   <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1.5">
@@ -1433,7 +1433,7 @@ function HitungCetakanPage() {
                       <div className="w-5 h-5 rounded bg-blue-100 flex items-center justify-center">
                         <Calculator className="w-3 h-3 text-blue-600" />
                       </div>
-                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">{t('ongkos_cetak_label')}</p>
+                      <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">{t('ongkos_cetak_label')}</p>
                     </div>
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
@@ -1468,7 +1468,7 @@ function HitungCetakanPage() {
                       <div className="w-5 h-5 rounded bg-fuchsia-100 flex items-center justify-center">
                         <Calculator className="w-3 h-3 text-fuchsia-600" />
                       </div>
-                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Ongkos Cetak 2</p>
+                      <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Ongkos Cetak 2</p>
                     </div>
                     <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
@@ -1496,7 +1496,7 @@ function HitungCetakanPage() {
                       <div className="w-5 h-5 rounded bg-rose-100 flex items-center justify-center">
                         <Layers className="w-3 h-3 text-rose-600" />
                       </div>
-                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">{t('finishing_label')}</p>
+                      <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">{t('finishing_label')}</p>
                     </div>
                     <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
@@ -1525,7 +1525,7 @@ function HitungCetakanPage() {
                       <div className="w-5 h-5 rounded bg-amber-100 flex items-center justify-center">
                         <Truck className="w-3 h-3 text-amber-600" />
                       </div>
-                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Biaya Tambahan</p>
+                      <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Biaya Tambahan</p>
                     </div>
                     <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
                       <div className="grid grid-cols-2 gap-2">
@@ -1595,7 +1595,7 @@ function HitungCetakanPage() {
                       <div className="w-5 h-5 rounded bg-orange-100 flex items-center justify-center">
                         <Percent className="w-3 h-3 text-orange-600" />
                       </div>
-                      <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Uang Capek</p>
+                      <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Uang Capek</p>
                     </div>
                     <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
                       <div className="flex items-center justify-between">
