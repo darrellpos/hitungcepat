@@ -1072,74 +1072,7 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* =================== FOOTER =================== */}
-      <footer className="w-full bg-gray-900 text-white mt-auto">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-10 md:py-14">
-          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
-            {/* Brand */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-                  <Printer className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-extrabold">
-                  Darrell <span className="text-orange-400">POS</span>
-                </span>
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Sistem kasir percetakan terlengkap. Hitung modal jadi semudah mengetik. Cepat, Akurat, dan Fleksibel!
-              </p>
-            </div>
-
-            {/* Links */}
-            <div>
-              <h4 className="font-bold text-sm mb-4 text-gray-300 uppercase tracking-wider">Navigasi</h4>
-              <ul className="space-y-2.5">
-                {['Fitur', 'Keunggulan', 'Harga', 'Testimoni', 'FAQ'].map((item) => (
-                  <li key={item}>
-                    <a
-                      href={`#${item.toLowerCase()}`}
-                      className="nav-link text-sm text-gray-400 hover:text-orange-400 transition-colors"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="font-bold text-sm mb-4 text-gray-300 uppercase tracking-wider">Kontak</h4>
-              <ul className="space-y-2.5">
-                <li className="flex items-center gap-2 text-sm text-gray-400">
-                  <MessageCircle className="w-4 h-4 text-orange-400" />
-                  <span>DM kami sekarang</span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-gray-400">
-                  <Shield className="w-4 h-4 text-orange-400" />
-                  <span>Support 24/7</span>
-                </li>
-              </ul>
-              <Button className="mt-5 ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm">
-                Hubungi Kami <ChevronRight className="ml-1 w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          <Separator className="my-8 bg-gray-800" />
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
-            <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} Darrell POS. All rights reserved.
-            </p>
-            <p className="text-sm text-gray-500">
-              Made with <span className="text-red-400">&#9829;</span> for printing entrepreneurs
-            </p>
-          </div>
-        </div>
-      </footer>
-    </motion.div>
-    </div>
+      </motion.div>
+      </div>
   );
 }
