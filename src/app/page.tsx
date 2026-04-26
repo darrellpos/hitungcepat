@@ -1072,6 +1072,88 @@ export default function Home() {
         </div>
       </Section>
 
+      {/* =================== FOOTNOTE / FOOTER =================== */}
+      <footer className="w-full bg-gray-900 text-gray-400 mt-auto">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-12 md:py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/20">
+                  <Printer className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-extrabold tracking-tight">
+                  <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Darrell</span>
+                  <span className="text-white"> POS</span>
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Sistem kasir percetakan #1 di Indonesia. Hitung modal, tentukan profit, dan kelola bisnis cetakmu dengan mudah.
+              </p>
+            </div>
+
+            {/* Produk */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4">Produk</h4>
+              <ul className="space-y-2.5">
+                <li><a href="#fitur" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Fitur</a></li>
+                <li><a href="#harga" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Harga</a></li>
+                <li><a href="#testimoni" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Testimoni</a></li>
+                <li><a href="#faq" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+
+            {/* Perusahaan */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4">Perusahaan</h4>
+              <ul className="space-y-2.5">
+                <li><a href="#keunggulan" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Tentang Kami</a></li>
+                <li><a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Kontak</a></li>
+                <li><span className="text-sm text-gray-500">Kebijakan Privasi</span></li>
+                <li><span className="text-sm text-gray-500">Syarat & Ketentuan</span></li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4">Support</h4>
+              <ul className="space-y-2.5">
+                <li>
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-orange-400 transition-colors flex items-center gap-2">
+                    <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                  </a>
+                </li>
+                <li>
+                  <span className="text-sm text-gray-500 flex items-center gap-2">
+                    <Shield className="w-3.5 h-3.5 text-green-500" /> 24/7 Online
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="mt-10 pt-8 border-t border-gray-800">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-xs text-gray-600 text-center md:text-left">
+                &copy; {new Date().getFullYear()} Darrell POS. All rights reserved.
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <Shield className="w-3 h-3 text-green-500" />
+                  <span>Data Terenkripsi</span>
+                </div>
+                <span className="text-gray-700">•</span>
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <Lock className="w-3 h-3 text-green-500" />
+                  <span>Koneksi Aman</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+
       </motion.div>
       </div>
   );
