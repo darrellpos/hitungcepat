@@ -245,3 +245,22 @@ Stage Summary:
 - No page refresh needed - changes propagate instantly via Zustand store
 - Cross-tab sync via BroadcastChannel API - changes in one browser tab update all other tabs
 - All 5 display points (Sidebar, MobileHeader, Login, InlineLogin, Pengaturan preview) share single source of truth
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Verify landing page content visible before login
+
+Work Log:
+- Confirmed dev server running on port 3000 (daemon.cjs)
+- Verified page.tsx (1165 lines) contains full landing page from hitungcepat repo
+- All sections present: Hero, Stats Bar, Fitur, Keunggulan, Cara Kerja, Harga, Testimoni, CTA, FAQ, Footer
+- All assets exist: hero-printing.png, fitur-small-1.jpeg, fitur-small-2.jpeg
+- Server returns 200 for GET / with correct content ("Sistem Kasir Percetakan" confirmed in HTML)
+- No compilation errors, no lint errors in src/ directory
+- Page flow: / (landing) → goToLogin() → /login (login page)
+
+Stage Summary:
+- Landing page from hitungcepat repo fully integrated at src/app/page.tsx
+- Serves as pre-login page at root URL /
+- All content rendering correctly server-side and client-side
