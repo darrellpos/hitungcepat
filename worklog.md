@@ -284,3 +284,22 @@ Stage Summary:
 - Content now stays visible after hydration - no more blank page
 - Scroll animations still work for below-fold elements
 - Deployed to Vercel: https://darrellpos-new.vercel.app
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix font weight difference between local (bold) and production (normal)
+
+Work Log:
+- Investigated: `next/font/google` Geist font was configured but body tag lacked explicit `font-sans` class and `fontFamily` style
+- Root cause: The body had `geistSans.variable` CSS class but no `font-sans` utility class or inline fontFamily, so the Geist font wasn't reliably applied as the body font — browser fell back to system sans-serif which has different weight metrics than Geist
+- Fix applied to `src/app/layout.tsx`:
+  1. Added `display: "swap"` to both Geist and Geist_Mono font config for explicit font loading behavior
+  2. Added `font-sans` Tailwind class to body className
+  3. Added `style={{ fontFamily: 'var(--font-geist-sans)' }}` to body for guaranteed Geist font application
+- Deployed to Vercel: https://darrellpos-new.vercel.app
+
+Stage Summary:
+- Font family now explicitly set on body via both CSS class and inline style
+- Geist variable font with all weights (100-900) will be used consistently in both local and production
+- `display: "swap"` ensures text is always visible even if font hasn't loaded yet
