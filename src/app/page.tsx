@@ -640,17 +640,7 @@ export default function Home() {
                     onClick={goToLogin}
                     className="ripple-btn cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 text-base font-semibold py-6 px-8"
                   >
-                    Coba Gratis Sekarang <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    asChild
-                    className="ripple-btn ripple-btn-dark border-gray-300 hover:border-orange-300 hover:bg-orange-50 text-gray-700 transition-all duration-300 text-base font-semibold py-6 px-8"
-                  >
-                    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="mr-2 w-5 h-5" /> DM Kami
-                    </a>
+                    Mulai Sekarang <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </div>
 
@@ -1041,7 +1031,7 @@ export default function Home() {
                 onClick={goToLogin}
                 className="ripple-btn ripple-btn-dark cta-glow bg-white text-orange-600 hover:bg-orange-50 shadow-2xl shadow-orange-700/20 hover:shadow-3xl transition-all duration-300 text-lg font-bold py-7 px-10"
               >
-                Mulai Sekarang <ArrowRight className="ml-2 w-5 h-5" />
+                Coba Gratis Sekarang <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <Button
                 size="lg"
@@ -1050,7 +1040,7 @@ export default function Home() {
                 className="ripple-btn border-2 border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300 text-lg font-semibold py-7 px-10"
               >
                 <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="mr-2 w-5 h-5" /> DM Kami Sekarang
+                  <MessageCircle className="mr-2 w-5 h-5" /> DM Kami
                 </a>
               </Button>
             </div>
