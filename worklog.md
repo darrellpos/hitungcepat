@@ -264,3 +264,23 @@ Stage Summary:
 - Landing page from hitungcepat repo fully integrated at src/app/page.tsx
 - Serves as pre-login page at root URL /
 - All content rendering correctly server-side and client-side
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix content disappearing after hydration (blank page with 1/2 second flash)
+
+Work Log:
+- Diagnosed root cause: `FadeIn` and `CountUp` components used `useHydrated()` (useSyncExternalStore) to conditionally render plain `<div>` on SSR vs `<motion.div initial={{ opacity: 0 }}>` on client
+- This caused a hydration mismatch: SSR rendered visible content, then client hydration switched ALL elements to `opacity: 0`
+- With `margin: '-60px'` on useInView, IntersectionObserver might not fire for near-edge elements, leaving content permanently invisible
+- Fix: Removed `useHydrated` hook entirely, removed `useSyncExternalStore` import
+- Changed `FadeIn` to always render `<motion.div>` with `initial={false}` (no initial animation styles)
+- Changed `CountUp` similarly to always render `<motion.span>` with `initial={false}`
+- Removed `margin: '-60px'` from `useInView` calls for more reliable intersection detection
+- With `initial={false}`: SSR renders visible content, client hydration keeps content visible, animations only trigger for scroll-based reveals
+
+Stage Summary:
+- Content now stays visible after hydration - no more blank page
+- Scroll animations still work for below-fold elements
+- Deployed to Vercel: https://darrellpos-new.vercel.app
