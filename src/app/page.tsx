@@ -546,6 +546,9 @@ export default function Home() {
             <a href="#keunggulan" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Keunggulan</a>
             <a href="#harga" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Harga</a>
             <a href="#testimoni" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Testimoni</a>
+            <Button onClick={goToLogin} className="ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md shadow-orange-500/20 hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-300">
+              Masuk <ChevronRight className="ml-1 w-4 h-4" />
+            </Button>
           </div>
 
           {/* Mobile toggle */}
@@ -575,6 +578,9 @@ export default function Home() {
               <a href="#keunggulan" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Keunggulan</a>
               <a href="#harga" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Harga</a>
               <a href="#testimoni" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Testimoni</a>
+              <Button onClick={goToLogin} className="w-full ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white mt-1">
+                Masuk <ChevronRight className="ml-1 w-4 h-4" />
+              </Button>
             </div>
           </motion.div>
         )}
