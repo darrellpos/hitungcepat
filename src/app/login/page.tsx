@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Key, Eye, EyeOff, Phone, Mail, User as UserIcon, Loader2, AlertCircle, Info, CheckCircle } from 'lucide-react'
+import { Key, Eye, EyeOff, Phone, Mail, User as UserIcon, Loader2, AlertCircle, Info, CheckCircle, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getAuthUser } from '@/lib/auth'
 import { useLanguage } from '@/contexts/language-context'
@@ -234,7 +234,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8" style={{ background: loginBgColor || 'linear-gradient(to bottom right, #EFF6FF, #ffffff, #f1f5f9)' }}>
+    <div className="min-h-screen flex flex-col px-4 py-8" style={{ background: loginBgColor || 'linear-gradient(to bottom right, #EFF6FF, #ffffff, #f1f5f9)' }}>
+      {/* Back button */}
+      <button
+        onClick={() => router.push('/')}
+        className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors w-fit mt-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Kembali
+      </button>
+
+      <div className="flex-1 flex items-center justify-center">
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8 flex flex-col items-center">
@@ -587,6 +597,7 @@ export default function LoginPage() {
         <p className="text-center text-xs text-slate-400 mt-6">
           &copy; Copyright by DarrellPOS 2026 All rights reserved
         </p>
+      </div>
       </div>
 
       {/* ===== DEMO POPUP DIALOG ===== */}
