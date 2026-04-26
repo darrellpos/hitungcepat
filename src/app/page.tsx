@@ -605,7 +605,7 @@ export default function Home() {
                   <Zap className="w-3 h-3 mr-1" /> Sistem Kasir Percetakan #1
                 </Badge>
 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight" style={{ fontWeight: 900 }}>
                   Pusing Hitung{' '}
                   <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Cetakan</span>{' '}
                   Sampai Sering{' '}
@@ -625,16 +625,16 @@ export default function Home() {
 
                 {/* Trust signals */}
                 <div className="flex items-center gap-4 mt-4 flex-wrap">
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <Shield className="w-4 h-4 text-green-500" />
+                  <div className="flex items-center gap-1.5 text-gray-500 font-bold" style={{ fontSize: '1.0625rem' }}>
+                    <Shield className="w-5 h-5 text-green-500" />
                     <span>Tanpa ikatan</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <div className="flex items-center gap-1.5 text-gray-500 font-bold" style={{ fontSize: '1.0625rem' }}>
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <span>Bisa batal kapan saja</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <X className="w-4 h-4 text-red-400" />
+                  <div className="flex items-center gap-1.5 text-gray-500 font-bold" style={{ fontSize: '1.0625rem' }}>
+                    <X className="w-5 h-5 text-red-400" />
                     <span>Tanpa denda</span>
                   </div>
                 </div>
