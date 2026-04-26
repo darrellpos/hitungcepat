@@ -503,21 +503,6 @@ export default function Home() {
 
   const router = useRouter();
 
-  // Redirect to dashboard if already logged in
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        const parsed = JSON.parse(auth);
-        if (parsed && parsed.id) {
-          router.push('/hitung-cetakan');
-          return;
-        }
-      }
-    } catch {}
-  }, [router]);
-
   const goToLogin = () => {
     setLoginTransition(true);
     setTimeout(() => {
