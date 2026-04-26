@@ -1,933 +1,1164 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight, Share2 } from 'lucide-react'
-import { DashboardLayout } from '@/components/dashboard-layout'
-import { useLanguage } from '@/contexts/language-context'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { toast } from 'sonner'
-import type { Customer, Paper, CuttingResult } from '@/lib/cutting-engine'
-import dynamic from 'next/dynamic'
-import { getAuthUser } from '@/lib/auth'
+import { motion, useInView } from 'framer-motion';
+import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Printer,
+  Calculator,
+  DollarSign,
+  Zap,
+  Monitor,
+  Smartphone,
+  Shield,
+  X,
+  CheckCircle2,
+  ChevronRight,
+  Star,
+  TrendingUp,
+  Package,
+  MousePointerClick,
+  ArrowRight,
+  ArrowLeft,
+  MessageCircle,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  type LucideIcon,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-const CuttingDiagram = dynamic(
-  () => import('@/components/cutting-results').then(m => ({ default: m.CuttingDiagram })),
-  { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-xs text-slate-400">Memuat diagram...</div> }
-)
-
-// Form state keys for localStorage persistence
-const STORAGE_KEY = 'potong-kertas-form'
-const STORAGE_VERSION_KEY = 'potong-kertas-form-version'
-const STORAGE_VERSION = 'v3' // increment to force reset on deploy
-
-interface FormData {
-  paperWidth: string
-  paperHeight: string
-  cutWidth: string
-  cutHeight: string
-  selectedCustomerId: string
-  selectedPaperId: string
-  grammage: string
-  pricePerSheet: string
-  quantity: string
-  printName: string
-  isCustomPaper: boolean
-  optimizationMode: string
+/* ------------------------------------------------------------------ */
+/*  Animation helpers                                                  */
+/* ------------------------------------------------------------------ */
+function FadeIn({
+  children,
+  delay = 0,
+  className = '',
+  direction = 'up',
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  direction?: 'up' | 'down' | 'left' | 'right';
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const dirMap = {
+    up: { y: 40, x: 0 },
+    down: { y: -40, x: 0 },
+    left: { x: 40, y: 0 },
+    right: { x: -40, y: 0 },
+  };
+  const { x, y } = dirMap[direction];
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial={{ opacity: 0, x, y }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
-function getInitialFormState(): FormData {
-  if (typeof window === 'undefined') {
-    return {
-      paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
-      selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-      quantity: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal',
-    }
-  }
-  try {
-    const savedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
-    if (savedVersion !== STORAGE_VERSION) {
-      localStorage.removeItem(STORAGE_KEY)
-      localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION)
-      return null
-    }
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return {
-    paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
-    selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-    quantity: '', isCustomPaper: false, optimizationMode: 'maximal',
-  }
-}
-
-// Compact styles (mobile larger, desktop compact)
-const inp = "w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base lg:px-2 lg:py-1 lg:text-sm text-slate-800 focus:outline-none focus:ring-1.5 focus:ring-blue-500 focus:border-transparent bg-white"
-const inpDisabled = "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base lg:px-2 lg:py-1 lg:text-xs text-slate-500 bg-slate-100 cursor-not-allowed"
-const lbl = "text-base lg:text-xs font-medium text-slate-600 mb-0.5 block"
-
-function CalculatorPage() {
-  const { t } = useLanguage()
-  const router = useRouter()
-  const initialForm = useRef<FormData>(getInitialFormState())
-  const [paperWidth, setPaperWidth] = useState(initialForm.current.paperWidth)
-  const [paperHeight, setPaperHeight] = useState(initialForm.current.paperHeight)
-  const [cutWidth, setCutWidth] = useState(initialForm.current.cutWidth)
-  const [cutHeight, setCutHeight] = useState(initialForm.current.cutHeight)
-  const [selectedCustomerId, setSelectedCustomerId] = useState(initialForm.current.selectedCustomerId)
-  const [selectedPaperId, setSelectedPaperId] = useState(initialForm.current.selectedPaperId)
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [papers, setPapers] = useState<Paper[]>([])
-  const [grammage, setGrammage] = useState(initialForm.current.grammage)
-  const [pricePerSheet, setPricePerSheet] = useState(initialForm.current.pricePerSheet)
-  const [quantity, setQuantity] = useState(initialForm.current.quantity)
-  const [printName, setPrintName] = useState(initialForm.current.printName)
-  const [isCustomPaper, setIsCustomPaper] = useState(initialForm.current.isCustomPaper)
-  const [results, setResults] = useState<CuttingResult | null>(null)
-  const [optimizationMode, setOptimizationMode] = useState<'fast' | 'maximal'>(initialForm.current.optimizationMode as 'fast' | 'maximal')
-  const [isCalculating, setIsCalculating] = useState(false)
-
-  // Preview state
-  const [previewOpen, setPreviewOpen] = useState(false)
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
-  const previewRef = useRef<HTMLDivElement>(null)
-
-  // Auto-persist form data to localStorage
-  const formData: FormData = {
-    paperWidth, paperHeight, cutWidth, cutHeight,
-    selectedCustomerId, selectedPaperId, grammage, pricePerSheet,
-    quantity, printName, isCustomPaper, optimizationMode,
-  }
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
-  }, [formData])
-
-  useEffect(() => {
-    fetch('/api/customers')
-      .then(res => { if (!res.ok) return []; return res.json() })
-      .then(data => { if (Array.isArray(data)) setCustomers(data); else setCustomers([]) })
-      .catch(() => setCustomers([]))
-
-    fetch('/api/papers')
-      .then(res => { if (!res.ok) return []; return res.json() })
-      .then(data => { if (Array.isArray(data)) setPapers(data); else setPapers([]) })
-      .catch(() => setPapers([]))
-  }, [])
-
-  const selectedPaper = papers.find(p => p.id === selectedPaperId)
-  const selectedCustomer = customers.find(c => c.id === selectedCustomerId)
-
-  useEffect(() => {
-    if (selectedPaper) {
-      requestAnimationFrame(() => {
-        setGrammage(selectedPaper.grammage.toString())
-        setPricePerSheet(Math.round(selectedPaper.pricePerRim / 500).toString())
-        setPaperWidth(selectedPaper.width.toString())
-        setPaperHeight(selectedPaper.height.toString())
-        setIsCustomPaper(false)
-      })
-    }
-  }, [selectedPaper])
-
-  const handlePaperChange = (value: string) => {
-    if (value === 'custom') {
-      setSelectedPaperId('custom')
-      setIsCustomPaper(true)
-      setPaperWidth('')
-      setPaperHeight('')
-      setGrammage('')
-      setPricePerSheet('')
-    } else {
-      setSelectedPaperId(value)
-      setIsCustomPaper(false)
-    }
-  }
-
-  const handleCalculateCuts = async () => {
-    setIsCalculating(true)
-    await new Promise(resolve => setTimeout(resolve, 50))
-
-    const pw = parseFloat(paperWidth)
-    const ph = parseFloat(paperHeight)
-    const cw = parseFloat(cutWidth)
-    const ch = parseFloat(cutHeight)
-    const qty = parseInt(quantity) || 0
-    const price = parseFloat(pricePerSheet) || 0
-
-    if (!pw || !ph || !cw || !ch) {
-      toast.error('Mohon lengkapi semua ukuran!')
-      setIsCalculating(false)
-      return
-    }
-    if (cw > pw || ch > ph) {
-      toast.error('Ukuran potongan lebih besar dari ukuran kertas!')
-      setIsCalculating(false)
-      return
-    }
-
-    const { calculateCuts } = await import('@/lib/cutting-engine')
-    const result = calculateCuts({
-      paperWidth: pw, paperHeight: ph, cutWidth: cw, cutHeight: ch,
-      quantity: qty, pricePerSheet: price, optimizationMode,
-      customerName: selectedCustomer?.name || '',
-      paperMaterial: selectedPaper?.name || '',
-      grammage: selectedPaper?.grammage || 0,
-    })
-
-    setResults(result)
-    setIsCalculating(false)
-    toast.success('Perhitungan selesai!')
-  }
-
-  const handleReset = () => {
-    if (!confirm('Reset semua data yang sudah diisi?')) return
-    setPaperWidth('')
-    setPaperHeight('')
-    setCutWidth('')
-    setCutHeight('')
-    setSelectedCustomerId('')
-    setSelectedPaperId('')
-    setGrammage('')
-    setPricePerSheet('')
-    setQuantity('')
-    setPrintName('')
-    setIsCustomPaper(false)
-    setResults(null)
-    setOptimizationMode('maximal')
-    localStorage.removeItem(STORAGE_KEY)
-    toast.success('Data berhasil direset')
-  }
-
-  const handleSave = async () => {
-    if (!results) {
-      toast.error('Hitung potongan terlebih dahulu!')
-      return
-    }
-    try {
-      await fetch('/api/riwayat-cetakan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          printName: printName || selectedCustomer?.name || '-',
-          customerName: selectedCustomer?.name || '',
-          paperName: selectedPaper?.name || 'Custom',
-          paperGrammage: grammage || '0',
-          paperLength: paperWidth,
-          paperWidth: paperHeight,
-          cutWidth: cutWidth,
-          cutHeight: cutHeight,
-          quantity: quantity || '0',
-          warna: '-',
-          warnaKhusus: '-',
-          machineName: '-',
-          hargaPlat: 0,
-          ongkosCetak: 0,
-          ongkosCetakDetail: results.strategy,
-          totalPaperPrice: results.totalPrice,
-          finishingNames: '-',
-          finishingBreakdown: '-',
-          finishingCost: 0,
-          packingCost: 0,
-          shippingCost: 0,
-          subTotal: results.totalPrice,
-          profitPercent: 0,
-          profitAmount: 0,
-          grandTotal: results.totalPrice,
-        })
-      })
-      toast.success('Data berhasil disimpan ke riwayat!')
-    } catch {
-      toast.error('Gagal menyimpan data')
-    }
-  }
-
-  // Build SVG diagram HTML for print/PDF/WhatsApp
-  const buildDiagramHtml = useCallback(() => {
-    if (!results) return ''
-    const r = results
-    const scale = 5.94
-    const pw = r.paperWidth
-    const ph = r.paperHeight
-    const svgW = pw * scale
-    const svgH = ph * scale
-
-    const gradients = [
-      { id: 'pg1', c1: '#dbeafe', c2: '#bfdbfe' },
-      { id: 'pg2', c1: '#d1fae5', c2: '#a7f3d0' },
-      { id: 'pg3', c1: '#fef3c7', c2: '#fde68a' },
-      { id: 'pg4', c1: '#fecaca', c2: '#fca5a5' },
-      { id: 'pg5', c1: '#e9d5ff', c2: '#d8b4fe' },
-    ]
-    const strokeColors = ['#93c5fd', '#6ee7b7', '#fcd34d', '#fca5a5', '#c4b5fd']
-
-    let defsInner = gradients.map(g =>
-      `<linearGradient id="${g.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g.c1}"/><stop offset="100%" stop-color="${g.c2}"/></linearGradient>`
-    ).join('')
-
-    let wasteRects = ''
-    r.blocks.forEach((block: any, bi: number) => {
-      if (block.wasteWidth > 0.01) {
-        wasteRects += `<rect x="${(block.x + block.usedWidth) * scale}" y="${block.y * scale}" width="${block.wasteWidth * scale}" height="${block.usedHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
-        if (block.wasteHeight > 0.01) {
-          wasteRects += `<rect x="${(block.x + block.usedWidth) * scale}" y="${(block.y + block.usedHeight) * scale}" width="${block.wasteWidth * scale}" height="${block.wasteHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
-        }
-      }
-      if (block.wasteHeight > 0.01) {
-        wasteRects += `<rect x="${block.x * scale}" y="${(block.y + block.usedHeight) * scale}" width="${block.usedWidth * scale}" height="${block.wasteHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
-      }
-    })
-
-    let cutLines = ''
-    if (r.blocks.length > 1 && r.cutPosition !== undefined) {
-      cutLines += `<line x1="${r.cutPosition * scale}" y1="0" x2="${r.cutPosition * scale}" y2="${svgH}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
-    }
-    if (r.blocks.length > 1 && r.cutPositionY !== undefined) {
-      cutLines += `<line x1="0" y1="${r.cutPositionY * scale}" x2="${svgW}" y2="${r.cutPositionY * scale}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
-    }
-
-    let pieceGroups = ''
-    r.blocks.forEach((block: any, bi: number) => {
-      const bx = block.x * scale
-      const by = block.y * scale
-      const pieceW = block.pieceWidth * scale
-      const pieceH = block.pieceHeight * scale
-      const gId = gradients[bi % gradients.length].id
-      const sCol = strokeColors[bi % strokeColors.length]
-      let num = 1
-      for (let i = 0; i < block.horizontal; i++) {
-        for (let j = 0; j < block.vertical; j++) {
-          const cx = bx + i * pieceW + pieceW / 2
-          const cy = by + j * pieceH + pieceH / 2
-          const cr = Math.max(4, Math.min(pieceW, pieceH) / 4)
-          pieceGroups += `<g><rect x="${bx + i * pieceW + 1}" y="${by + j * pieceH + 1}" width="${pieceW - 3}" height="${pieceH - 3}" fill="url(#${gId})" stroke="${sCol}" stroke-width="1.5"/><circle cx="${cx}" cy="${cy}" r="${cr}" fill="white" opacity="0.9"/><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="500" fill="#64748b">${num++}</text></g>`
-        }
-      }
-    })
-
-    return `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:100%;max-height:130mm;border:1px solid #cbd5e1;border-radius:2px;background:linear-gradient(to bottom right,#fff,#f8fafc);"><defs>${defsInner}</defs><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#f1f5f9" opacity="0.3"/><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="none" stroke="#94a3b8" stroke-width="4" rx="2"/>${cutLines}${wasteRects}${pieceGroups}</svg>`
-  }, [results])
-
-  // Build the full print/PDF body HTML
-  const buildFullPrintHtml = useCallback(() => {
-    if (!results) return ''
-    const r = results
-    const svgDiagram = buildDiagramHtml()
-
-    const stepsHtml = r.steps.map((step: string, idx: number) =>
-      `<div style="display:flex;align-items:flex-start;gap:5px;padding:3px 0;">
-        <div style="flex-shrink:0;width:17px;height:17px;background:#2563eb;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${idx + 1}</div>
-        <span style="font-size:10px;color:#475569;padding-top:1px;line-height:1.4;">${step}</span>
-      </div>`
-    ).join('')
-
-    const blockColors = [
-      { bg: '#eff6ff', border: '#bfdbfe', badgeBg: '#dbeafe', badgeText: '#1d4ed8', name: '#1e40af', detail: '#2563eb' },
-      { bg: '#ecfdf5', border: '#a7f3d0', badgeBg: '#d1fae5', badgeText: '#047857', name: '#065f46', detail: '#059669' },
-      { bg: '#fffbeb', border: '#fde68a', badgeBg: '#fef3c7', badgeText: '#b45309', name: '#92400e', detail: '#d97706' },
-      { bg: '#fff1f2', border: '#fca5a5', badgeBg: '#fecaca', badgeText: '#b91c1c', name: '#991b1b', detail: '#dc2626' },
-      { bg: '#faf5ff', border: '#d8b4fe', badgeBg: '#e9d5ff', badgeText: '#7e22ce', name: '#6b21a8', detail: '#9333ea' },
-    ]
-
-    const blocksHtml = r.blocks.map((block: any, idx: number) => {
-      const c = blockColors[idx % 5]
-      return `<div style="border:1px solid ${c.border};background:${c.bg};border-radius:5px;padding:4px 6px;margin-bottom:3px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1px;">
-          <span style="font-size:10px;font-weight:700;color:${c.name};">${block.name}</span>
-          <span style="padding:1px 6px;background:${c.badgeBg};color:${c.badgeText};border-radius:10px;font-size:8px;font-weight:600;">${block.pieces} pcs</span>
-        </div>
-        <div style="display:flex;gap:10px;font-size:9px;color:${c.detail};">
-          <span>Ukuran: <b>${block.width.toFixed(1)}×${block.height.toFixed(1)}</b></span>
-          <span>Layout: <b>${block.horizontal}×${block.vertical}${block.rotated ? ' (90°)' : ''}</b></span>
-        </div>
-      </div>`
-    }).join('')
-
-    const infoDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-    const customerLabel = selectedCustomer?.name || printName || '-'
-    const paperLabel = selectedPaper?.name || 'Custom'
-
-    return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Potong Kertas</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  @page{size:A4;margin:5mm;}
-  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#1e293b;width:210mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .page{width:100%;padding:2mm 3mm;}
-  @media print{body{width:210mm;}.page{padding:0;}}
-</style>
-</head><body>
-<div class="page">
-
-  <!-- HEADER -->
-  <div style="text-align:center;margin-bottom:4mm;padding-bottom:3mm;border-bottom:2px solid #e2e8f0;">
-    <div style="font-size:14pt;font-weight:700;color:#0f172a;">Potong Kertas</div>
-    <div style="font-size:9pt;color:#64748b;margin-top:1mm;">${customerLabel} · ${paperLabel} · ${infoDate}</div>
-  </div>
-
-  <!-- INFO GRID -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;margin-bottom:3mm;">
-    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:2.5mm 3mm;">
-      <div style="font-size:7.5pt;color:#2563eb;font-weight:500;">Jumlah Diperlukan</div>
-      <div style="font-size:13pt;font-weight:700;color:#1d4ed8;">${r.quantity} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
-    </div>
-    <div style="background:#faf5ff;border:1px solid #d8b4fe;border-radius:4px;padding:2.5mm 3mm;">
-      <div style="font-size:7.5pt;color:#7e22ce;font-weight:500;">Potongan / Lembar</div>
-      <div style="font-size:13pt;font-weight:700;color:#6d28d9;">${r.totalPieces} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
-    </div>
-    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:4px;padding:2.5mm 3mm;">
-      <div style="font-size:7.5pt;color:#059669;font-weight:500;">Lembar Kertas</div>
-      <div style="font-size:13pt;font-weight:700;color:#047857;">${r.sheetsNeeded} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
-    </div>
-    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:2.5mm 3mm;">
-      <div style="font-size:7.5pt;color:#ea580c;font-weight:500;">Total Harga Kertas</div>
-      <div style="font-size:12pt;font-weight:700;color:#c2410c;">Rp ${r.totalPrice.toLocaleString('id-ID')}</div>
-    </div>
-    <div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:4px;padding:2.5mm 3mm;">
-      <div style="font-size:7.5pt;color:#e11d48;font-weight:500;">Sisa Potongan</div>
-      <div style="font-size:13pt;font-weight:700;color:#be123c;">${r.totalWasteArea.toFixed(2)} <span style="font-size:8pt;font-weight:400;">cm²</span></div>
-    </div>
-    <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:2.5mm 3mm;">
-      <div style="font-size:7.5pt;color:#0d9488;font-weight:500;">Efisiensi Bahan</div>
-      <div style="font-size:13pt;font-weight:700;color:#0f766e;">${r.efficiency.toFixed(2)}%</div>
-    </div>
-  </div>
-
-  <!-- STRATEGY -->
-  <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;padding:2mm 3mm;margin-bottom:3mm;text-align:center;">
-    <span style="font-size:7.5pt;font-weight:700;color:#3730a3;">Strategi Optimasi: </span>
-    <span style="font-size:10pt;font-weight:700;color:#4338ca;">${r.strategy}</span>
-  </div>
-
-  <!-- DIAGRAM -->
-  <div style="text-align:center;margin-bottom:3mm;">
-    ${svgDiagram}
-  </div>
-
-  <!-- STEPS + BLOCKS side by side -->
-  <div style="display:flex;gap:4mm;align-items:flex-start;">
-    <div style="flex:1;min-width:0;">
-      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:1.5mm;">Cara Potong:</div>
-      ${stepsHtml}
-    </div>
-    <div style="flex:1;min-width:0;">
-      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:1.5mm;">Detail per Blok:</div>
-      ${blocksHtml}
-    </div>
-  </div>
-
-</div>
-</body></html>`
-  }, [results, selectedCustomer, selectedPaper, printName, buildDiagramHtml])
-
-  const handlePrint = () => {
-    if (!results) return
-    const html = buildFullPrintHtml()
-    if (!html) return
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      toast.error('Popup diblokir. Izinkan popup untuk mencetak.')
-      return
-    }
-    printWindow.document.write(html)
-    printWindow.document.close()
-    printWindow.onload = () => {
-      printWindow.print()
-    }
-  }
-
-  const handlePdf = async () => {
-    if (!results) return
-
-    setIsGeneratingPdf(true)
-    try {
-      const html = buildFullPrintHtml()
-      if (!html) { toast.error('Tidak ada data'); return }
-
-      const printWindow = window.open('', '_blank')
-      if (!printWindow) {
-        toast.error('Popup diblokir. Izinkan popup untuk membuat PDF.')
-        return
-      }
-
-      // Inject auto-PDF script into the HTML
-      const pdfHtml = html.replace('</body>', `
-  <script>
-    window.onload = function() {
-      // Small delay for SVG rendering
-      setTimeout(function() {
-        window.print();
-      }, 500);
-    }
-  </script>
-</body>`)
-
-      printWindow.document.write(pdfHtml)
-      printWindow.document.close()
-      toast.success('PDF dibuka! Pilih "Save as PDF" di dialog print.')
-    } catch (err) {
-      console.error('PDF generation error:', err)
-      toast.error('Gagal menghasilkan PDF')
-    } finally {
-      setIsGeneratingPdf(false)
-    }
-  }
-
-  const handleShareWhatsApp = async () => {
-    if (!results) return
-
-    try {
-      const r = results
-      const customerLabel = selectedCustomer?.name || printName || '-'
-      const paperLabel = selectedPaper?.name || 'Custom'
-      const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-
-      const message = [
-        `📋 *POTONG KERTAS*`,
-        ``,
-        `👤 ${customerLabel}`,
-        `📄 ${paperLabel}`,
-        `📅 ${date}`,
-        ``,
-        `📐 *Ukuran:* ${r.cutWidth} × ${r.cutHeight} cm`,
-        `📊 *Strategi:* ${r.strategy}`,
-        ``,
-        `🔢 Jumlah Diperlukan: *${r.quantity} lembar*`,
-        `📦 Potongan/Lembar: *${r.totalPieces} pcs*`,
-        `📝 Lembar Kertas: *${r.sheetsNeeded} lembar*`,
-        `💰 Total Harga: *Rp ${r.totalPrice.toLocaleString('id-ID')}*`,
-        `🗑️ Sisa Potongan: *${r.totalWasteArea.toFixed(2)} cm²*`,
-        `📈 Efisiensi: *${r.efficiency.toFixed(2)}%*`,
-        ``,
-        `_${r.blocks.map((b: any) => `• ${b.name}: ${b.horizontal}×${b.vertical}${b.rotated ? ' (90°)' : ''}`).join('\\n')}_`,
-        ``,
-        `—— DarrellPOS ——`,
-      ].join('\\n')
-
-      const encoded = encodeURIComponent(message)
-      window.open(`https://wa.me/?text=${encoded}`, '_blank')
-      toast.success('WhatsApp terbuka!')
-    } catch (err) {
-      console.error('WhatsApp share error:', err)
-      toast.error('Gagal membuka WhatsApp')
-    }
-  }
+function CountUp({ end, suffix = '', prefix = '', duration = 2000 }: { end: number; suffix?: string; prefix?: string; duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true });
 
   return (
-    <DashboardLayout
-      title={t('potong_kertas')}
-      subtitle={t('subtitle_potong_kertas')}
+    <motion.span
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={isInView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.4 }}
     >
-      {/* === SINGLE PAGE LAYOUT: Form left, Results right === */}
-      <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-11rem)] gap-3 lg:min-h-0">
+      {isInView ? (
+        <Counter end={end} suffix={suffix} prefix={prefix} duration={duration} />
+      ) : (
+        `${prefix}0${suffix}`
+      )}
+    </motion.span>
+  );
+}
 
-        {/* ===== LEFT: FORM ===== */}
-        <div className="lg:w-[480px] xl:w-[510px] flex-shrink-0 flex flex-col gap-1.5 lg:overflow-y-auto lg:min-h-0 hide-scrollbar">
-          {/* Info Cetak */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-[18px] font-bold text-slate-700 mb-3 uppercase">{t('info_cetak')}</p>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={lbl}>{t('nama_customer')}</label>
-                  <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
-                    <SelectTrigger className="w-full h-10 text-base"><SelectValue placeholder={t('pilih_customer')} /></SelectTrigger>
-                    <SelectContent>
-                      {customers.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className={lbl}>{t('nama_cetakan')}</label>
-                  <input type="text" placeholder="Nama cetakan" value={printName} onChange={(e) => setPrintName(e.target.value)} className={inp} />
-                </div>
-              </div>
-              <div>
-                <label className={lbl}>{t('nama_bahan_kertas')}</label>
-                <Select value={selectedPaperId} onValueChange={handlePaperChange}>
-                  <SelectTrigger className="w-full h-10 text-base"><SelectValue placeholder={t('pilih_kertas')} /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="custom">
-                      <div className="flex items-center gap-1.5">
-                        <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                        <span className="text-xs">{t('custom_input_manual')}</span>
-                      </div>
-                    </SelectItem>
-                    {papers.map((p) => (<SelectItem key={p.id} value={p.id}><span className="text-xs">{p.name} ({p.width}×{p.height}, {p.grammage}gsm)</span></SelectItem>))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={lbl}>{t('gramatur')}</label>
-                  <input type="number" step="1" min="0" placeholder="150" value={grammage} onChange={(e) => setGrammage(e.target.value)} className={inp} />
-                </div>
-                <div>
-                  <label className={lbl}>{t('harga_per_lembar')}</label>
-                  <input type="number" step="0.01" min="0" placeholder="0" value={pricePerSheet} onChange={(e) => setPricePerSheet(e.target.value)} className={inp} />
-                </div>
-              </div>
+function Counter({ end, suffix, prefix, duration }: { end: number; suffix: string; prefix: string; duration: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+
+  useInView(ref, { once: true });
+
+  if (!started.current) {
+    started.current = true;
+    const startTime = Date.now();
+    const step = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * end));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  return <span ref={ref}>{prefix}{count.toLocaleString('id-ID')}{suffix}</span>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section Wrapper                                                    */
+/* ------------------------------------------------------------------ */
+function Section({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) {
+  return (
+    <section id={id} className={`w-full py-16 md:py-24 px-4 md:px-8 ${className}`}>
+      <div className="max-w-6xl mx-auto">{children}</div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Feature Card                                                       */
+/* ------------------------------------------------------------------ */
+function FeatureCard({
+  icon: Icon,
+  title,
+  desc,
+  delay = 0,
+}: {
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  delay?: number;
+}) {
+  return (
+    <FadeIn delay={delay}>
+      <Card className="card-tap group relative overflow-hidden border-0 bg-white shadow-lg hover:shadow-2xl transition-all duration-500 h-full">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <CardContent className="relative p-6 pt-8 flex flex-col items-center text-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-110 transition-transform duration-500">
+            <Icon className="w-8 h-8 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+          <p className="text-gray-600 leading-relaxed text-sm">{desc}</p>
+        </CardContent>
+      </Card>
+    </FadeIn>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Pricing Card                                                       */
+/* ------------------------------------------------------------------ */
+function PricingCard({
+  title,
+  price,
+  period,
+  description,
+  features,
+  popular = false,
+  delay = 0,
+  onSelect,
+}: {
+  title: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  popular?: boolean;
+  delay?: number;
+  onSelect: () => void;
+}) {
+  return (
+    <FadeIn delay={delay}>
+      <motion.div
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        className="h-full"
+      >
+      <Card
+        onClick={onSelect}
+        className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl ${
+          popular
+            ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40'
+            : 'border border-gray-200 shadow-lg hover:shadow-xl'
+        }`}
+      >
+        {popular && (
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500" />
+        )}
+        <CardHeader className="relative p-6 pb-4 text-center">
+          {popular && (
+            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 px-4 py-1 text-sm font-semibold shadow-lg">
+              <Star className="w-3.5 h-3.5 mr-1" /> Hemat Banget!
+            </Badge>
+          )}
+          <h3 className="text-xl font-bold text-gray-900 mt-2">{title}</h3>
+          <p className="text-gray-500 text-sm mt-1">{description}</p>
+          <div className="mt-4">
+            <span className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+              {price}
+            </span>
+            <span className="text-gray-500 text-sm ml-1">/{period}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="relative p-6 pt-0 flex-1">
+          <Separator className="mb-6" />
+          <ul className="space-y-3">
+            {features.map((feature, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+        <CardFooter className="relative p-6 pt-0">
+          <Button
+            className={`ripple-btn w-full py-3 text-base font-semibold transition-all duration-300 ${
+              popular
+                ? 'cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30'
+                : 'bg-gray-900 hover:bg-gray-800 text-white'
+            }`}
+          >
+            Pilih Paket <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+        </CardFooter>
+      </Card>
+      </motion.div>
+    </FadeIn>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Testimonial Card                                                   */
+/* ------------------------------------------------------------------ */
+function TestimonialCard({
+  name,
+  role,
+  quote,
+  avatar,
+  delay = 0,
+}: {
+  name: string;
+  role: string;
+  quote: string;
+  avatar: string;
+  delay?: number;
+}) {
+  return (
+    <FadeIn delay={delay}>
+      <Card className="card-tap bg-white shadow-lg hover:shadow-xl transition-all duration-300 border-0 h-full">
+        <CardContent className="p-6 flex flex-col gap-4">
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+            ))}
+          </div>
+          <p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;{quote}&rdquo;</p>
+          <div className="flex items-center gap-3 mt-auto pt-2">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center text-white font-bold text-sm">
+              {avatar}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">{name}</p>
+              <p className="text-gray-500 text-xs">{role}</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+    </FadeIn>
+  );
+}
 
-          {/* Ukuran */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 lg:p-2">
-            <p className="text-sm lg:text-xs font-semibold text-slate-700 mb-3 lg:mb-1">Ukuran</p>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-1.5">
-              <div>
-                <label className={lbl}>{t('lebar_kertas')}</label>
-                <input type="number" step="0.1" placeholder="W" value={paperWidth} onChange={(e) => setPaperWidth(e.target.value)} disabled={!isCustomPaper}
-                  className={!isCustomPaper ? inpDisabled : inp} />
-              </div>
-              <div>
-                <label className={lbl}>{t('tinggi_kertas')}</label>
-                <input type="number" step="0.1" placeholder="H" value={paperHeight} onChange={(e) => setPaperHeight(e.target.value)} disabled={!isCustomPaper}
-                  className={!isCustomPaper ? inpDisabled : inp} />
-              </div>
-              <div>
-                <label className={lbl}>{t('lebar_potongan')}</label>
-                <input type="number" step="0.1" placeholder="W" value={cutWidth} onChange={(e) => setCutWidth(e.target.value)} className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>{t('tinggi_potongan')}</label>
-                <input type="number" step="0.1" placeholder="H" value={cutHeight} onChange={(e) => setCutHeight(e.target.value)} className={inp} />
-              </div>
+/* ------------------------------------------------------------------ */
+/*  Login Page                                                         */
+/* ------------------------------------------------------------------ */
+function LoginPage({ onBack }: { onBack: () => void }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 2000);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 relative overflow-hidden"
+    >
+      {/* Background decorations */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-20 right-1/4 w-96 h-96 bg-orange-200/25 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-amber-200/20 rounded-full blur-3xl" />
+      </div>
+
+      {/* Navbar */}
+      <nav className="w-full bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+          <button onClick={onBack} className="flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/20">
+              <Printer className="w-5 h-5 text-white" />
             </div>
-            <div className="grid grid-cols-2 gap-3 lg:gap-1.5 mt-3 lg:mt-1.5">
-              <div>
-                <label className={lbl}>{t('mode_optimasi')}</label>
-                <Select value={optimizationMode} onValueChange={(v: any) => setOptimizationMode(v)}>
-                  <SelectTrigger className="w-full h-10 lg:h-7 text-base lg:text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fast"><span className="text-xs">Cepat (Greedy)</span></SelectItem>
-                    <SelectItem value="maximal"><span className="text-xs">Maksimal (Brute Force)</span></SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className={lbl}>{t('jumlah_cetakan')}</label>
-                <input type="number" step="1" min="0" placeholder="100" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inp} />
-              </div>
+            <span className="text-xl font-extrabold tracking-tight">
+              <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Darrell</span>
+              <span className="text-gray-900"> POS</span>
+            </span>
+          </button>
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="text-gray-600 hover:text-orange-600 transition-colors"
+          >
+            <ArrowLeft className="mr-1 w-4 h-4" />
+            Kembali
+          </Button>
+        </div>
+      </nav>
+
+      {/* Login content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
+          className="w-full max-w-md"
+        >
+          <Card className="border-0 shadow-2xl shadow-orange-500/10 overflow-hidden">
+            {/* Header gradient */}
+            <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-8 text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.3, type: 'spring', stiffness: 200 }}
+                className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mx-auto flex items-center justify-center mb-4"
+              >
+                <Printer className="w-9 h-9 text-white" />
+              </motion.div>
+              <h1 className="text-2xl font-extrabold text-white">Selamat Datang!</h1>
+              <p className="text-white/80 text-sm mt-1">Masuk ke akun Darrell POS kamu</p>
             </div>
+
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                {/* Email */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                >
+                  <Label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="nama@email.com"
+                      className="pl-10 h-12 border-gray-200 focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-300"
+                      required
+                    />
+                  </div>
+                </motion.div>
+
+                {/* Password */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.5 }}
+                >
+                  <Label htmlFor="password" className="text-sm font-semibold text-gray-700 mb-1.5 block">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Masukkan password"
+                      className="pl-10 pr-12 h-12 border-gray-200 focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-300"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors p-1"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Remember & Forgot */}
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400/20" />
+                    <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Ingat saya</span>
+                  </label>
+                  <button type="button" className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
+                    Lupa password?
+                  </button>
+                </div>
+
+                {/* Login Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.6 }}
+                >
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="ripple-btn cta-glow w-full h-12 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-base shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300"
+                  >
+                    {isLoading ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      />
+                    ) : (
+                      <>
+                        Masuk <ArrowRight className="ml-2 w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <Separator />
+                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-400">
+                  atau
+                </span>
+              </div>
+
+              {/* Register link */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.7 }}
+                className="text-center"
+              >
+                <p className="text-sm text-gray-600">
+                  Belum punya akun?{' '}
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-600 hover:text-orange-700 transition-colors">
+                    Daftar sekarang
+                  </a>
+                </p>
+              </motion.div>
+            </CardContent>
+          </Card>
+
+          {/* Footer trust */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.8 }}
+            className="flex items-center justify-center gap-4 mt-6"
+          >
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <Shield className="w-3.5 h-3.5 text-green-500" />
+              <span>Data terenkripsi</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <Lock className="w-3.5 h-3.5 text-green-500" />
+              <span>Koneksi aman</span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Footer */}
+      <footer className="w-full py-4 text-center">
+        <p className="text-xs text-gray-400">
+          &copy; {new Date().getFullYear()} Darrell POS. All rights reserved.
+        </p>
+      </footer>
+    </motion.div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main Page                                                          */
+/* ------------------------------------------------------------------ */
+const WHATSAPP_URL = 'https://wa.me/6285888082208?text=Halo%20Darrell%20POS%2C%20saya%20tertarik%20untuk%20berlangganan!';
+
+export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loginTransition, setLoginTransition] = useState(false);
+
+  const router = useRouter();
+
+  const goToLogin = () => {
+    setLoginTransition(true);
+    setTimeout(() => {
+      router.push('/login');
+    }, 500);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50/50 via-white to-white">
+      {/* =================== TRANSITION OVERLAY =================== */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: loginTransition ? 1 : 0 }}
+        transition={{ duration: 0.4 }}
+        className="fixed inset-0 z-[100] bg-gradient-to-br from-orange-500 to-amber-500 pointer-events-none"
+        style={{ pointerEvents: loginTransition ? 'auto' : 'none' }}
+      />
+
+      <motion.div
+        initial={false}
+        animate={loginTransition ? { opacity: 0, scale: 0.95, filter: 'blur(8px)' } : { opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        transition={{ duration: 0.4 }}
+      >
+      {/* =================== NAVBAR =================== */}
+      <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/20">
+              <Printer className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-extrabold tracking-tight">
+              <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Darrell</span>
+              <span className="text-gray-900"> POS</span>
+            </span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-1.5">
-            <button onClick={handleCalculateCuts} disabled={isCalculating}
-              className="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors">
-              {isCalculating ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-              {t('hitung_potongan')}
-            </button>
-            <button onClick={handleSave} disabled={!results}
-              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('simpan')}>
-              {t('simpan')}
-            </button>
-            <button onClick={() => { if (!results) { toast.error('Hitung potongan terlebih dahulu!'); return; } setPreviewOpen(true) }} disabled={!results}
-              className="flex items-center justify-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('preview')}>
-              {t('preview')}
-            </button>
-            <button onClick={handleReset}
-              className="flex items-center justify-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('reset')}>
-              <RotateCcw className="w-3 h-3" />
-              <span className="hidden xl:inline">{t('reset')}</span>
-            </button>
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#fitur" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Fitur</a>
+            <a href="#keunggulan" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Keunggulan</a>
+            <a href="#harga" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Harga</a>
+            <a href="#testimoni" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Testimoni</a>
+            <Button onClick={goToLogin} className="ripple-btn cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md shadow-orange-500/20 hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-300">
+              Mulai Sekarang <ChevronRight className="ml-1 w-4 h-4" />
+            </Button>
           </div>
 
-          {/* Link to Hitung Cetakan */}
+          {/* Mobile toggle */}
           <button
-            onClick={(e) => {
-              const btn = e.currentTarget
-              btn.style.transform = 'scale(0.85)'
-              setTimeout(() => { btn.style.transform = 'scale(1.08)' }, 100)
-              setTimeout(() => { btn.style.transform = 'scale(0.95)' }, 220)
-              setTimeout(() => {
-                btn.style.transform = 'scale(1)'
-                const params = new URLSearchParams()
-                if (selectedCustomer?.name) params.set('customerName', selectedCustomer.name)
-                if (printName) params.set('printName', printName)
-                if (selectedCustomerId) params.set('customerId', selectedCustomerId)
-                if (paperWidth) params.set('paperLength', paperWidth)
-                if (paperHeight) params.set('paperWidth', paperHeight)
-                if (quantity) params.set('quantity', quantity)
-                if (selectedPaperId) params.set('paperId', selectedPaperId)
-                if (pricePerSheet) params.set('pricePerSheet', pricePerSheet)
-                if (cutWidth) params.set('cutWidth', cutWidth)
-                if (cutHeight) params.set('cutHeight', cutHeight)
-                if (results?.totalPrice) params.set('totalPaperPrice', results.totalPrice.toString())
-                router.push(`/hitung-cetakan?${params.toString()}`)
-              }, 350)
-            }}
-            style={{
-              transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease',
-              animation: 'shimmer-btn 2.5s linear infinite, pulse-glow 2s ease-in-out infinite',
-              background: 'linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b)',
-              backgroundSize: '200% auto',
-              backgroundPosition: '0% center',
-            }}
-            onMouseEnter={(e) => {
-              const btn = e.currentTarget
-              btn.style.transform = 'translateX(6px) scale(1.05)'
-              btn.style.backgroundPosition = '100% center'
-              btn.style.boxShadow = '0 8px 30px rgba(245,158,11,0.5)'
-            }}
-            onMouseLeave={(e) => {
-              const btn = e.currentTarget
-              btn.style.transform = 'translateX(0) scale(1)'
-              btn.style.backgroundPosition = '0% center'
-              btn.style.boxShadow = '0 2px 10px rgba(245,158,11,0.3)'
-            }}
-            className="flex items-center justify-center gap-1.5 text-white text-sm lg:text-[10px] font-bold py-2.5 lg:py-1.5 rounded-lg border border-amber-400 cursor-pointer">
-            <Calculator className="w-3.5 h-3.5" />
-            Hitung Cetakan Lengkap
-            <ArrowRight className="w-3 h-3" />
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Toggle menu"
+          >
+            <div className="w-5 h-5 flex flex-col justify-center gap-1">
+              <span className={`block h-0.5 w-5 bg-gray-700 transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
+              <span className={`block h-0.5 w-5 bg-gray-700 transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+              <span className={`block h-0.5 w-5 bg-gray-700 transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
+            </div>
           </button>
         </div>
 
-        {/* ===== RIGHT: RESULTS ===== */}
-        <div className="flex-1 bg-white rounded-xl border border-slate-200 p-3 lg:p-2 flex flex-col lg:min-h-0">
-          {results ? (
-            <div className="flex-1 flex flex-col gap-1.5 lg:min-h-0 lg:overflow-hidden">
-              {/* Stats Grid - mobile 2col, desktop 3col/5col */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 lg:gap-2 flex-shrink-0">
-                <div className="bg-blue-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-xs text-blue-600 font-medium leading-tight">Diperlukan</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-blue-700 leading-tight">{results.quantity}</p>
-                  <p className="text-xs lg:text-xs text-blue-500">lembar</p>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-xs text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-purple-700 leading-tight">{results.totalPieces}</p>
-                  <p className="text-xs lg:text-xs text-purple-500">lembar</p>
-                </div>
-                <div className="bg-emerald-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-xs text-emerald-600 font-medium leading-tight">Kertas Dibutuhkan</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-emerald-700 leading-tight">{results.sheetsNeeded}</p>
-                  <p className="text-xs lg:text-xs text-emerald-500">lembar</p>
-                </div>
-                <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-3">
-                  <p className="text-xs lg:text-xs text-orange-600 font-medium leading-tight">Total Harga</p>
-                  <p className="text-[26px] lg:text-[26px] font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
-                </div>
-                <div className="bg-teal-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-xs text-teal-600 font-medium leading-tight">Efisiensi</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-teal-700 leading-tight">{results.efficiency.toFixed(1)}%</p>
-                  <p className="text-xs lg:text-xs text-teal-500">bahan</p>
-                </div>
-              </div>
-
-              {/* Strategy */}
-              <div className="bg-indigo-50 border border-indigo-200 rounded px-2 py-0 flex-shrink-0">
-                <span className="text-[10px] font-bold text-indigo-800">Strategi: </span>
-                <span className="text-[10px] text-indigo-700 font-medium">{results.strategy}</span>
-              </div>
-
-              {/* Diagram + Steps side by side */}
-              <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-1.5 lg:min-h-0 lg:overflow-auto">
-                {/* Diagram */}
-                <div className="flex-1 flex items-center justify-center min-w-0 min-h-0 p-1">
-                  <CuttingDiagram results={results} />
-                </div>
-
-                {/* Steps + Block Details */}
-                <div className="lg:w-44 xl:w-48 flex-shrink-0 flex flex-col gap-1 lg:min-h-0 lg:overflow-y-auto hide-scrollbar">
-                  {/* Steps */}
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-700 mb-1">Cara Potong:</p>
-                    <div className="space-y-1">
-                      {results.steps.map((step, idx) => (
-                        <div key={idx} className="flex items-start gap-1.5">
-                          <div className="flex-shrink-0 w-4 h-4 bg-blue-600 text-white rounded-full flex items-center justify-center text-[8px] font-bold mt-0.5">{idx + 1}</div>
-                          <p className="text-[10px] text-slate-600 leading-snug">{step}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Block Details - compact */}
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-700 mb-1">Detail Blok:</p>
-                    <div className="space-y-1">
-                      {results.blocks.map((block: any, idx: number) => {
-                        const bgColors = ['bg-blue-50', 'bg-emerald-50', 'bg-amber-50', 'bg-red-50', 'bg-violet-50']
-                        const borderColors = ['border-blue-200', 'border-emerald-200', 'border-amber-200', 'border-red-200', 'border-violet-200']
-                        const badgeBg = ['bg-blue-100', 'bg-emerald-100', 'bg-amber-100', 'bg-red-100', 'bg-violet-100']
-                        const badgeText = ['text-blue-700', 'text-emerald-700', 'text-amber-700', 'text-red-700', 'text-violet-700']
-                        const nameColors = ['text-blue-800', 'text-emerald-800', 'text-amber-800', 'text-red-800', 'text-violet-800']
-                        const detailColors = ['text-blue-600', 'text-emerald-600', 'text-amber-600', 'text-red-600', 'text-violet-600']
-                        const ci = idx % 5
-                        return (
-                          <div key={idx} className={`border ${borderColors[ci]} ${bgColors[ci]} rounded-md p-1.5`}>
-                            <div className="flex items-center justify-between mb-0">
-                              <span className={`text-[10px] font-bold ${nameColors[ci]}`}>{block.name}</span>
-                              <span className={`px-1 py-0 ${badgeBg[ci]} ${badgeText[ci]} rounded-full text-[8px] font-semibold`}>{block.pieces} pcs</span>
-                            </div>
-                            <div className={`grid grid-cols-2 gap-x-1 gap-y-0 text-[9px] ${detailColors[ci]}`}>
-                              <div><span className="opacity-70">Ukuran: </span><span className="font-bold">{block.width.toFixed(1)}×{block.height.toFixed(1)}</span></div>
-                              <div><span className="opacity-70">Layout: </span><span className="font-bold">{block.horizontal}×{block.vertical}{block.rotated ? ' (90°)' : ''}</span></div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-gray-100 bg-white"
+          >
+            <div className="px-4 py-4 flex flex-col gap-3">
+              <a href="#fitur" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Fitur</a>
+              <a href="#keunggulan" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Keunggulan</a>
+              <a href="#harga" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Harga</a>
+              <a href="#testimoni" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Testimoni</a>
+              <Button onClick={goToLogin} className="w-full ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white mt-1">
+                Mulai Sekarang <ChevronRight className="ml-1 w-4 h-4" />
+              </Button>
             </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center gap-3">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <Calculator className="w-8 h-8 text-slate-300" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-slate-400">Belum ada hasil</p>
-                <p className="text-xs text-slate-300 mt-0.5">Masukkan ukuran dan klik &quot;Hitung&quot;</p>
-              </div>
-            </div>
-          )}
+          </motion.div>
+        )}
+      </nav>
+
+      {/* =================== HERO =================== */}
+      <section className="relative w-full overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-20 left-1/4 w-72 h-72 bg-orange-200/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
         </div>
-      </div>
 
-      {/* ===== PREVIEW DIALOG ===== */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-0">
-          <DialogHeader className="p-4 pb-0">
-            <DialogTitle>Preview Potong Kertas</DialogTitle>
-          </DialogHeader>
+        <div className="max-w-6xl mx-auto px-4 md:px-8 pt-12 md:pt-20 pb-16 md:pb-24">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+            {/* Left - Text */}
+            <FadeIn direction="right">
+              <div className="flex flex-col gap-6">
+                <Badge variant="secondary" className="w-fit bg-orange-100 text-orange-700 border-orange-200 px-3 py-1 text-xs font-semibold">
+                  <Zap className="w-3 h-3 mr-1" /> Sistem Kasir Percetakan #1
+                </Badge>
 
-          {/* Preview Content (rendered for print & PDF capture) */}
-          <div ref={previewRef} className="p-4 bg-white">
-            {/* Header */}
-            <div className="text-center mb-4 pb-3 border-b-2 border-slate-200">
-              <h1 className="text-lg font-bold text-slate-900">Preview Potong Kertas</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                {selectedCustomer?.name ? `${selectedCustomer.name}` : '-'} · {selectedPaper?.name || 'Custom'} · {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
+                  Pusing Hitung{' '}
+                  <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Cetakan</span>{' '}
+                  Sampai Sering{' '}
+                  <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">Rugi</span>?
+                </h1>
+
+                <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                  Pakai <span className="font-bold text-gray-900">Darrell POS</span>! Dulu cuma yang ahli yang bisa hitung modal cetak.
+                  Sekarang, <span className="font-semibold text-orange-600">siapapun bisa</span> jadi pengusaha percetakan sukses!
+                </p>
+
+                <p className="text-base text-gray-500 leading-relaxed">
+                  Lupakan kalkulator manual yang bikin pusing. Dengan Darrell POS, hitung modal jadi semudah mengetik.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                  <Button
+                    size="lg"
+                    onClick={goToLogin}
+                    className="ripple-btn cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 text-base font-semibold py-6 px-8"
+                  >
+                    Coba Gratis Sekarang <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    asChild
+                    className="ripple-btn ripple-btn-dark border-gray-300 hover:border-orange-300 hover:bg-orange-50 text-gray-700 transition-all duration-300 text-base font-semibold py-6 px-8"
+                  >
+                    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                      <MessageCircle className="mr-2 w-5 h-5" /> DM Kami
+                    </a>
+                  </Button>
+                </div>
+
+                {/* Trust signals */}
+                <div className="flex items-center gap-4 mt-4 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <Shield className="w-4 h-4 text-green-500" />
+                    <span>Tanpa ikatan</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span>Bisa batal kapan saja</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <X className="w-4 h-4 text-red-400" />
+                    <span>Tanpa denda</span>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Right - Hero image */}
+            <FadeIn direction="left" delay={0.2}>
+              <div className="relative">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-orange-500/10 border border-orange-100">
+                  <img
+                    src="/hero-printing.png"
+                    alt="Darrell POS - Sistem Kasir Percetakan"
+                    className="w-full h-auto object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-orange-900/10 to-transparent" />
+                </div>
+                {/* Floating badge */}
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute -bottom-4 -left-4 md:-left-6 bg-white rounded-xl shadow-xl p-3 md:p-4 border border-gray-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Profit Naik</p>
+                      <p className="text-lg font-bold text-green-600">+40%</p>
+                    </div>
+                  </div>
+                </motion.div>
+                {/* Another floating badge */}
+                <motion.div
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                  className="absolute -top-4 -right-4 md:-right-6 bg-white rounded-xl shadow-xl p-3 md:p-4 border border-gray-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Hitung Cepat</p>
+                      <p className="text-lg font-bold text-orange-600">&lt; 3 detik</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* =================== STATS BAR =================== */}
+      <section className="w-full bg-gradient-to-r from-gray-900 to-gray-800 py-8 md:py-10">
+        <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            {[
+              { value: 7168, suffix: '+', label: 'Pengguna Aktif', icon: Printer },
+              { value: 98, suffix: '%', label: 'Tingkat Kepuasan', icon: Star },
+              { value: 1000000, suffix: '+', label: 'Transaksi Sukses', icon: Package },
+              { value: 24, suffix: '/7', label: 'Support Online', icon: Shield },
+            ].map((stat, i) => (
+              <FadeIn key={i} delay={i * 0.1}>
+                <div className="flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 text-center md:text-left">
+                  <stat.icon className="w-8 h-8 text-orange-400 hidden md:block" />
+                  <div>
+                    <p className="text-2xl md:text-3xl font-extrabold text-white">
+                      <CountUp end={stat.value} suffix={stat.suffix} />
+                    </p>
+                    <p className="text-xs md:text-sm text-gray-400 mt-0.5">{stat.label}</p>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =================== FITUR =================== */}
+      <Section id="fitur" className="bg-white">
+        <FadeIn>
+          <div className="text-center mb-12 md:mb-16">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+              Fitur Unggulan
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+              Hitung Modal Jadi{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Semudah Mengetik</span>
+            </h2>
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base md:text-lg">
+              Semua yang kamu butuhkan untuk mengelola bisnis percetakan, dalam satu aplikasi yang powerful.
+            </p>
+          </div>
+        </FadeIn>
+
+        {/* 2 Fitur Images - small */}
+        <FadeIn delay={0.05}>
+          <div className="flex justify-center gap-3 sm:gap-5 mb-10 md:mb-12">
+            {[
+              { src: '/fitur-small-1.jpeg', alt: 'Tampilan aplikasi Darrell POS' },
+              { src: '/fitur-small-2.jpeg', alt: 'Fitur kalkulasi Darrell POS' },
+            ].map((img, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ scale: 1.05, y: -3 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className="relative rounded-xl overflow-hidden shadow-md shadow-orange-500/10 border border-orange-100 w-[160px] sm:w-[200px] md:w-[260px]"
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-auto object-contain"
+                />
+              </motion.div>
+            ))}
+          </div>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <FeatureCard
+            icon={MousePointerClick}
+            title="Update Harga Sekali Klik"
+            desc="Update harga kertas dan ongkos cetak sekali klik. Tidak perlu edit satu-satu, semua otomatis tersinkronisasi."
+            delay={0}
+          />
+          <FeatureCard
+            icon={Calculator}
+            title="Ketik Ukuran → Langsung Harga"
+            desc="Ketik ukuran bahan, aplikasi langsung kasih harga modal. Otomatis dan akurat, tanpa kalkulator manual."
+            delay={0.15}
+          />
+          <FeatureCard
+            icon={DollarSign}
+            title="Tentukan Profit, Harga Jual Muncul"
+            desc="Tentukan profit yang kamu mau, harga jual langsung muncul. Kontrol penuh atas margin keuntunganmu."
+            delay={0.3}
+          />
+        </div>
+      </Section>
+
+      {/* =================== KEUNGGULAN =================== */}
+      <Section id="keunggulan" className="bg-gradient-to-b from-orange-50/30 to-white">
+        <FadeIn>
+          <div className="text-center mb-12 md:mb-16">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+              Kenapa Darrell POS?
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Cepat, Akurat,</span> dan Fleksibel!
+            </h2>
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base md:text-lg">
+              Bisa diakses via Desktop maupun HP, kapan saja dan di mana saja.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          {[
+            {
+              icon: Monitor,
+              title: 'Akses via Desktop',
+              desc: 'Tampilan penuh yang nyaman untuk penggunaan di kantor atau toko. Semua fitur lengkap tersedia.',
+              color: 'from-orange-500 to-red-500',
+            },
+            {
+              icon: Smartphone,
+              title: 'Akses via HP',
+              desc: 'Mobile-friendly! Kelola bisnis percetakanmu langsung dari smartphone, di mana saja kamu berada.',
+              color: 'from-amber-500 to-orange-500',
+            },
+            {
+              icon: Zap,
+              title: 'Kecepatan Tinggi',
+              desc: 'Proses kalkulasi instan. Tidak perlu menunggu lama, semua perhitungan selesai dalam hitungan detik.',
+              color: 'from-yellow-500 to-amber-500',
+            },
+            {
+              icon: Shield,
+              title: 'Data Aman',
+              desc: 'Data bisnismu tersimpan dengan aman. Backup otomatis dan enkripsi untuk keamanan maksimal.',
+              color: 'from-green-500 to-emerald-500',
+            },
+          ].map((item, i) => (
+            <FadeIn key={i} delay={i * 0.1}>
+              <div className="advantage-tap group flex items-start gap-4 p-5 rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-orange-200 cursor-pointer">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{item.title}</h3>
+                  <p className="text-gray-600 text-sm mt-1 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </Section>
+
+      {/* =================== CARA KERJA =================== */}
+      <Section className="bg-white">
+        <FadeIn>
+          <div className="text-center mb-12 md:mb-16">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+              Cara Kerja
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+              Semudah{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">1-2-3</span>
+            </h2>
+          </div>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          {[
+            { step: '01', title: 'Masukkan Spesifikasi', desc: 'Ketik ukuran bahan, jenis kertas, dan jumlah cetak yang diinginkan.', icon: Package },
+            { step: '02', title: 'Sistem Hitung Otomatis', desc: 'Aplikasi langsung menghitung modal berdasarkan spesifikasi yang dimasukkan.', icon: Calculator },
+            { step: '03', title: 'Tentukan & Jual', desc: 'Atur profit yang diinginkan, harga jual otomatis muncul. Siap cetak!', icon: DollarSign },
+          ].map((item, i) => (
+            <FadeIn key={i} delay={i * 0.15}>
+              <div className="relative text-center">
+                {/* Step number */}
+                <div className="text-7xl font-black text-orange-100 absolute -top-4 left-1/2 -translate-x-1/2 select-none">
+                  {item.step}
+                </div>
+                <div className="relative z-10 flex flex-col items-center gap-3 pt-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                    <item.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mt-2">{item.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed max-w-xs">{item.desc}</p>
+                </div>
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-10 -right-4 w-8">
+                    <ChevronRight className="w-8 h-8 text-orange-300" />
+                  </div>
+                )}
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </Section>
+
+      {/* =================== HARGA =================== */}
+      <Section id="harga" className="bg-gradient-to-b from-orange-50/40 to-white">
+        <FadeIn>
+          <div className="text-center mb-12 md:mb-16">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+              Pilihan Paket
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+              Paket Harga{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Tanpa Ribet</span>
+            </h2>
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base md:text-lg">
+              Pilih paket yang sesuai dengan kebutuhan bisnismu. Bisa batal kapan saja!
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-3xl mx-auto">
+          <PricingCard
+            title="Paket Bulanan"
+            price="Rp 128.000"
+            period="bulan"
+            description="Bayar bulanan, sangat fleksibel"
+            features={[
+              'Semua fitur kalkulasi cetak',
+              'Update harga kertas & ongkos',
+              'Hitung otomatis harga modal',
+              'Akses Desktop & Mobile',
+              'Support via DM',
+              'Bisa batal kapan saja',
+            ]}
+            delay={0}
+            onSelect={goToLogin}
+          />
+          <PricingCard
+            title="Paket Tahunan"
+            price="Rp 980.000"
+            period="tahun"
+            description="Hanya Rp 81.666/bulan — hemat banget!"
+            popular
+            features={[
+              'Semua fitur kalkulasi cetak',
+              'Update harga kertas & ongkos',
+              'Hitung otomatis harga modal',
+              'Akses Desktop & Mobile',
+              'Priority Support 24/7',
+              'Laporan bulanan lengkap',
+              'Backup data otomatis',
+            ]}
+            delay={0.15}
+            onSelect={goToLogin}
+          />
+        </div>
+
+        {/* Guarantee */}
+        <FadeIn delay={0.3}>
+          <div className="mt-10 text-center">
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-6 py-3">
+              <Shield className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-semibold text-green-700">
+                Tanpa Ikatan Apapun! Bisa batal kapan saja tanpa denda.
+              </span>
+            </div>
+          </div>
+        </FadeIn>
+      </Section>
+
+      {/* =================== TESTIMONI =================== */}
+      <Section id="testimoni" className="bg-white">
+        <FadeIn>
+          <div className="text-center mb-12 md:mb-16">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+              Testimoni
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+              Dipercaya{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Ratusan Pengusaha</span> Percetakan
+            </h2>
+          </div>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <TestimonialCard
+            name="Budi Santoso"
+            role="Pemilik CV Cetak Jaya"
+            quote="Dulu hitung modal cetak pakai kalkulator, sering salah dan rugi. Sekarang pakai Darrell POS, semua otomatis dan akurat. Profit naik 40%!"
+            avatar="BS"
+            delay={0}
+          />
+          <TestimonialCard
+            name="Siti Rahayu"
+            role="Pengusaha Percetakan Mandiri"
+            quote="Aplikasinya super mudah dipakai. Saya yang nggak paham komputer pun bisa langsung pakai. Harga paketnya juga sangat terjangkau."
+            avatar="SR"
+            delay={0.15}
+          />
+          <TestimonialCard
+            name="Ahmad Fauzi"
+            role="Owner Print House Express"
+            quote="Support-nya responsif banget! Setiap ada pertanyaan langsung dijawab. Darrell POS memang solusi tepat untuk percetakan."
+            avatar="AF"
+            delay={0.3}
+          />
+        </div>
+      </Section>
+
+      {/* =================== CTA =================== */}
+      <section className="w-full bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 py-16 md:py-24 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-40 h-40 border-2 border-white rounded-full" />
+          <div className="absolute bottom-10 right-10 w-60 h-60 border-2 border-white rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 border border-white rounded-full" />
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 md:px-8 text-center relative z-10">
+          <FadeIn>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight">
+              Siap Bikin Bisnis Cetakmu<br className="hidden md:block" /> Lebih{' '}
+              <span className="underline decoration-white/50 decoration-4 underline-offset-4">Cuan</span> Hari Ini?
+            </h2>
+            <p className="text-white/90 mt-6 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+              Bergabung dengan ratusan pengusaha percetakan yang sudah merasakan kemudahan Darrell POS.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+              <Button
+                size="lg"
+                onClick={goToLogin}
+                className="ripple-btn ripple-btn-dark cta-glow bg-white text-orange-600 hover:bg-orange-50 shadow-2xl shadow-orange-700/20 hover:shadow-3xl transition-all duration-300 text-lg font-bold py-7 px-10"
+              >
+                Mulai Sekarang <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="ripple-btn border-2 border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300 text-lg font-semibold py-7 px-10"
+              >
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 w-5 h-5" /> DM Kami Sekarang
+                </a>
+              </Button>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* =================== FAQ =================== */}
+      <Section className="bg-white">
+        <FadeIn>
+          <div className="text-center mb-12 md:mb-16">
+            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+              FAQ
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+              Pertanyaan yang{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Sering Ditanyakan</span>
+            </h2>
+          </div>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {[
+            {
+              q: 'Apakah bisa dicoba dulu sebelum berlangganan?',
+              a: 'Tentu! Kami menyediakan masa trial gratis agar kamu bisa merasakan semua fitur Darrell POS sebelum memutuskan berlangganan.',
+            },
+            {
+              q: 'Bagaimana cara berlangganan?',
+              a: 'Sangat mudah! Cukup DM kami, pilih paket yang sesuai, dan lakukan pembayaran. Akun kamu akan langsung aktif.',
+            },
+            {
+              q: 'Apakah data saya aman?',
+              a: 'Keamanan data adalah prioritas kami. Semua data dienkripsi dan kami melakukan backup otomatis secara berkala.',
+            },
+            {
+              q: 'Bisa dibatalkan kapan saja?',
+              a: 'Ya, tanpa ikatan apapun! Kamu bisa membatalkan langganan kapan saja tanpa denda atau biaya tambahan.',
+            },
+          ].map((item, i) => (
+            <FadeIn key={i} delay={i * 0.1}>
+              <div className="faq-tap p-5 rounded-xl bg-gradient-to-br from-orange-50/50 to-amber-50/50 border border-orange-100 cursor-pointer">
+                <h4 className="font-bold text-gray-900 text-sm md:text-base flex items-start gap-2">
+                  <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                    Q
+                  </span>
+                  {item.q}
+                </h4>
+                <p className="text-gray-600 text-sm mt-2 ml-8 leading-relaxed">{item.a}</p>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </Section>
+
+      {/* =================== FOOTER =================== */}
+      <footer className="w-full bg-gray-900 text-white mt-auto">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-10 md:py-14">
+          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+            {/* Brand */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                  <Printer className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-extrabold">
+                  Darrell <span className="text-orange-400">POS</span>
+                </span>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Sistem kasir percetakan terlengkap. Hitung modal jadi semudah mengetik. Cepat, Akurat, dan Fleksibel!
               </p>
             </div>
 
-            {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                <p className="text-[10px] text-blue-600 font-medium">Jumlah Diperlukan</p>
-                <p className="text-xl font-bold text-blue-700">{results?.quantity || 0} <span className="text-xs font-normal">lembar</span></p>
-              </div>
-              <div className="bg-purple-50 border border-purple-100 rounded-lg p-3">
-                <p className="text-[10px] text-purple-600 font-medium">Potongan / Lembar</p>
-                <p className="text-xl font-bold text-purple-700">{results?.totalPieces || 0} <span className="text-xs font-normal">lembar</span></p>
-              </div>
-              <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
-                <p className="text-[10px] text-emerald-600 font-medium">Lembar Kertas</p>
-                <p className="text-xl font-bold text-emerald-700">{results?.sheetsNeeded || 0} <span className="text-xs font-normal">lembar</span></p>
-              </div>
-              <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
-                <p className="text-[10px] text-orange-600 font-medium">Total Harga Kertas</p>
-                <p className="text-[24px] font-bold text-orange-700">Rp {results?.totalPrice.toLocaleString('id-ID')}</p>
-              </div>
-              <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
-                <p className="text-[10px] text-rose-600 font-medium">Sisa Potongan</p>
-                <p className="text-xl font-bold text-rose-700">{results?.totalWasteArea.toFixed(2)} <span className="text-xs font-normal">cm²</span></p>
-              </div>
-              <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
-                <p className="text-[10px] text-teal-600 font-medium">Efisiensi Bahan</p>
-                <p className="text-xl font-bold text-teal-700">{results?.efficiency.toFixed(2)}%</p>
-              </div>
+            {/* Links */}
+            <div>
+              <h4 className="font-bold text-sm mb-4 text-gray-300 uppercase tracking-wider">Navigasi</h4>
+              <ul className="space-y-2.5">
+                {['Fitur', 'Keunggulan', 'Harga', 'Testimoni', 'FAQ'].map((item) => (
+                  <li key={item}>
+                    <a
+                      href={`#${item.toLowerCase()}`}
+                      className="nav-link text-sm text-gray-400 hover:text-orange-400 transition-colors"
+                    >
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Strategy */}
-            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
-              <p className="text-[10px] text-indigo-600 font-medium text-center">Strategi Optimasi</p>
-              <p className="text-xl font-bold text-indigo-700 text-center">{results?.strategy}</p>
+            {/* Contact */}
+            <div>
+              <h4 className="font-bold text-sm mb-4 text-gray-300 uppercase tracking-wider">Kontak</h4>
+              <ul className="space-y-2.5">
+                <li className="flex items-center gap-2 text-sm text-gray-400">
+                  <MessageCircle className="w-4 h-4 text-orange-400" />
+                  <span>DM kami sekarang</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-400">
+                  <Shield className="w-4 h-4 text-orange-400" />
+                  <span>Support 24/7</span>
+                </li>
+              </ul>
+              <Button className="mt-5 ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm">
+                Hubungi Kami <ChevronRight className="ml-1 w-4 h-4" />
+              </Button>
             </div>
-
-            {/* Diagram */}
-            {results && (
-              <div className="text-center mb-4">
-                <CuttingDiagram results={results} maxHeight="260px" />
-              </div>
-            )}
-
-            {/* Steps */}
-            {results && (
-              <div className="mb-4">
-                <h3 className="text-xs font-bold text-slate-700 mb-2">Cara Potong:</h3>
-                <div className="space-y-1.5">
-                  {results.steps.map((step, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <div className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-[9px] font-bold">{idx + 1}</div>
-                      <p className="text-[11px] text-slate-600 pt-0.5">{step}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Block Details */}
-            {results && (
-              <div className="mb-2">
-                <h3 className="text-xs font-bold text-slate-700 mb-2">Detail per Blok:</h3>
-                <div className="space-y-2">
-                  {results.blocks.map((block: any, idx: number) => (
-                    <div key={idx} className="border border-slate-200 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-slate-800">{block.name}</span>
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">{block.pieces} lembar</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
-                        <div><span className="text-slate-500">Ukuran:</span> <span className="font-medium">{block.width.toFixed(1)} × {block.height.toFixed(1)} cm</span></div>
-                        <div><span className="text-slate-500">Layout:</span> <span className="font-medium">{block.horizontal} × {block.vertical}{block.rotated ? ' (90°)' : ''}</span></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Action buttons at bottom of dialog */}
-          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-2">
-            <button onClick={handlePrint}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
-              <Printer className="w-4 h-4" /> {t('cetak')}
-            </button>
-            <button onClick={handlePdf} disabled={isGeneratingPdf}
-              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
-              {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />PDF...</> : <><FileImage className="w-4 h-4" /> PDF</>}
-            </button>
-            <button onClick={handleShareWhatsApp}
-              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm">
-              <Share2 className="w-4 h-4" /> WA
-            </button>
+          <Separator className="my-8 bg-gray-800" />
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
+            <p className="text-sm text-gray-500">
+              &copy; {new Date().getFullYear()} Darrell POS. All rights reserved.
+            </p>
+            <p className="text-sm text-gray-500">
+              Made with <span className="text-red-400">&#9829;</span> for printing entrepreneurs
+            </p>
           </div>
-        </DialogContent>
-      </Dialog>
-    </DashboardLayout>
-  )
-}
-
-export default function Home() {
-  const router = useRouter()
-  const [ready, setReady] = useState(false)
-  const [user, setUser] = useState<{ username: string; name?: string; role?: string } | null>(null)
-
-  useEffect(() => {
-    const authUser = getAuthUser()
-    if (!authUser) {
-      router.push('/login')
-    } else {
-      setUser(authUser)
-    }
-    setReady(true)
-  }, [router])
-
-  if (!ready) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
-
-  if (!user) return null
-
-  return <CalculatorPage />
+        </div>
+      </footer>
+    </motion.div>
+    </div>
+  );
 }
