@@ -1035,9 +1035,8 @@ export default function Home() {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
                 asChild
-                className="ripple-btn border-2 border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300 text-lg font-semibold py-7 px-10"
+                className="ripple-btn bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg shadow-green-700/25 hover:shadow-xl transition-all duration-300 text-lg py-7 px-10"
               >
                 <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 w-5 h-5" /> WhatsApp Admin
