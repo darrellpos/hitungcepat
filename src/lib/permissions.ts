@@ -173,7 +173,7 @@ export function getAllDefaultPermissions() {
 
 /** Map pathname to feature ID for permission checking */
 export function getFeatureIdForPath(pathname: string): string | null {
-  if (pathname === '/' || pathname === '/potong-kertas') return 'potong-kertas'
+  if (pathname === '/potong-kertas') return 'potong-kertas'
   if (pathname === '/hitung-cetakan') return 'hitung-cetakan'
   if (pathname === '/hitung-finishing') return 'hitung-finishing'
   if (pathname === '/hitung-ongkos-kertas') return 'hitung-ongkos-kertas'

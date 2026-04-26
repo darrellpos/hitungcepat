@@ -34,7 +34,7 @@ const DEFAULT_LOGO = '/company-logo.png'
 const menuItems = [
   {
     titleKey: 'potong_kertas' as TranslationKey,
-    href: '/',
+    href: '/potong-kertas',
     icon: Scissors,
     featureId: 'potong-kertas',
   },
@@ -115,8 +115,8 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
   const { t } = useLanguage()
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/' || pathname === '/potong-kertas'
+    if (href === '/potong-kertas') {
+      return pathname === '/potong-kertas'
     }
     return pathname.startsWith(href)
   }
