@@ -602,7 +602,7 @@ export default function Home() {
             <FadeIn direction="right">
               <div className="flex flex-col gap-6">
                 <Badge variant="secondary" className="w-fit bg-orange-100 text-orange-700 border-orange-200 px-3 py-1 text-xs font-semibold">
-                  <Zap className="w-3 h-3 mr-1" /> Sistem Kasir Percetakan #1
+                  <Zap className="w-3 h-3 mr-1" /> Sistem Hitung Cepat Percetakan
                 </Badge>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight" style={{ fontWeight: 900 }}>
@@ -625,15 +625,15 @@ export default function Home() {
 
                 {/* Trust signals */}
                 <div className="flex items-center gap-4 mt-4 flex-wrap">
-                  <div className="flex items-center gap-1.5 text-gray-500 font-bold" style={{ fontSize: '1.0625rem' }}>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.1875rem', color: '#000' }}>
                     <Shield className="w-5 h-5 text-green-500" />
                     <span>Tanpa ikatan</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 font-bold" style={{ fontSize: '1.0625rem' }}>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.1875rem', color: '#000' }}>
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <span>Bisa batal kapan saja</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 font-bold" style={{ fontSize: '1.0625rem' }}>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.1875rem', color: '#000' }}>
                     <X className="w-5 h-5 text-red-400" />
                     <span>Tanpa denda</span>
                   </div>
