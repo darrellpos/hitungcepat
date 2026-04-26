@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Printer,
@@ -502,6 +502,21 @@ export default function Home() {
   const [loginTransition, setLoginTransition] = useState(false);
 
   const router = useRouter();
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const auth = localStorage.getItem('auth');
+      if (auth) {
+        const parsed = JSON.parse(auth);
+        if (parsed && parsed.id) {
+          router.push('/hitung-cetakan');
+          return;
+        }
+      }
+    } catch {}
+  }, [router]);
 
   const goToLogin = () => {
     setLoginTransition(true);

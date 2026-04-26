@@ -55,7 +55,7 @@ export default function LoginPage() {
     const authUser = getAuthUser()
     if (authUser) {
       setIsRedirecting(true)
-      router.push('/')
+      router.push('/hitung-cetakan')
       return
     }
 
@@ -124,7 +124,7 @@ export default function LoginPage() {
       } else {
         // Apply theme in background, don't block redirect
         applyThemeAfterLogin()
-        router.push('/')
+        router.push('/hitung-cetakan')
       }
     } catch (err) {
       setLoginError('Terjadi kesalahan jaringan')
@@ -211,7 +211,7 @@ export default function LoginPage() {
           setDemoPopupOpen(true)
         } else {
           applyThemeAfterLogin()
-          setTimeout(() => router.push('/'), 1500)
+          setTimeout(() => router.push('/hitung-cetakan'), 1500)
         }
       } else {
         toast.success('Pendaftaran berhasil! Silakan tunggu konfirmasi dari administrator.', { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, duration: 5000 })
@@ -610,14 +610,14 @@ export default function LoginPage() {
               <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{demoPopupMsg}</p>
             </div>
             <button
-              onClick={() => { setDemoPopupOpen(false); applyThemeAfterLogin(); router.push('/') }}
+              onClick={() => { setDemoPopupOpen(false); applyThemeAfterLogin(); router.push('/hitung-cetakan') }}
               className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl transition-colors"
               autoFocus
             >
               Ok
             </button>
             <button
-              onClick={() => { setDemoPopupOpen(false); applyThemeAfterLogin(); router.push('/') }}
+              onClick={() => { setDemoPopupOpen(false); applyThemeAfterLogin(); router.push('/hitung-cetakan') }}
               className="w-full text-sm text-slate-500 hover:text-slate-700 mt-3 py-1 transition-colors"
             >
               Masuk ke Dashboard
