@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Printer,
@@ -37,6 +37,9 @@ import { Label } from '@/components/ui/label';
 /* ------------------------------------------------------------------ */
 /*  Animation helpers                                                  */
 /* ------------------------------------------------------------------ */
+// Returns false on server (SSR), true on client — avoids opacity:0 in static HTML
+const useHydrated = () => useSyncExternalStore(() => () => {}, () => true, () => false);
+
 function FadeIn({
   children,
   delay = 0,
@@ -50,6 +53,8 @@ function FadeIn({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const hydrated = useHydrated();
+
   const dirMap = {
     up: { y: 40, x: 0 },
     down: { y: -40, x: 0 },
@@ -57,12 +62,23 @@ function FadeIn({
     right: { x: -40, y: 0 },
   };
   const { x, y } = dirMap[direction];
+
+  // On SSR / before hydration: render visible (no opacity:0 in static HTML)
+  // After hydration: use framer-motion animations
+  if (!hydrated) {
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       ref={ref}
       className={className}
       initial={{ opacity: 0, x, y }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x, y }}
       transition={{ duration: 0.6, delay, ease: 'easeOut' }}
     >
       {children}
@@ -73,12 +89,22 @@ function FadeIn({
 function CountUp({ end, suffix = '', prefix = '', duration = 2000 }: { end: number; suffix?: string; prefix?: string; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
+  const hydrated = useHydrated();
+
+  // On SSR: show the final value directly (no opacity:0)
+  if (!hydrated) {
+    return (
+      <span ref={ref}>
+        {prefix}{end.toLocaleString('id-ID')}{suffix}
+      </span>
+    );
+  }
 
   return (
     <motion.span
       ref={ref}
       initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : {}}
+      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
       {isInView ? (
