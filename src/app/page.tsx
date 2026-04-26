@@ -1073,7 +1073,7 @@ export default function Home() {
       </Section>
 
       {/* =================== FOOTNOTE / FOOTER =================== */}
-      <footer className="w-full bg-gray-900 text-gray-400 mt-auto">
+      <footer className="w-full bg-black text-gray-400 mt-auto">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-12 md:py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
             {/* Brand */}
