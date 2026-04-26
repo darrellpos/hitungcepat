@@ -83,7 +83,7 @@ export default function HitungCetakanPageWrapper() {
 
 const FORM_STORAGE_KEY = 'hitung-cetakan-form-data'
 const FORM_STORAGE_VERSION_KEY = 'hitung-cetakan-form-data-version'
-const FORM_STORAGE_VERSION = 'v3' // increment to force reset on deploy
+const FORM_STORAGE_VERSION = 'v4' // increment to force reset on deploy
 
 function HitungCetakanPage() {
   const { t } = useLanguage()
