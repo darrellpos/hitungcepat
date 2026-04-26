@@ -303,3 +303,22 @@ Stage Summary:
 - Font family now explicitly set on body via both CSS class and inline style
 - Geist variable font with all weights (100-900) will be used consistently in both local and production
 - `display: "swap"` ensures text is always visible even if font hasn't loaded yet
+
+---
+Task ID: 1
+Agent: Main
+Task: Replace old potong kertas page with newest version from git history
+
+Work Log:
+- Investigated git history to find the newest version of potong kertas calculator
+- Found that the original potong kertas was in `src/app/page.tsx` before being replaced with landing page
+- Identified git commit `235aadf` as the last commit containing the potong kertas calculator (933 lines)
+- Previous version at `src/app/potong-kertas/page.tsx` was 737 lines (older backup copy)
+- Key differences in newest version: Share2/WhatsApp sharing, printName field, STORAGE_VERSION for localStorage, buildDiagramHtml/buildFullPrintHtml for better print, handleShareWhatsApp, animated CTA button, hide-scrollbar, more compact styling
+- Replaced the file with the newest version from git history
+- Verified compilation succeeds (GET /potong-kertas 200)
+
+Stage Summary:
+- File updated: `src/app/potong-kertas/page.tsx` (737 → 933 lines)
+- New features restored: WhatsApp sharing, print name input, better print/PDF, localStorage versioning, animated button
+- No compile errors, page loads successfully

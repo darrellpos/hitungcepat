@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight } from 'lucide-react'
+import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight, Share2 } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { useLanguage } from '@/contexts/language-context'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -19,6 +19,8 @@ const CuttingDiagram = dynamic(
 
 // Form state keys for localStorage persistence
 const STORAGE_KEY = 'potong-kertas-form'
+const STORAGE_VERSION_KEY = 'potong-kertas-form-version'
+const STORAGE_VERSION = 'v3' // increment to force reset on deploy
 
 interface FormData {
   paperWidth: string
@@ -30,6 +32,7 @@ interface FormData {
   grammage: string
   pricePerSheet: string
   quantity: string
+  printName: string
   isCustomPaper: boolean
   optimizationMode: string
 }
@@ -39,10 +42,16 @@ function getInitialFormState(): FormData {
     return {
       paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
       selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-      quantity: '', isCustomPaper: false, optimizationMode: 'maximal',
+      quantity: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal',
     }
   }
   try {
+    const savedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+    if (savedVersion !== STORAGE_VERSION) {
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION)
+      return null
+    }
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) return JSON.parse(saved)
   } catch {}
@@ -54,9 +63,9 @@ function getInitialFormState(): FormData {
 }
 
 // Compact styles (mobile larger, desktop compact)
-const inp = "w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base lg:px-3 lg:py-2 lg:text-[15px] text-slate-800 focus:outline-none focus:ring-1.5 focus:ring-blue-500 focus:border-transparent bg-white"
-const inpDisabled = "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base lg:px-3 lg:py-2 lg:text-[15px] text-slate-500 bg-slate-100 cursor-not-allowed"
-const lbl = "text-sm lg:text-[13px] font-medium text-slate-600 mb-0.5 block"
+const inp = "w-full border border-slate-300 rounded-lg px-3 py-2.5 text-base lg:px-2 lg:py-1 lg:text-sm text-slate-800 focus:outline-none focus:ring-1.5 focus:ring-blue-500 focus:border-transparent bg-white"
+const inpDisabled = "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base lg:px-2 lg:py-1 lg:text-xs text-slate-500 bg-slate-100 cursor-not-allowed"
+const lbl = "text-base lg:text-xs font-medium text-slate-600 mb-0.5 block"
 
 function CalculatorPage() {
   const { t } = useLanguage()
@@ -73,6 +82,7 @@ function CalculatorPage() {
   const [grammage, setGrammage] = useState(initialForm.current.grammage)
   const [pricePerSheet, setPricePerSheet] = useState(initialForm.current.pricePerSheet)
   const [quantity, setQuantity] = useState(initialForm.current.quantity)
+  const [printName, setPrintName] = useState(initialForm.current.printName)
   const [isCustomPaper, setIsCustomPaper] = useState(initialForm.current.isCustomPaper)
   const [results, setResults] = useState<CuttingResult | null>(null)
   const [optimizationMode, setOptimizationMode] = useState<'fast' | 'maximal'>(initialForm.current.optimizationMode as 'fast' | 'maximal')
@@ -87,7 +97,7 @@ function CalculatorPage() {
   const formData: FormData = {
     paperWidth, paperHeight, cutWidth, cutHeight,
     selectedCustomerId, selectedPaperId, grammage, pricePerSheet,
-    quantity, isCustomPaper, optimizationMode,
+    quantity, printName, isCustomPaper, optimizationMode,
   }
 
   useEffect(() => {
@@ -182,6 +192,7 @@ function CalculatorPage() {
     setGrammage('')
     setPricePerSheet('')
     setQuantity('')
+    setPrintName('')
     setIsCustomPaper(false)
     setResults(null)
     setOptimizationMode('maximal')
@@ -199,7 +210,8 @@ function CalculatorPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          printName: selectedCustomer?.name || '-',
+          printName: printName || selectedCustomer?.name || '-',
+          customerName: selectedCustomer?.name || '',
           paperName: selectedPaper?.name || 'Custom',
           paperGrammage: grammage || '0',
           paperLength: paperWidth,
@@ -231,61 +243,194 @@ function CalculatorPage() {
     }
   }
 
-  const handlePrint = () => {
-    const printContent = previewRef.current
-    if (!printContent) return
+  // Build SVG diagram HTML for print/PDF/WhatsApp
+  const buildDiagramHtml = useCallback(() => {
+    if (!results) return ''
+    const r = results
+    const scale = 5.94
+    const pw = r.paperWidth
+    const ph = r.paperHeight
+    const svgW = pw * scale
+    const svgH = ph * scale
 
+    const gradients = [
+      { id: 'pg1', c1: '#dbeafe', c2: '#bfdbfe' },
+      { id: 'pg2', c1: '#d1fae5', c2: '#a7f3d0' },
+      { id: 'pg3', c1: '#fef3c7', c2: '#fde68a' },
+      { id: 'pg4', c1: '#fecaca', c2: '#fca5a5' },
+      { id: 'pg5', c1: '#e9d5ff', c2: '#d8b4fe' },
+    ]
+    const strokeColors = ['#93c5fd', '#6ee7b7', '#fcd34d', '#fca5a5', '#c4b5fd']
+
+    let defsInner = gradients.map(g =>
+      `<linearGradient id="${g.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${g.c1}"/><stop offset="100%" stop-color="${g.c2}"/></linearGradient>`
+    ).join('')
+
+    let wasteRects = ''
+    r.blocks.forEach((block: any, bi: number) => {
+      if (block.wasteWidth > 0.01) {
+        wasteRects += `<rect x="${(block.x + block.usedWidth) * scale}" y="${block.y * scale}" width="${block.wasteWidth * scale}" height="${block.usedHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
+        if (block.wasteHeight > 0.01) {
+          wasteRects += `<rect x="${(block.x + block.usedWidth) * scale}" y="${(block.y + block.usedHeight) * scale}" width="${block.wasteWidth * scale}" height="${block.wasteHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
+        }
+      }
+      if (block.wasteHeight > 0.01) {
+        wasteRects += `<rect x="${block.x * scale}" y="${(block.y + block.usedHeight) * scale}" width="${block.usedWidth * scale}" height="${block.wasteHeight * scale}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0.5" rx="1"/>`
+      }
+    })
+
+    let cutLines = ''
+    if (r.blocks.length > 1 && r.cutPosition !== undefined) {
+      cutLines += `<line x1="${r.cutPosition * scale}" y1="0" x2="${r.cutPosition * scale}" y2="${svgH}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
+    }
+    if (r.blocks.length > 1 && r.cutPositionY !== undefined) {
+      cutLines += `<line x1="0" y1="${r.cutPositionY * scale}" x2="${svgW}" y2="${r.cutPositionY * scale}" stroke="#f87171" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.8"/>`
+    }
+
+    let pieceGroups = ''
+    r.blocks.forEach((block: any, bi: number) => {
+      const bx = block.x * scale
+      const by = block.y * scale
+      const pieceW = block.pieceWidth * scale
+      const pieceH = block.pieceHeight * scale
+      const gId = gradients[bi % gradients.length].id
+      const sCol = strokeColors[bi % strokeColors.length]
+      let num = 1
+      for (let i = 0; i < block.horizontal; i++) {
+        for (let j = 0; j < block.vertical; j++) {
+          const cx = bx + i * pieceW + pieceW / 2
+          const cy = by + j * pieceH + pieceH / 2
+          const cr = Math.max(4, Math.min(pieceW, pieceH) / 4)
+          pieceGroups += `<g><rect x="${bx + i * pieceW + 1}" y="${by + j * pieceH + 1}" width="${pieceW - 3}" height="${pieceH - 3}" fill="url(#${gId})" stroke="${sCol}" stroke-width="1.5"/><circle cx="${cx}" cy="${cy}" r="${cr}" fill="white" opacity="0.9"/><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="500" fill="#64748b">${num++}</text></g>`
+        }
+      }
+    })
+
+    return `<svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:100%;max-height:130mm;border:1px solid #cbd5e1;border-radius:2px;background:linear-gradient(to bottom right,#fff,#f8fafc);"><defs>${defsInner}</defs><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#f1f5f9" opacity="0.3"/><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="none" stroke="#94a3b8" stroke-width="4" rx="2"/>${cutLines}${wasteRects}${pieceGroups}</svg>`
+  }, [results])
+
+  // Build the full print/PDF body HTML
+  const buildFullPrintHtml = useCallback(() => {
+    if (!results) return ''
+    const r = results
+    const svgDiagram = buildDiagramHtml()
+
+    const stepsHtml = r.steps.map((step: string, idx: number) =>
+      `<div style="display:flex;align-items:flex-start;gap:5px;padding:3px 0;">
+        <div style="flex-shrink:0;width:17px;height:17px;background:#2563eb;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${idx + 1}</div>
+        <span style="font-size:10px;color:#475569;padding-top:1px;line-height:1.4;">${step}</span>
+      </div>`
+    ).join('')
+
+    const blockColors = [
+      { bg: '#eff6ff', border: '#bfdbfe', badgeBg: '#dbeafe', badgeText: '#1d4ed8', name: '#1e40af', detail: '#2563eb' },
+      { bg: '#ecfdf5', border: '#a7f3d0', badgeBg: '#d1fae5', badgeText: '#047857', name: '#065f46', detail: '#059669' },
+      { bg: '#fffbeb', border: '#fde68a', badgeBg: '#fef3c7', badgeText: '#b45309', name: '#92400e', detail: '#d97706' },
+      { bg: '#fff1f2', border: '#fca5a5', badgeBg: '#fecaca', badgeText: '#b91c1c', name: '#991b1b', detail: '#dc2626' },
+      { bg: '#faf5ff', border: '#d8b4fe', badgeBg: '#e9d5ff', badgeText: '#7e22ce', name: '#6b21a8', detail: '#9333ea' },
+    ]
+
+    const blocksHtml = r.blocks.map((block: any, idx: number) => {
+      const c = blockColors[idx % 5]
+      return `<div style="border:1px solid ${c.border};background:${c.bg};border-radius:5px;padding:4px 6px;margin-bottom:3px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1px;">
+          <span style="font-size:10px;font-weight:700;color:${c.name};">${block.name}</span>
+          <span style="padding:1px 6px;background:${c.badgeBg};color:${c.badgeText};border-radius:10px;font-size:8px;font-weight:600;">${block.pieces} pcs</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:9px;color:${c.detail};">
+          <span>Ukuran: <b>${block.width.toFixed(1)}×${block.height.toFixed(1)}</b></span>
+          <span>Layout: <b>${block.horizontal}×${block.vertical}${block.rotated ? ' (90°)' : ''}</b></span>
+        </div>
+      </div>`
+    }).join('')
+
+    const infoDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    const customerLabel = selectedCustomer?.name || printName || '-'
+    const paperLabel = selectedPaper?.name || 'Custom'
+
+    return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Potong Kertas</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  @page{size:A4;margin:5mm;}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#1e293b;width:210mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .page{width:100%;padding:2mm 3mm;}
+  @media print{body{width:210mm;}.page{padding:0;}}
+</style>
+</head><body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div style="text-align:center;margin-bottom:4mm;padding-bottom:3mm;border-bottom:2px solid #e2e8f0;">
+    <div style="font-size:14pt;font-weight:700;color:#0f172a;">Potong Kertas</div>
+    <div style="font-size:9pt;color:#64748b;margin-top:1mm;">${customerLabel} · ${paperLabel} · ${infoDate}</div>
+  </div>
+
+  <!-- INFO GRID -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2mm;margin-bottom:3mm;">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#2563eb;font-weight:500;">Jumlah Diperlukan</div>
+      <div style="font-size:13pt;font-weight:700;color:#1d4ed8;">${r.quantity} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
+    </div>
+    <div style="background:#faf5ff;border:1px solid #d8b4fe;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#7e22ce;font-weight:500;">Potongan / Lembar</div>
+      <div style="font-size:13pt;font-weight:700;color:#6d28d9;">${r.totalPieces} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
+    </div>
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#059669;font-weight:500;">Lembar Kertas</div>
+      <div style="font-size:13pt;font-weight:700;color:#047857;">${r.sheetsNeeded} <span style="font-size:8pt;font-weight:400;">lembar</span></div>
+    </div>
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#ea580c;font-weight:500;">Total Harga Kertas</div>
+      <div style="font-size:12pt;font-weight:700;color:#c2410c;">Rp ${r.totalPrice.toLocaleString('id-ID')}</div>
+    </div>
+    <div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#e11d48;font-weight:500;">Sisa Potongan</div>
+      <div style="font-size:13pt;font-weight:700;color:#be123c;">${r.totalWasteArea.toFixed(2)} <span style="font-size:8pt;font-weight:400;">cm²</span></div>
+    </div>
+    <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:2.5mm 3mm;">
+      <div style="font-size:7.5pt;color:#0d9488;font-weight:500;">Efisiensi Bahan</div>
+      <div style="font-size:13pt;font-weight:700;color:#0f766e;">${r.efficiency.toFixed(2)}%</div>
+    </div>
+  </div>
+
+  <!-- STRATEGY -->
+  <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;padding:2mm 3mm;margin-bottom:3mm;text-align:center;">
+    <span style="font-size:7.5pt;font-weight:700;color:#3730a3;">Strategi Optimasi: </span>
+    <span style="font-size:10pt;font-weight:700;color:#4338ca;">${r.strategy}</span>
+  </div>
+
+  <!-- DIAGRAM -->
+  <div style="text-align:center;margin-bottom:3mm;">
+    ${svgDiagram}
+  </div>
+
+  <!-- STEPS + BLOCKS side by side -->
+  <div style="display:flex;gap:4mm;align-items:flex-start;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:1.5mm;">Cara Potong:</div>
+      ${stepsHtml}
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:1.5mm;">Detail per Blok:</div>
+      ${blocksHtml}
+    </div>
+  </div>
+
+</div>
+</body></html>`
+  }, [results, selectedCustomer, selectedPaper, printName, buildDiagramHtml])
+
+  const handlePrint = () => {
+    if (!results) return
+    const html = buildFullPrintHtml()
+    if (!html) return
     const printWindow = window.open('', '_blank')
     if (!printWindow) {
       toast.error('Popup diblokir. Izinkan popup untuk mencetak.')
       return
     }
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Preview Potong Kertas</title>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          @page { size: A4; margin: 10mm; }
-          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; }
-          .header { text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
-          .header h1 { font-size: 18px; font-weight: 700; color: #0f172a; }
-          .header p { font-size: 11px; color: #64748b; margin-top: 2px; }
-          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-          .info-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; }
-          .info-item .label { font-size: 9px; color: #64748b; font-weight: 500; }
-          .info-item .value { font-size: 13px; font-weight: 700; color: #0f172a; }
-          .info-item .value.green { color: #059669; }
-          .info-item .value.blue { color: #2563eb; }
-          .info-item .value.orange { color: #ea580c; }
-          .info-item .value.rose { color: #e11d48; }
-          .info-item .value.teal { color: #0d9488; }
-          .info-item .sub { font-size: 9px; color: #94a3b8; margin-top: 1px; }
-          .diagram { text-align: center; margin: 12px 0; page-break-inside: avoid; }
-          .diagram svg { max-width: 100%; max-height: 280px; }
-          .steps { margin: 10px 0; }
-          .steps h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
-          .step { display: flex; align-items: flex-start; gap: 6px; padding: 4px 0; }
-          .step-num { flex-shrink: 0; width: 18px; height: 18px; background: #2563eb; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
-          .step-text { font-size: 10px; color: #475569; padding-top: 1px; }
-          .blocks { margin: 10px 0; }
-          .blocks h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
-          .block-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 8px; margin-bottom: 4px; }
-          .block-card .name { font-size: 10px; font-weight: 700; color: #334155; }
-          .block-card .detail { font-size: 9px; color: #64748b; margin-top: 2px; }
-          .strategy { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; }
-          .strategy-label { font-size: 9px; font-weight: 700; color: #3730a3; }
-          .strategy-text { font-size: 10px; color: #4338ca; }
-        </style>
-      </head>
-      <body>
-        ${printContent.innerHTML}
-      </body>
-      </html>
-    `)
+    printWindow.document.write(html)
     printWindow.document.close()
     printWindow.onload = () => {
       printWindow.print()
@@ -293,51 +438,79 @@ function CalculatorPage() {
   }
 
   const handlePdf = async () => {
-    const el = previewRef.current
-    if (!el) return
+    if (!results) return
 
     setIsGeneratingPdf(true)
     try {
-      const html2canvas = (await import('html2canvas')).default
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-      })
+      const html = buildFullPrintHtml()
+      if (!html) { toast.error('Tidak ada data'); return }
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95)
-
-      const { jsPDF } = await import('jspdf')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
-      const margin = 8
-      const contentWidth = pdfWidth - margin * 2
-
-      const imgWidth = contentWidth
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-
-      const maxHeight = pdfHeight - margin * 2
-      let finalWidth = imgWidth
-      let finalHeight = imgHeight
-      if (finalHeight > maxHeight) {
-        finalWidth = (maxHeight * imgWidth) / imgHeight
-        finalHeight = maxHeight
+      const printWindow = window.open('', '_blank')
+      if (!printWindow) {
+        toast.error('Popup diblokir. Izinkan popup untuk membuat PDF.')
+        return
       }
 
-      const offsetX = margin + (contentWidth - finalWidth) / 2
-      const offsetY = margin
+      // Inject auto-PDF script into the HTML
+      const pdfHtml = html.replace('</body>', `
+  <script>
+    window.onload = function() {
+      // Small delay for SVG rendering
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    }
+  </script>
+</body>`)
 
-      pdf.addImage(imgData, 'JPEG', offsetX, offsetY, finalWidth, finalHeight)
-      pdf.save(`potong-kertas-${Date.now()}.pdf`)
-
-      toast.success('PDF berhasil diunduh!')
+      printWindow.document.write(pdfHtml)
+      printWindow.document.close()
+      toast.success('PDF dibuka! Pilih "Save as PDF" di dialog print.')
     } catch (err) {
       console.error('PDF generation error:', err)
       toast.error('Gagal menghasilkan PDF')
     } finally {
       setIsGeneratingPdf(false)
+    }
+  }
+
+  const handleShareWhatsApp = async () => {
+    if (!results) return
+
+    try {
+      const r = results
+      const customerLabel = selectedCustomer?.name || printName || '-'
+      const paperLabel = selectedPaper?.name || 'Custom'
+      const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+
+      const message = [
+        `📋 *POTONG KERTAS*`,
+        ``,
+        `👤 ${customerLabel}`,
+        `📄 ${paperLabel}`,
+        `📅 ${date}`,
+        ``,
+        `📐 *Ukuran:* ${r.cutWidth} × ${r.cutHeight} cm`,
+        `📊 *Strategi:* ${r.strategy}`,
+        ``,
+        `🔢 Jumlah Diperlukan: *${r.quantity} lembar*`,
+        `📦 Potongan/Lembar: *${r.totalPieces} pcs*`,
+        `📝 Lembar Kertas: *${r.sheetsNeeded} lembar*`,
+        `💰 Total Harga: *Rp ${r.totalPrice.toLocaleString('id-ID')}*`,
+        `🗑️ Sisa Potongan: *${r.totalWasteArea.toFixed(2)} cm²*`,
+        `📈 Efisiensi: *${r.efficiency.toFixed(2)}%*`,
+        ``,
+        `_${r.blocks.map((b: any) => `• ${b.name}: ${b.horizontal}×${b.vertical}${b.rotated ? ' (90°)' : ''}`).join('\\n')}_`,
+        ``,
+        `—— DarrellPOS ——`,
+      ].join('\\n')
+
+      const encoded = encodeURIComponent(message)
+      window.open(`https://wa.me/?text=${encoded}`, '_blank')
+      toast.success('WhatsApp terbuka!')
+    } catch (err) {
+      console.error('WhatsApp share error:', err)
+      toast.error('Gagal membuka WhatsApp')
     }
   }
 
@@ -350,24 +523,30 @@ function CalculatorPage() {
       <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-11rem)] gap-3 lg:min-h-0">
 
         {/* ===== LEFT: FORM ===== */}
-        <div className="lg:w-[500px] xl:w-[530px] flex-shrink-0 flex flex-col gap-2">
+        <div className="lg:w-[480px] xl:w-[510px] flex-shrink-0 flex flex-col gap-1.5 lg:overflow-y-auto lg:min-h-0 hide-scrollbar">
           {/* Info Cetak */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 lg:p-3.5">
-            <p className="text-sm lg:text-[17px] lg:font-bold text-slate-700 mb-3 lg:mb-2">{t('info_cetak')}</p>
-            <div className="space-y-3 lg:space-y-2.5">
-              <div>
-                <label className={lbl}>{t('nama_cetak_customer')}</label>
-                <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
-                  <SelectTrigger className="w-full h-10 lg:h-9 text-base lg:text-sm"><SelectValue placeholder={t('pilih_customer')} /></SelectTrigger>
-                  <SelectContent>
-                    {customers.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-                  </SelectContent>
-                </Select>
+          <div className="bg-white rounded-xl border border-slate-200 p-4">
+            <p className="text-[18px] font-bold text-slate-700 mb-3 uppercase">{t('info_cetak')}</p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={lbl}>{t('nama_customer')}</label>
+                  <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+                    <SelectTrigger className="w-full h-10 text-base"><SelectValue placeholder={t('pilih_customer')} /></SelectTrigger>
+                    <SelectContent>
+                      {customers.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className={lbl}>{t('nama_cetakan')}</label>
+                  <input type="text" placeholder="Nama cetakan" value={printName} onChange={(e) => setPrintName(e.target.value)} className={inp} />
+                </div>
               </div>
               <div>
                 <label className={lbl}>{t('nama_bahan_kertas')}</label>
                 <Select value={selectedPaperId} onValueChange={handlePaperChange}>
-                  <SelectTrigger className="w-full h-10 lg:h-9 text-base lg:text-sm"><SelectValue placeholder={t('pilih_kertas')} /></SelectTrigger>
+                  <SelectTrigger className="w-full h-10 text-base"><SelectValue placeholder={t('pilih_kertas')} /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="custom">
                       <div className="flex items-center gap-1.5">
@@ -378,14 +557,8 @@ function CalculatorPage() {
                     {papers.map((p) => (<SelectItem key={p.id} value={p.id}><span className="text-xs">{p.name} ({p.width}×{p.height}, {p.grammage}gsm)</span></SelectItem>))}
                   </SelectContent>
                 </Select>
-                {selectedPaper && !isCustomPaper && (
-                  <p className="text-xs lg:text-[13px] text-blue-600 mt-1 flex items-center gap-0.5">
-                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    {selectedPaper.width}×{selectedPaper.height} cm, {selectedPaper.grammage} gsm
-                  </p>
-                )}
               </div>
-              <div className="grid grid-cols-2 gap-3 lg:gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={lbl}>{t('gramatur')}</label>
                   <input type="number" step="1" min="0" placeholder="150" value={grammage} onChange={(e) => setGrammage(e.target.value)} className={inp} />
@@ -395,19 +568,13 @@ function CalculatorPage() {
                   <input type="number" step="0.01" min="0" placeholder="0" value={pricePerSheet} onChange={(e) => setPricePerSheet(e.target.value)} className={inp} />
                 </div>
               </div>
-              {pricePerSheet && (
-                <p className="text-xs lg:text-[13px] text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
-                  <span className="font-medium">{t('harga_per_rim')}:</span>{' '}
-                  <span className="text-emerald-600 font-semibold">Rp {(parseFloat(pricePerSheet) * 500).toLocaleString('id-ID')}</span>
-                </p>
-              )}
             </div>
           </div>
 
           {/* Ukuran */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 lg:p-3">
-            <p className="text-sm lg:text-[13px] font-semibold text-slate-700 mb-3 lg:mb-2">Ukuran</p>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-2">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 lg:p-2">
+            <p className="text-sm lg:text-xs font-semibold text-slate-700 mb-3 lg:mb-1">Ukuran</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-1.5">
               <div>
                 <label className={lbl}>{t('lebar_kertas')}</label>
                 <input type="number" step="0.1" placeholder="W" value={paperWidth} onChange={(e) => setPaperWidth(e.target.value)} disabled={!isCustomPaper}
@@ -427,11 +594,11 @@ function CalculatorPage() {
                 <input type="number" step="0.1" placeholder="H" value={cutHeight} onChange={(e) => setCutHeight(e.target.value)} className={inp} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 lg:gap-2 mt-3 lg:mt-2">
+            <div className="grid grid-cols-2 gap-3 lg:gap-1.5 mt-3 lg:mt-1.5">
               <div>
                 <label className={lbl}>{t('mode_optimasi')}</label>
                 <Select value={optimizationMode} onValueChange={(v: any) => setOptimizationMode(v)}>
-                  <SelectTrigger className="w-full h-10 lg:h-8 text-base lg:text-sm"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full h-10 lg:h-7 text-base lg:text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fast"><span className="text-xs">Cepat (Greedy)</span></SelectItem>
                     <SelectItem value="maximal"><span className="text-xs">Maksimal (Brute Force)</span></SelectItem>
@@ -446,22 +613,22 @@ function CalculatorPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-1.5">
             <button onClick={handleCalculateCuts} disabled={isCalculating}
-              className="flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-sm lg:text-[11px] font-semibold py-2.5 lg:py-2 rounded-lg transition-colors">
+              className="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors">
               {isCalculating ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
               {t('hitung_potongan')}
             </button>
             <button onClick={handleSave} disabled={!results}
-              className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm lg:text-[11px] font-semibold py-2.5 lg:py-2 rounded-lg transition-colors" title={t('simpan')}>
+              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('simpan')}>
               {t('simpan')}
             </button>
             <button onClick={() => { if (!results) { toast.error('Hitung potongan terlebih dahulu!'); return; } setPreviewOpen(true) }} disabled={!results}
-              className="flex items-center justify-center gap-1 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm lg:text-[11px] font-semibold py-2.5 lg:py-2 rounded-lg transition-colors" title={t('preview')}>
+              className="flex items-center justify-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('preview')}>
               {t('preview')}
             </button>
             <button onClick={handleReset}
-              className="flex items-center justify-center gap-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm lg:text-[11px] font-semibold py-2.5 lg:py-2 rounded-lg transition-colors" title={t('reset')}>
+              className="flex items-center justify-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('reset')}>
               <RotateCcw className="w-3 h-3" />
               <span className="hidden xl:inline">{t('reset')}</span>
             </button>
@@ -469,21 +636,48 @@ function CalculatorPage() {
 
           {/* Link to Hitung Cetakan */}
           <button
-            onClick={() => {
-              const params = new URLSearchParams()
-              if (selectedCustomer?.name) params.set('printName', selectedCustomer.name)
-              if (selectedCustomerId) params.set('customerId', selectedCustomerId)
-              if (paperWidth) params.set('paperLength', paperWidth)
-              if (paperHeight) params.set('paperWidth', paperHeight)
-              if (quantity) params.set('quantity', quantity)
-              if (selectedPaperId) params.set('paperId', selectedPaperId)
-              if (pricePerSheet) params.set('pricePerSheet', pricePerSheet)
-              if (cutWidth) params.set('cutWidth', cutWidth)
-              if (cutHeight) params.set('cutHeight', cutHeight)
-              if (results?.totalPrice) params.set('totalPaperPrice', results.totalPrice.toString())
-              router.push(`/hitung-cetakan?${params.toString()}`)
+            onClick={(e) => {
+              const btn = e.currentTarget
+              btn.style.transform = 'scale(0.85)'
+              setTimeout(() => { btn.style.transform = 'scale(1.08)' }, 100)
+              setTimeout(() => { btn.style.transform = 'scale(0.95)' }, 220)
+              setTimeout(() => {
+                btn.style.transform = 'scale(1)'
+                const params = new URLSearchParams()
+                if (selectedCustomer?.name) params.set('customerName', selectedCustomer.name)
+                if (printName) params.set('printName', printName)
+                if (selectedCustomerId) params.set('customerId', selectedCustomerId)
+                if (paperWidth) params.set('paperLength', paperWidth)
+                if (paperHeight) params.set('paperWidth', paperHeight)
+                if (quantity) params.set('quantity', quantity)
+                if (selectedPaperId) params.set('paperId', selectedPaperId)
+                if (pricePerSheet) params.set('pricePerSheet', pricePerSheet)
+                if (cutWidth) params.set('cutWidth', cutWidth)
+                if (cutHeight) params.set('cutHeight', cutHeight)
+                if (results?.totalPrice) params.set('totalPaperPrice', results.totalPrice.toString())
+                router.push(`/hitung-cetakan?${params.toString()}`)
+              }, 350)
             }}
-            className="flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-blue-400 text-slate-500 hover:text-blue-600 text-sm lg:text-[11px] font-medium py-2.5 lg:py-2 rounded-lg transition-colors">
+            style={{
+              transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease',
+              animation: 'shimmer-btn 2.5s linear infinite, pulse-glow 2s ease-in-out infinite',
+              background: 'linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b)',
+              backgroundSize: '200% auto',
+              backgroundPosition: '0% center',
+            }}
+            onMouseEnter={(e) => {
+              const btn = e.currentTarget
+              btn.style.transform = 'translateX(6px) scale(1.05)'
+              btn.style.backgroundPosition = '100% center'
+              btn.style.boxShadow = '0 8px 30px rgba(245,158,11,0.5)'
+            }}
+            onMouseLeave={(e) => {
+              const btn = e.currentTarget
+              btn.style.transform = 'translateX(0) scale(1)'
+              btn.style.backgroundPosition = '0% center'
+              btn.style.boxShadow = '0 2px 10px rgba(245,158,11,0.3)'
+            }}
+            className="flex items-center justify-center gap-1.5 text-white text-sm lg:text-[10px] font-bold py-2.5 lg:py-1.5 rounded-lg border border-amber-400 cursor-pointer">
             <Calculator className="w-3.5 h-3.5" />
             Hitung Cetakan Lengkap
             <ArrowRight className="w-3 h-3" />
@@ -491,35 +685,34 @@ function CalculatorPage() {
         </div>
 
         {/* ===== RIGHT: RESULTS ===== */}
-        <div className="flex-1 bg-white rounded-xl border border-slate-200 p-3 lg:p-3 flex flex-col lg:min-h-0">
+        <div className="flex-1 bg-white rounded-xl border border-slate-200 p-3 lg:p-2 flex flex-col lg:min-h-0">
           {results ? (
-            <div className="flex-1 flex flex-col gap-2 lg:min-h-0 lg:overflow-hidden">
+            <div className="flex-1 flex flex-col gap-1.5 lg:min-h-0 lg:overflow-hidden">
               {/* Stats Grid - mobile 2col, desktop 3col/5col */}
               <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 lg:gap-2 flex-shrink-0">
                 <div className="bg-blue-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-[11px] text-blue-600 font-medium leading-tight">Diperlukan</p>
-                  <p className="text-2xl lg:text-xl font-bold text-blue-700 leading-tight">{results.quantity}</p>
-                  <p className="text-xs lg:text-[10px] text-blue-500">lembar</p>
+                  <p className="text-xs lg:text-xs text-blue-600 font-medium leading-tight">Diperlukan</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-blue-700 leading-tight">{results.quantity}</p>
+                  <p className="text-xs lg:text-xs text-blue-500">lembar</p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-[11px] text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
-                  <p className="text-2xl lg:text-xl font-bold text-purple-700 leading-tight">{results.totalPieces}</p>
-                  <p className="text-xs lg:text-[10px] text-purple-500">lembar</p>
+                  <p className="text-xs lg:text-xs text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-purple-700 leading-tight">{results.totalPieces}</p>
+                  <p className="text-xs lg:text-xs text-purple-500">lembar</p>
                 </div>
                 <div className="bg-emerald-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-[11px] text-emerald-600 font-medium leading-tight">Kertas Dibutuhkan</p>
-                  <p className="text-2xl lg:text-xl font-bold text-emerald-700 leading-tight">{results.sheetsNeeded}</p>
-                  <p className="text-xs lg:text-[10px] text-emerald-500">lembar</p>
+                  <p className="text-xs lg:text-xs text-emerald-600 font-medium leading-tight">Kertas Dibutuhkan</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-emerald-700 leading-tight">{results.sheetsNeeded}</p>
+                  <p className="text-xs lg:text-xs text-emerald-500">lembar</p>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-3">
-                  <p className="text-xs lg:text-[11px] text-orange-600 font-medium leading-tight">Total Harga</p>
-                  <p className="text-xl lg:text-lg font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
-                  <p className="text-[11px] lg:text-[10px] text-orange-400">{results.sheetsNeeded} × Rp {results.pricePerSheet.toLocaleString('id-ID')}</p>
+                  <p className="text-xs lg:text-xs text-orange-600 font-medium leading-tight">Total Harga</p>
+                  <p className="text-[26px] lg:text-[26px] font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
                 </div>
                 <div className="bg-teal-50 rounded-lg p-3 lg:p-2.5 text-center">
-                  <p className="text-xs lg:text-[11px] text-teal-600 font-medium leading-tight">Efisiensi</p>
-                  <p className="text-2xl lg:text-xl font-bold text-teal-700 leading-tight">{results.efficiency.toFixed(1)}%</p>
-                  <p className="text-xs lg:text-[10px] text-teal-500">bahan</p>
+                  <p className="text-xs lg:text-xs text-teal-600 font-medium leading-tight">Efisiensi</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-teal-700 leading-tight">{results.efficiency.toFixed(1)}%</p>
+                  <p className="text-xs lg:text-xs text-teal-500">bahan</p>
                 </div>
               </div>
 
@@ -530,34 +723,34 @@ function CalculatorPage() {
               </div>
 
               {/* Diagram + Steps side by side */}
-              <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:min-h-0 lg:overflow-auto">
+              <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-1.5 lg:min-h-0 lg:overflow-auto">
                 {/* Diagram */}
-                <div className="flex-1 flex items-center justify-center min-w-0 bg-gradient-to-br from-white to-slate-50 border border-slate-100 p-2">
+                <div className="flex-1 flex items-center justify-center min-w-0 min-h-0 p-1">
                   <CuttingDiagram results={results} />
                 </div>
 
                 {/* Steps + Block Details */}
-                <div className="lg:w-56 xl:w-64 flex-shrink-0 flex flex-col gap-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="lg:w-44 xl:w-48 flex-shrink-0 flex flex-col gap-1 lg:min-h-0 lg:overflow-y-auto hide-scrollbar">
                   {/* Steps */}
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                    <p className="text-sm lg:text-xs font-bold text-slate-700 mb-1.5 lg:mb-2">Cara Potong:</p>
-                    <div className="space-y-1.5 lg:space-y-1.5">
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-700 mb-1">Cara Potong:</p>
+                    <div className="space-y-1">
                       {results.steps.map((step, idx) => (
-                        <div key={idx} className="flex items-start gap-2">
-                          <div className="flex-shrink-0 w-5 h-5 lg:w-5 lg:h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-[9px] lg:text-[10px] font-bold mt-0.5">{idx + 1}</div>
-                          <p className="text-sm lg:text-xs text-slate-600 leading-snug">{step}</p>
+                        <div key={idx} className="flex items-start gap-1.5">
+                          <div className="flex-shrink-0 w-4 h-4 bg-blue-600 text-white rounded-full flex items-center justify-center text-[8px] font-bold mt-0.5">{idx + 1}</div>
+                          <p className="text-[10px] text-slate-600 leading-snug">{step}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Block Details - compact */}
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                    <p className="text-[10px] font-bold text-slate-700 mb-1">Detail Blok:</p>
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-700 mb-1">Detail Blok:</p>
                     <div className="space-y-1">
                       {results.blocks.map((block: any, idx: number) => {
                         const bgColors = ['bg-blue-50', 'bg-emerald-50', 'bg-amber-50', 'bg-red-50', 'bg-violet-50']
-                        const borderColors = ['border-blue-300', 'border-emerald-300', 'border-amber-300', 'border-red-300', 'border-violet-300']
+                        const borderColors = ['border-blue-200', 'border-emerald-200', 'border-amber-200', 'border-red-200', 'border-violet-200']
                         const badgeBg = ['bg-blue-100', 'bg-emerald-100', 'bg-amber-100', 'bg-red-100', 'bg-violet-100']
                         const badgeText = ['text-blue-700', 'text-emerald-700', 'text-amber-700', 'text-red-700', 'text-violet-700']
                         const nameColors = ['text-blue-800', 'text-emerald-800', 'text-amber-800', 'text-red-800', 'text-violet-800']
@@ -565,12 +758,12 @@ function CalculatorPage() {
                         const ci = idx % 5
                         return (
                           <div key={idx} className={`border ${borderColors[ci]} ${bgColors[ci]} rounded-md p-1.5`}>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mb-0">
                               <span className={`text-[10px] font-bold ${nameColors[ci]}`}>{block.name}</span>
-                              <span className={`px-1 py-0 ${badgeBg[ci]} ${badgeText[ci]} rounded-full text-[9px] font-semibold`}>{block.pieces} pcs</span>
+                              <span className={`px-1 py-0 ${badgeBg[ci]} ${badgeText[ci]} rounded-full text-[8px] font-semibold`}>{block.pieces} pcs</span>
                             </div>
-                            <div className={`grid grid-cols-2 gap-x-2 text-[9px] mt-0.5 ${detailColors[ci]}`}>
-                              <div><span className="opacity-70">Uk: </span><span className="font-bold">{block.width.toFixed(1)}×{block.height.toFixed(1)}</span></div>
+                            <div className={`grid grid-cols-2 gap-x-1 gap-y-0 text-[9px] ${detailColors[ci]}`}>
+                              <div><span className="opacity-70">Ukuran: </span><span className="font-bold">{block.width.toFixed(1)}×{block.height.toFixed(1)}</span></div>
                               <div><span className="opacity-70">Layout: </span><span className="font-bold">{block.horizontal}×{block.vertical}{block.rotated ? ' (90°)' : ''}</span></div>
                             </div>
                           </div>
@@ -628,8 +821,7 @@ function CalculatorPage() {
               </div>
               <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
                 <p className="text-[10px] text-orange-600 font-medium">Total Harga Kertas</p>
-                <p className="text-lg font-bold text-orange-700">Rp {results?.totalPrice.toLocaleString('id-ID')}</p>
-                <p className="text-[9px] text-orange-400">({results?.sheetsNeeded} × Rp {results?.pricePerSheet.toLocaleString('id-ID')})</p>
+                <p className="text-[24px] font-bold text-orange-700">Rp {results?.totalPrice.toLocaleString('id-ID')}</p>
               </div>
               <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
                 <p className="text-[10px] text-rose-600 font-medium">Sisa Potongan</p>
@@ -642,15 +834,15 @@ function CalculatorPage() {
             </div>
 
             {/* Strategy */}
-            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 max-w-[85%] mx-auto">
-              <p className="text-[10px] text-indigo-600 font-medium">Strategi Optimasi</p>
-              <p className="text-xl font-bold text-indigo-700">{results?.strategy}</p>
+            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+              <p className="text-[10px] text-indigo-600 font-medium text-center">Strategi Optimasi</p>
+              <p className="text-xl font-bold text-indigo-700 text-center">{results?.strategy}</p>
             </div>
 
             {/* Diagram */}
             {results && (
               <div className="text-center mb-4">
-                <CuttingDiagram results={results} />
+                <CuttingDiagram results={results} maxHeight="260px" />
               </div>
             )}
 
@@ -672,17 +864,17 @@ function CalculatorPage() {
             {/* Block Details */}
             {results && (
               <div className="mb-2">
-                <h3 className="text-[10px] font-bold text-slate-700 mb-1">Detail per Blok:</h3>
-                <div className="space-y-1">
+                <h3 className="text-xs font-bold text-slate-700 mb-2">Detail per Blok:</h3>
+                <div className="space-y-2">
                   {results.blocks.map((block: any, idx: number) => (
-                    <div key={idx} className="border border-slate-200 rounded-md p-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-slate-800">{block.name}</span>
-                        <span className="px-1 py-0 bg-blue-100 text-blue-700 rounded-full text-[9px] font-semibold">{block.pieces} lembar</span>
+                    <div key={idx} className="border border-slate-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-slate-800">{block.name}</span>
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] font-semibold">{block.pieces} lembar</span>
                       </div>
-                      <div className="grid grid-cols-2 gap-x-3 text-[9px] mt-0.5">
-                        <div><span className="text-slate-500">Uk:</span> <span className="font-medium">{block.width.toFixed(1)}×{block.height.toFixed(1)}</span></div>
-                        <div><span className="text-slate-500">Layout:</span> <span className="font-medium">{block.horizontal}×{block.vertical}{block.rotated ? ' (90°)' : ''}</span></div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
+                        <div><span className="text-slate-500">Ukuran:</span> <span className="font-medium">{block.width.toFixed(1)} × {block.height.toFixed(1)} cm</span></div>
+                        <div><span className="text-slate-500">Layout:</span> <span className="font-medium">{block.horizontal} × {block.vertical}{block.rotated ? ' (90°)' : ''}</span></div>
                       </div>
                     </div>
                   ))}
@@ -692,14 +884,18 @@ function CalculatorPage() {
           </div>
 
           {/* Action buttons at bottom of dialog */}
-          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-3">
+          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-2">
             <button onClick={handlePrint}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
               <Printer className="w-4 h-4" /> {t('cetak')}
             </button>
             <button onClick={handlePdf} disabled={isGeneratingPdf}
-              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors">
-              {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />Membuat PDF...</> : <><FileImage className="w-4 h-4" /> PDF (JPG)</>}
+              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+              {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />PDF...</> : <><FileImage className="w-4 h-4" /> PDF</>}
+            </button>
+            <button onClick={handleShareWhatsApp}
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm">
+              <Share2 className="w-4 h-4" /> WA
             </button>
           </div>
         </DialogContent>
