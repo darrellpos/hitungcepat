@@ -1085,9 +1085,10 @@ function HitungCetakanPage() {
                       <label className={labelClass}>{t('harga_plat')}</label>
                       <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${platTotal2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
                     </div>
-                  <div>
-                    <label className={labelClass}>Total Ongkos 2</label>
-                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                    <div>
+                      <label className={labelClass}>Total Ongkos 2</label>
+                      <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                    </div>
                   </div>
                 </div>
               </div>
