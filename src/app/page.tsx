@@ -923,7 +923,7 @@ export default function Home() {
               'Akses Desktop & Mobile',
               'Support via DM',
               <span className="font-bold">Boleh langganan 1 bulan saja</span>,
-              'Tidak kena biaya denda',
+              'Tidak ada biaya denda sama sekali',
             ]}
             delay={0}
             onSelect={goToLogin}
