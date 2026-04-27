@@ -928,10 +928,10 @@ export default function Home() {
             onSelect={goToLogin}
           />
           <PricingCard
-            title="Paket Tahunan"
-            price="Rp 980.000"
+            title="Langganan Tahunan"
+            price="Rp 888.000"
             period="tahun"
-            description="Hanya Rp 81.666/bulan — hemat banget!"
+            description="Hanya Rp 74.000/bulan — hemat 37%!"
             popular
             features={[
               'Semua fitur kalkulasi cetak',
