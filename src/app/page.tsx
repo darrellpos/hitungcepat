@@ -25,6 +25,7 @@ import {
   EyeOff,
   Mail,
   Lock,
+  Download,
   type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -819,6 +820,12 @@ export default function Home() {
               title: 'Data Aman',
               desc: 'Data bisnismu tersimpan dengan aman. Backup otomatis dan enkripsi untuk keamanan maksimal.',
               color: 'from-green-500 to-emerald-500',
+            },
+            {
+              icon: Download,
+              title: 'Install di Windows & Mac',
+              desc: 'Bisa diinstall langsung di komputer Windows dan MacBook. Tampil seperti aplikasi desktop asli.',
+              color: 'from-blue-500 to-indigo-500',
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.1}>
