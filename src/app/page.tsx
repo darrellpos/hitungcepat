@@ -165,6 +165,7 @@ function PricingCard({
   price,
   period,
   description,
+  descriptionExtra,
   features,
   popular = false,
   periodBelow = false,
@@ -175,6 +176,7 @@ function PricingCard({
   price: string;
   period: string;
   description: string;
+  descriptionExtra?: string;
   features: string[];
   popular?: boolean;
   periodBelow?: boolean;
@@ -206,7 +208,7 @@ function PricingCard({
             </Badge>
           )}
           <h3 className="text-base font-bold text-gray-900 mt-1">{title}</h3>
-          <p className="text-gray-500 text-xs mt-0.5">{description}</p>
+          <p className="text-gray-500 text-xs mt-0.5">{description}{descriptionExtra && <><br />{descriptionExtra}</>}</p>
           <div className="mt-3">
             <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               {price}
@@ -953,7 +955,8 @@ export default function Home() {
             title="Langganan Tahunan"
             price="Rp 888.000"
             period="per tahun"
-            description="Hanya Rp 74.000/bulan — hemat 37%!"
+            description="Hanya Rp 74.000/bulan"
+            descriptionExtra="— hemat 37%!"
             popular
             periodBelow
             features={[
