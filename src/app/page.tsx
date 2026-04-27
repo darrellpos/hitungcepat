@@ -625,15 +625,15 @@ export default function Home() {
 
                 {/* Trust signals */}
                 <div className="flex items-center gap-4 mt-4 flex-wrap">
-                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.1875rem', color: '#000' }}>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.3125rem', color: '#000' }}>
                     <Shield className="w-5 h-5 text-green-500" />
                     <span>Tanpa ikatan</span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.1875rem', color: '#000' }}>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.3125rem', color: '#000' }}>
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <span>Bisa batal kapan saja</span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.1875rem', color: '#000' }}>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.3125rem', color: '#000' }}>
                     <X className="w-5 h-5 text-red-400" />
                     <span>Tanpa denda</span>
                   </div>
