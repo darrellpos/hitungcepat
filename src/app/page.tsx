@@ -974,7 +974,7 @@ export default function Home() {
           </div>
         </FadeIn>
 
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
           <TestimonialCard
             name="Budi Santoso"
             role="Pemilik CV Cetak Jaya"
