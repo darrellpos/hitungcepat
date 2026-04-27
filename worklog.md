@@ -339,3 +339,45 @@ Stage Summary:
 - Landing page now has 4 pricing cards: Demo Gratis, Langganan Bulanan, Langganan Tahunan (popular), Tanpa Langganan
 - Grid responsive: 2 columns on mobile, 4 columns on desktop
 - All cards use same PricingCard component with consistent styling
+
+---
+Task ID: 2
+Agent: Main
+Task: Setup Midtrans Payment Gateway in Sandbox mode
+
+Work Log:
+- Installed `midtrans-client` package (v1.4.3)
+- Added Midtrans env variables to `.env`: MIDTRANS_SERVER_KEY, MIDTRANS_CLIENT_KEY, NEXT_PUBLIC_MIDTRANS_CLIENT_KEY, MIDTRANS_IS_PRODUCTION=false
+- Created Prisma `Payment` model with fields: orderId, packageName, packageType, grossAmount, customerName/Email/Phone, paymentType, transactionId/Time/Status, fraudStatus, metadata
+- Pushed schema to database via `bun run db:push`
+- Created `/api/payment/create-transaction` API route:
+  - Validates package type (bulanan/tahunan/lifetime)
+  - Generates unique orderId format: DPOS-{type}-{timestamp}-{random}
+  - Calls Midtrans Snap API to create transaction
+  - Returns snap token + redirect_url for frontend popup
+- Created `/api/payment/notification` API route (webhook):
+  - Verifies Midtrans signature (SHA-512 hash)
+  - Upserts Payment record to database
+  - Handles all status: settlement, cancel, deny, expire, pending, refund
+- Created `/components/payment-dialog.tsx` — Payment dialog component:
+  - Form step: customer name, email, phone inputs + package summary
+  - Loading step: spinner while creating transaction
+  - Pending step: waiting for payment confirmation
+  - Success step: payment completed
+  - Error step: payment failed with retry option
+  - Dynamically loads Midtrans Snap.js (sandbox URL)
+  - Opens Snap payment popup on form submit
+- Updated landing page pricing cards:
+  - Demo Gratis → goToLogin (free, no payment)
+  - Langganan Bulanan → openPayment('bulanan') 
+  - Langganan Tahunan → openPayment('tahunan')
+  - Tanpa Langganan → openPayment('lifetime')
+- Added PaymentDialog component to Home page with dynamic import (no SSR)
+- Verified compilation and API endpoint response
+
+Stage Summary:
+- Midtrans payment gateway fully integrated in Sandbox mode
+- 3 paid packages route to payment dialog → Midtrans Snap popup
+- Payment records stored in SQLite via Prisma
+- Webhook endpoint ready for Midtrans notification callbacks
+- To activate: Replace XXXXXXXX in .env with actual Midtrans Sandbox keys from https://dashboard.sandbox.midtrans.com

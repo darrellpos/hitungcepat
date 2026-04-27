@@ -3,6 +3,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import {
   Printer,
   Calculator,
@@ -508,9 +509,27 @@ function LoginPage({ onBack }: { onBack: () => void }) {
 /* ------------------------------------------------------------------ */
 const WHATSAPP_URL = 'https://wa.me/6285888082208?text=Halo%20Darrell%20POS%2C%20saya%20tertarik%20untuk%20berlangganan!';
 
+const PaymentDialog = dynamic(() => import('@/components/payment-dialog'), { ssr: false });
+
+interface PackageInfo {
+  type: string;
+  name: string;
+  price: number;
+  priceFormatted: string;
+  period: string;
+}
+
+const PACKAGES: Record<string, PackageInfo> = {
+  bulanan: { type: 'bulanan', name: 'Langganan Bulanan', price: 128000, priceFormatted: 'Rp 128.000', period: 'per bulan' },
+  tahunan: { type: 'tahunan', name: 'Langganan Tahunan', price: 888000, priceFormatted: 'Rp 888.000', period: 'per tahun' },
+  lifetime: { type: 'lifetime', name: 'Tanpa Langganan', price: 3888000, priceFormatted: 'Rp 3.888.000', period: 'sekali bayar' },
+};
+
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginTransition, setLoginTransition] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [selectedPkg, setSelectedPkg] = useState<PackageInfo | null>(null);
 
   const router = useRouter();
 
@@ -519,6 +538,14 @@ export default function Home() {
     setTimeout(() => {
       router.push('/login');
     }, 500);
+  };
+
+  const openPayment = (pkgType: string) => {
+    const pkg = PACKAGES[pkgType];
+    if (pkg) {
+      setSelectedPkg(pkg);
+      setPaymentOpen(true);
+    }
   };
 
   return (
@@ -949,7 +976,7 @@ export default function Home() {
               'Tidak ada biaya denda sama sekali',
             ]}
             delay={0}
-            onSelect={goToLogin}
+            onSelect={() => openPayment('bulanan')}
           />
           <PricingCard
             title="Langganan Tahunan"
@@ -969,7 +996,7 @@ export default function Home() {
               'Backup data otomatis',
             ]}
             delay={0.15}
-            onSelect={goToLogin}
+            onSelect={() => openPayment('tahunan')}
           />
           <PricingCard
             title="Tanpa Langganan"
@@ -987,7 +1014,7 @@ export default function Home() {
               'Priority Support 24/7',
             ]}
             delay={0}
-            onSelect={goToLogin}
+            onSelect={() => openPayment('lifetime')}
           />
         </div>
 
@@ -1219,6 +1246,15 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Payment Dialog */}
+      {selectedPkg && (
+        <PaymentDialog
+          open={paymentOpen}
+          onClose={() => setPaymentOpen(false)}
+          pkg={selectedPkg}
+        />
+      )}
 
       </motion.div>
       </div>
