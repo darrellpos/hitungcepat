@@ -276,7 +276,7 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
               if (onLogout) {
                 await onLogout()
               }
-              router.push('/login')
+              router.push('/')
             }}
             className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[15px] font-medium text-red-600 hover:bg-red-50 transition-colors"
           >

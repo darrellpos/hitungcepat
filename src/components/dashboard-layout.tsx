@@ -58,7 +58,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
     if (autoLogoutIntervalRef.current) clearInterval(autoLogoutIntervalRef.current)
     sessionIntervalRef.current = null
     autoLogoutIntervalRef.current = null
-    router.push('/login')
+    router.push('/')
   }, [router])
 
   // Stay logged in handler (resets activity + dismisses countdown)
@@ -75,7 +75,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       try {
         const authUser = getAuthUser()
         if (!authUser) {
-          router.push('/login')
+          router.push('/')
           setReady(true)
           return
         }
@@ -123,7 +123,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
           .catch(() => {})
 
       } catch {
-        router.push('/login')
+        router.push('/')
       } finally {
         setReady(true)
       }
