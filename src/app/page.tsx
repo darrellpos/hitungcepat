@@ -952,9 +952,10 @@ export default function Home() {
           <PricingCard
             title="Langganan Tahunan"
             price="Rp 888.000"
-            period="tahun"
+            period="per tahun"
             description="Hanya Rp 74.000/bulan — hemat 37%!"
             popular
+            periodBelow
             features={[
               'Semua fitur kalkulasi cetak',
               'Update harga kertas & ongkos',
