@@ -627,7 +627,7 @@ export default function Home() {
                 <div className="flex items-center gap-4 mt-4 flex-wrap">
                   <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.3125rem', color: '#000' }}>
                     <Shield className="w-5 h-5 text-green-500" />
-                    <span>Tanpa ikatan</span>
+                    <span>Tanpa ikatan kontrak</span>
                   </div>
                   <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.3125rem', color: '#000' }}>
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
