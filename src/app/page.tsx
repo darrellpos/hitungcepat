@@ -910,7 +910,7 @@ export default function Home() {
           </div>
         </FadeIn>
 
-        <div className="grid md:grid-cols-3 gap-4 md:gap-5 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 max-w-6xl mx-auto">
           <PricingCard
             title="Demo Gratis"
             price="Rp 0"
@@ -958,6 +958,23 @@ export default function Home() {
               'Backup data otomatis',
             ]}
             delay={0.15}
+            onSelect={goToLogin}
+          />
+          <PricingCard
+            title="Tanpa Langganan"
+            price="Rp 3.888.000"
+            period="sekali bayar"
+            description="Beli putus, tidak perlu langganan"
+            features={[
+              'Semua fitur kalkulasi cetak',
+              'Update harga kertas & ongkos',
+              'Hitung otomatis harga modal',
+              'Akses Desktop & Mobile',
+              'Beli sekali, pakai selamanya',
+              'Tidak ada biaya berlangganan',
+              'Priority Support 24/7',
+            ]}
+            delay={0}
             onSelect={goToLogin}
           />
         </div>

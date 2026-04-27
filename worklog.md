@@ -322,3 +322,20 @@ Stage Summary:
 - File updated: `src/app/potong-kertas/page.tsx` (737 → 933 lines)
 - New features restored: WhatsApp sharing, print name input, better print/PDF, localStorage versioning, animated button
 - No compile errors, page loads successfully
+
+---
+Task ID: 1
+Agent: Main
+Task: Add "Tanpa Langganan" (beli putus) pricing card to landing page
+
+Work Log:
+- Added 4th pricing card: "Tanpa Langganan" — Rp 3.888.000 (sekali bayar)
+- Updated grid from `md:grid-cols-3` to `grid-cols-2 md:grid-cols-4` for 4-card layout
+- Increased max-w from `max-w-5xl` to `max-w-6xl` to accommodate wider grid
+- Card features: all calculation features, buy once use forever, no subscription fees, priority support 24/7
+- Description: "Beli putus, tidak perlu langganan"
+
+Stage Summary:
+- Landing page now has 4 pricing cards: Demo Gratis, Langganan Bulanan, Langganan Tahunan (popular), Tanpa Langganan
+- Grid responsive: 2 columns on mobile, 4 columns on desktop
+- All cards use same PricingCard component with consistent styling
