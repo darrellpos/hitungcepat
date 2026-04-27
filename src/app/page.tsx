@@ -197,41 +197,41 @@ function PricingCard({
         {popular && (
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500" />
         )}
-        <CardHeader className="relative p-6 pb-4 text-center">
+        <CardHeader className="relative p-4 pb-3 text-center">
           {popular && (
-            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 px-4 py-1 text-sm font-semibold shadow-lg">
-              <Star className="w-3.5 h-3.5 mr-1" /> Hemat Banget!
+            <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 px-3 py-0.5 text-xs font-semibold shadow-lg">
+              <Star className="w-3 h-3 mr-1" /> Hemat Banget!
             </Badge>
           )}
-          <h3 className="text-xl font-bold text-gray-900 mt-2">{title}</h3>
-          <p className="text-gray-500 text-sm mt-1">{description}</p>
-          <div className="mt-4">
-            <span className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+          <h3 className="text-base font-bold text-gray-900 mt-1">{title}</h3>
+          <p className="text-gray-500 text-xs mt-0.5">{description}</p>
+          <div className="mt-3">
+            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               {price}
             </span>
-            <span className="text-gray-500 text-sm ml-1">/{period}</span>
+            <span className="text-gray-500 text-xs ml-1">/{period}</span>
           </div>
         </CardHeader>
-        <CardContent className="relative p-6 pt-0 flex-1">
-          <Separator className="mb-6" />
-          <ul className="space-y-3">
+        <CardContent className="relative p-4 pt-0 flex-1">
+          <Separator className="mb-4" />
+          <ul className="space-y-2">
             {features.map((feature, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-700">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0 mt-0.5" />
                 <span>{feature}</span>
               </li>
             ))}
           </ul>
         </CardContent>
-        <CardFooter className="relative p-6 pt-0">
+        <CardFooter className="relative p-4 pt-0">
           <Button
-            className={`ripple-btn w-full py-3 text-base font-semibold transition-all duration-300 ${
+            className={`ripple-btn w-full py-2 text-xs font-semibold transition-all duration-300 ${
               popular
                 ? 'cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30'
                 : 'bg-gray-900 hover:bg-gray-800 text-white'
             }`}
           >
-            Pilih Paket <ArrowRight className="ml-2 w-4 h-4" />
+            Pilih Paket <ArrowRight className="ml-1.5 w-3 h-3" />
           </Button>
         </CardFooter>
       </Card>
@@ -910,7 +910,7 @@ export default function Home() {
           </div>
         </FadeIn>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto">
           <PricingCard
             title="Demo Gratis"
             price="Rp 0"
