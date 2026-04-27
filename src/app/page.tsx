@@ -167,6 +167,7 @@ function PricingCard({
   description,
   features,
   popular = false,
+  periodBelow = false,
   delay = 0,
   onSelect,
 }: {
@@ -176,6 +177,7 @@ function PricingCard({
   description: string;
   features: string[];
   popular?: boolean;
+  periodBelow?: boolean;
   delay?: number;
   onSelect: () => void;
 }) {
@@ -209,7 +211,11 @@ function PricingCard({
             <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               {price}
             </span>
-            <span className="text-gray-500 text-xs ml-1">/{period}</span>
+            {periodBelow ? (
+              <p className="text-gray-400 text-xs mt-1">{period}</p>
+            ) : (
+              <span className="text-gray-500 text-xs ml-1">/{period}</span>
+            )}
           </div>
         </CardHeader>
         <CardContent className="relative p-4 pt-0 flex-1">
@@ -965,6 +971,7 @@ export default function Home() {
             price="Rp 3.888.000"
             period="sekali bayar"
             description="Beli putus, tidak perlu langganan"
+            periodBelow
             features={[
               'Semua fitur kalkulasi cetak',
               'Update harga kertas & ongkos',
