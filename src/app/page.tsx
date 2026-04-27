@@ -912,10 +912,10 @@ export default function Home() {
 
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-3xl mx-auto">
           <PricingCard
-            title="Paket Bulanan"
+            title="Langganan Bulanan"
             price="Rp 128.000"
             period="bulan"
-            description="Bayar bulanan, sangat fleksibel"
+            description="Langganan bulanan, sangat fleksibel"
             features={[
               'Semua fitur kalkulasi cetak',
               'Update harga kertas & ongkos',
