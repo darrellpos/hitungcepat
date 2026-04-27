@@ -996,6 +996,13 @@ export default function Home() {
             avatar="AF"
             delay={0.3}
           />
+          <TestimonialCard
+            name="Gunawan"
+            role="Pemilik One Printing"
+            quote="Bayar 1 bulan aja gpp, bulan berikutnya tidak usah, tidak ada denda. Seperti langganan Netflix. Fleksibel banget!"
+            avatar="GP"
+            delay={0.45}
+          />
         </div>
       </Section>
 
