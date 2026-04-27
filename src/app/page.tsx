@@ -922,7 +922,8 @@ export default function Home() {
               'Hitung otomatis harga modal',
               'Akses Desktop & Mobile',
               'Support via DM',
-              'Bisa batal kapan saja',
+              <span className="font-bold">Boleh langganan 1 bulan saja</span>,
+              'Tidak kena biaya denda',
             ]}
             delay={0}
             onSelect={goToLogin}
