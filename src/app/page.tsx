@@ -935,8 +935,9 @@ export default function Home() {
           <PricingCard
             title="Langganan Bulanan"
             price="Rp 128.000"
-            period="bulan"
+            period="per bulan"
             description="Langganan bulanan, sangat fleksibel"
+            periodBelow
             features={[
               'Semua fitur kalkulasi cetak',
               'Update harga kertas & ongkos',
