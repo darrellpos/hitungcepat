@@ -921,7 +921,6 @@ export default function Home() {
               'Update harga kertas & ongkos',
               'Hitung otomatis harga modal',
               'Akses Desktop & Mobile',
-              'Support via DM',
               <span className="font-bold">Boleh langganan 1 bulan saja</span>,
               'Tidak ada biaya denda sama sekali',
             ]}
