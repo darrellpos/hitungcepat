@@ -827,6 +827,12 @@ export default function Home() {
               desc: 'Bisa diinstall langsung di komputer Windows dan MacBook. Tampil seperti aplikasi desktop asli.',
               color: 'from-blue-500 to-indigo-500',
             },
+            {
+              icon: Smartphone,
+              title: 'Install di Android & iOS',
+              desc: 'Install langsung di HP Android dan iPhone. Gampang digunakan, tidak usah buka browser lagi.',
+              color: 'from-purple-500 to-pink-500',
+            },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.1}>
               <div className="advantage-tap group flex items-start gap-4 p-5 rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-orange-200 cursor-pointer">
