@@ -528,7 +528,7 @@ function CalculatorPage() {
           <div className="bg-white rounded-xl border border-slate-200 p-4">
             <p className="text-[18px] font-bold text-slate-700 mb-3 uppercase">{t('info_cetak')}</p>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <div>
                   <label className={lbl}>{t('nama_customer')}</label>
                   <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
