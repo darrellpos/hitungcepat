@@ -20,7 +20,7 @@ const CuttingDiagram = dynamic(
 // Form state keys for localStorage persistence
 const STORAGE_KEY = 'potong-kertas-form'
 const STORAGE_VERSION_KEY = 'potong-kertas-form-version'
-const STORAGE_VERSION = 'v4' // increment to force reset on deploy
+const STORAGE_VERSION = 'v5' // increment to force reset on deploy
 
 interface FormData {
   paperWidth: string
@@ -35,6 +35,7 @@ interface FormData {
   printName: string
   isCustomPaper: boolean
   optimizationMode: string
+  insit: string
 }
 
 function getInitialFormState(): FormData {
@@ -42,7 +43,7 @@ function getInitialFormState(): FormData {
     return {
       paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
       selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-      quantity: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal',
+      quantity: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal', insit: '0.5',
     }
   }
   try {
@@ -58,7 +59,7 @@ function getInitialFormState(): FormData {
   return {
     paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
     selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-    quantity: '', isCustomPaper: false, optimizationMode: 'maximal',
+    quantity: '', isCustomPaper: false, optimizationMode: 'maximal', insit: '0.5',
   }
 }
 
@@ -86,6 +87,7 @@ function CalculatorPage() {
   const [isCustomPaper, setIsCustomPaper] = useState(initialForm.current.isCustomPaper)
   const [results, setResults] = useState<CuttingResult | null>(null)
   const [optimizationMode, setOptimizationMode] = useState<'fast' | 'maximal'>(initialForm.current.optimizationMode as 'fast' | 'maximal')
+  const [insit, setInsit] = useState(initialForm.current.insit)
   const [isCalculating, setIsCalculating] = useState(false)
 
   // Preview state
@@ -97,7 +99,7 @@ function CalculatorPage() {
   const formData: FormData = {
     paperWidth, paperHeight, cutWidth, cutHeight,
     selectedCustomerId, selectedPaperId, grammage, pricePerSheet,
-    quantity, printName, isCustomPaper, optimizationMode,
+    quantity, printName, isCustomPaper, optimizationMode, insit,
   }
 
   useEffect(() => {
@@ -161,8 +163,16 @@ function CalculatorPage() {
       setIsCalculating(false)
       return
     }
-    if (cw > pw || ch > ph) {
-      toast.error('Ukuran potongan lebih besar dari ukuran kertas!')
+    const insitVal = parseFloat(insit) || 0
+    const effectiveW = pw - (insitVal * 2)
+    const effectiveH = ph - (insitVal * 2)
+    if (effectiveW <= 0 || effectiveH <= 0) {
+      toast.error('Insit terlalu besar untuk ukuran kertas!')
+      setIsCalculating(false)
+      return
+    }
+    if (cw > effectiveW || ch > effectiveH) {
+      toast.error(`Ukuran potongan lebih besar dari area efektif (${effectiveW.toFixed(1)}×${effectiveH.toFixed(1)}cm)!`)
       setIsCalculating(false)
       return
     }
@@ -174,7 +184,14 @@ function CalculatorPage() {
       customerName: selectedCustomer?.name || '',
       paperMaterial: selectedPaper?.name || '',
       grammage: selectedPaper?.grammage || 0,
+      insit: insitVal,
     })
+
+    if (result.scenarioType === 'error') {
+      toast.error(result.steps[0] || 'Terjadi kesalahan')
+      setIsCalculating(false)
+      return
+    }
 
     setResults(result)
     setIsCalculating(false)
@@ -196,6 +213,7 @@ function CalculatorPage() {
     setIsCustomPaper(false)
     setResults(null)
     setOptimizationMode('maximal')
+    setInsit('0.5')
     localStorage.removeItem(STORAGE_KEY)
     toast.success('Data berhasil direset')
   }
@@ -398,6 +416,7 @@ function CalculatorPage() {
   <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;padding:2mm 3mm;margin-bottom:3mm;text-align:center;">
     <span style="font-size:7.5pt;font-weight:700;color:#3730a3;">Strategi Optimasi: </span>
     <span style="font-size:10pt;font-weight:700;color:#4338ca;">${r.strategy}</span>
+    ${r.insit > 0 ? `<br><span style="font-size:7.5pt;font-weight:700;color:#b45309;">Insit: ${r.insit} cm | Area Efektif: ${r.effectiveWidth.toFixed(1)}×${r.effectiveHeight.toFixed(1)} cm</span>` : ''}
   </div>
 
   <!-- DIAGRAM -->
@@ -492,6 +511,7 @@ function CalculatorPage() {
         ``,
         `📐 *Ukuran:* ${r.cutWidth} × ${r.cutHeight} cm`,
         `📊 *Strategi:* ${r.strategy}`,
+        ...(r.insit > 0 ? [`📏 *Insit:* ${r.insit} cm | Area efektif: ${r.effectiveWidth.toFixed(1)}×${r.effectiveHeight.toFixed(1)} cm`] : []),
         ``,
         `🔢 Jumlah Diperlukan: *${r.quantity} lembar*`,
         `📦 Potongan/Lembar: *${r.totalPieces} pcs*`,
@@ -594,7 +614,11 @@ function CalculatorPage() {
                 <input type="number" step="0.1" placeholder="H" value={cutHeight} onChange={(e) => setCutHeight(e.target.value)} className={inp} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 lg:gap-1.5 mt-3 lg:mt-1.5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-1.5 mt-3 lg:mt-1.5">
+              <div>
+                <label className={lbl}>Insit Kertas (cm)</label>
+                <input type="number" step="0.1" min="0" max="5" placeholder="0.5" value={insit} onChange={(e) => setInsit(e.target.value)} className={inp} />
+              </div>
               <div>
                 <label className={lbl}>{t('mode_optimasi')}</label>
                 <Select value={optimizationMode} onValueChange={(v: any) => setOptimizationMode(v)}>
@@ -716,10 +740,18 @@ function CalculatorPage() {
                 </div>
               </div>
 
-              {/* Strategy */}
-              <div className="bg-indigo-50 border border-indigo-200 rounded px-2 py-0 flex-shrink-0">
-                <span className="text-[10px] font-bold text-indigo-800">Strategi: </span>
-                <span className="text-[10px] text-indigo-700 font-medium">{results.strategy}</span>
+              {/* Strategy + Insit Info */}
+              <div className="flex flex-col gap-1 flex-shrink-0">
+                <div className="bg-indigo-50 border border-indigo-200 rounded px-2 py-0">
+                  <span className="text-[10px] font-bold text-indigo-800">Strategi: </span>
+                  <span className="text-[10px] text-indigo-700 font-medium">{results.strategy}</span>
+                </div>
+                {results.insit > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded px-2 py-0">
+                    <span className="text-[10px] font-bold text-amber-800">Insit: </span>
+                    <span className="text-[10px] text-amber-700 font-medium">{results.insit} cm | Area efektif: {results.effectiveWidth.toFixed(1)}×{results.effectiveHeight.toFixed(1)} cm</span>
+                  </div>
+                )}
               </div>
 
               {/* Diagram + Steps side by side */}
