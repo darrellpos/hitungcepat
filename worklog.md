@@ -528,3 +528,27 @@ Stage Summary:
 - All API calls now send auth headers from localStorage as fallback when cookies are missing
 - This fixes the cross-origin/proxy authentication issue
 - All data lists (daftar admin, calon pembeli, daftar pembeli, hak akses, settings) should now work from any context
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Change edit pembeli and edit calon pembeli popup style to match edit pengguna popup
+
+Work Log:
+- Read full pengguna page to analyze all three dialog styles
+- Edit Pengguna uses plain Input fields (no icons, no relative wrappers)
+- Edit Calon Pembeli previously had icons (UserPlus, Phone, Mail, MapPin, StickyNote) and relative wrappers
+- Edit Pembeli previously had icons (ShoppingCart, Phone, Mail, MapPin, StickyNote) and relative wrappers
+- Updated Edit Calon Pembeli dialog: removed all icon wrappers, used plain Input/textarea, same grid layout as pengguna
+- Updated Edit Pembeli dialog: removed all icon wrappers, used plain Input/textarea, same grid layout as pengguna
+- Changed Role/Status from side-by-side to full-width for calon (matching pengguna style)
+- Changed Role/Expired from side-by-side to full-width for pembeli (matching pengguna style)
+- Removed unused icon imports: Bell, Phone, Mail, MapPin, StickyNote
+- Verified lint passes (no pengguna-related errors) and dev server compiles successfully
+
+Stage Summary:
+- Both edit calon pembeli and edit pembeli dialogs now match the clean style of edit pengguna
+- Removed icons from input fields, using plain Input components
+- Same label style (nama_lengkap), placeholder pattern (Masukkan...)
+- Same footer button style (no custom bg color)
+- Unused imports cleaned up

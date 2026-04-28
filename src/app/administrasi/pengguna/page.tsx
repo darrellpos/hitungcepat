@@ -1,6 +1,6 @@
 'use client'
 
-import { Users, Plus, Search, Eye, EyeOff, Bell, UserPlus, ShoppingCart, UserCheck, Phone, Mail, MapPin, StickyNote, CheckCircle, Clock, XCircle, Loader2, KeyRound } from 'lucide-react'
+import { Users, Plus, Search, Eye, EyeOff, UserPlus, ShoppingCart, UserCheck, CheckCircle, Clock, XCircle, Loader2, KeyRound } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { MobileTable } from '@/components/mobile-table'
@@ -1104,65 +1104,51 @@ export default function PenggunaPage() {
           <form onSubmit={handleSaveCalon}>
             <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
               <div className="grid gap-2">
-                <Label htmlFor="c-nama">{t('nama_label')}</Label>
-                <div className="relative">
-                  <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="c-nama" type="text" placeholder="Nama calon pembeli" required value={calonNama} onChange={(e) => setCalonNama(e.target.value)} className="pl-9" />
-                </div>
+                <Label htmlFor="c-nama">{t('nama_lengkap')}</Label>
+                <Input id="c-nama" type="text" placeholder="Masukkan nama" required value={calonNama} onChange={(e) => setCalonNama(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-hp">Nomor Handphone</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="c-hp" type="tel" placeholder="081234567890" required value={calonNomorHP} onChange={(e) => setCalonNomorHP(e.target.value)} className="pl-9" />
-                </div>
+                <Input id="c-hp" type="tel" placeholder="081234567890" value={calonNomorHP} onChange={(e) => setCalonNomorHP(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="c-email" type="email" placeholder="email@contoh.com" value={calonEmail} onChange={(e) => setCalonEmail(e.target.value)} className="pl-9" />
-                </div>
+                <Input id="c-email" type="email" placeholder="email@contoh.com" value={calonEmail} onChange={(e) => setCalonEmail(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-alamat">Alamat</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                  <textarea
-                    id="c-alamat"
-                    placeholder="Alamat lengkap"
-                    value={calonAlamat}
-                    onChange={(e) => setCalonAlamat(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
-                    rows={2}
-                  />
-                </div>
+                <textarea
+                  id="c-alamat"
+                  placeholder="Masukkan alamat"
+                  value={calonAlamat}
+                  onChange={(e) => setCalonAlamat(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
+                  rows={2}
+                />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label>Role</Label>
-                  <Select value={calonRole} onValueChange={setCalonRole}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {ROLE_OPTIONS.map((r) => (
-                        <SelectItem key={r} value={r} className="capitalize">
-                          {r.charAt(0).toUpperCase() + r.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label>Status</Label>
-                  <Select value={calonStatus} onValueChange={setCalonStatus}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {CALON_STATUS_OPTIONS.map((s) => (
-                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="grid gap-2">
+                <Label>Role</Label>
+                <Select value={calonRole} onValueChange={setCalonRole} required>
+                  <SelectTrigger><SelectValue placeholder="Pilih role" /></SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map((r) => (
+                      <SelectItem key={r} value={r} className="capitalize">
+                        {r.charAt(0).toUpperCase() + r.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label>Status</Label>
+                <Select value={calonStatus} onValueChange={setCalonStatus} required>
+                  <SelectTrigger><SelectValue placeholder="Pilih status" /></SelectTrigger>
+                  <SelectContent>
+                    {CALON_STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-expiredDate">Expired Date</Label>
@@ -1171,17 +1157,14 @@ export default function PenggunaPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-catatan">Catatan</Label>
-                <div className="relative">
-                  <StickyNote className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                  <textarea
-                    id="c-catatan"
-                    placeholder="Catatan tambahan (opsional)"
-                    value={calonCatatan}
-                    onChange={(e) => setCalonCatatan(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
-                    rows={2}
-                  />
-                </div>
+                <textarea
+                  id="c-catatan"
+                  placeholder="Catatan tambahan (opsional)"
+                  value={calonCatatan}
+                  onChange={(e) => setCalonCatatan(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
+                  rows={2}
+                />
               </div>
             </div>
             <DialogFooter>
@@ -1206,77 +1189,61 @@ export default function PenggunaPage() {
           <form onSubmit={handleSavePembeli}>
             <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
               <div className="grid gap-2">
-                <Label htmlFor="p-nama">{t('nama_label')}</Label>
-                <div className="relative">
-                  <ShoppingCart className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="p-nama" type="text" placeholder="Nama pembeli" required value={pembeliNama} onChange={(e) => setPembeliNama(e.target.value)} className="pl-9" />
-                </div>
+                <Label htmlFor="p-nama">{t('nama_lengkap')}</Label>
+                <Input id="p-nama" type="text" placeholder="Masukkan nama" required value={pembeliNama} onChange={(e) => setPembeliNama(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="p-hp">Nomor Handphone</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="p-hp" type="tel" placeholder="081234567890" required value={pembeliNomorHP} onChange={(e) => setPembeliNomorHP(e.target.value)} className="pl-9" />
-                </div>
+                <Input id="p-hp" type="tel" placeholder="081234567890" value={pembeliNomorHP} onChange={(e) => setPembeliNomorHP(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="p-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="p-email" type="email" placeholder="email@contoh.com" value={pembeliEmail} onChange={(e) => setPembeliEmail(e.target.value)} className="pl-9" />
-                </div>
+                <Input id="p-email" type="email" placeholder="email@contoh.com" value={pembeliEmail} onChange={(e) => setPembeliEmail(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="p-alamat">Alamat</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                  <textarea
-                    id="p-alamat"
-                    placeholder="Alamat lengkap"
-                    value={pembeliAlamat}
-                    onChange={(e) => setPembeliAlamat(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
-                    rows={2}
-                  />
-                </div>
+                <textarea
+                  id="p-alamat"
+                  placeholder="Masukkan alamat"
+                  value={pembeliAlamat}
+                  onChange={(e) => setPembeliAlamat(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
+                  rows={2}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Role</Label>
+                <Select value={pembeliRole} onValueChange={setPembeliRole} required>
+                  <SelectTrigger><SelectValue placeholder="Pilih role" /></SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map((r) => (
+                      <SelectItem key={r} value={r} className="capitalize">
+                        {r.charAt(0).toUpperCase() + r.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="p-expiredDate">Expired Date</Label>
+                <Input id="p-expiredDate" type="date" value={pembeliExpiredDate} onChange={(e) => setPembeliExpiredDate(e.target.value)} />
+                <p className="text-xs text-slate-400">Kosongkan untuk tidak ada masa kadaluarsa</p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="p-catatan">Catatan</Label>
-                <div className="relative">
-                  <StickyNote className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                  <textarea
-                    id="p-catatan"
-                    placeholder="Catatan tambahan (opsional)"
-                    value={pembeliCatatan}
-                    onChange={(e) => setPembeliCatatan(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
-                    rows={2}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label>Role</Label>
-                  <Select value={pembeliRole} onValueChange={setPembeliRole}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {ROLE_OPTIONS.map((r) => (
-                        <SelectItem key={r} value={r} className="capitalize">
-                          {r.charAt(0).toUpperCase() + r.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="p-expiredDate">Expired Date</Label>
-                  <Input id="p-expiredDate" type="date" value={pembeliExpiredDate} onChange={(e) => setPembeliExpiredDate(e.target.value)} />
-                </div>
+                <textarea
+                  id="p-catatan"
+                  placeholder="Catatan tambahan (opsional)"
+                  value={pembeliCatatan}
+                  onChange={(e) => setPembeliCatatan(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px] resize-none"
+                  rows={2}
+                />
               </div>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => { resetPembeliForm(); setPembeliDialogOpen(false) }}>{t('batal')}</Button>
-              <Button type="submit" disabled={pembeliSaving} className="bg-emerald-600 hover:bg-emerald-700">
+              <Button type="submit" disabled={pembeliSaving}>
                 {pembeliSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>Menyimpan...</>) : (editingPembeli ? 'Simpan Perubahan' : 'Tambah Pembeli')}
               </Button>
             </DialogFooter>
