@@ -225,10 +225,14 @@ export default function PenggunaPage() {
 
   // ==================== USER CRUD ====================
 
-  const filteredUsers = penggunaList.filter(user =>
+  // Only show admin/superadmin in Daftar Admin
+  const adminList = penggunaList.filter(user =>
+    user.role === 'admin' || user.role === 'superadmin'
+  )
+
+  const filteredUsers = adminList.filter(user =>
     user.namaLengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+    user.username.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const resetUserForm = () => {
@@ -855,9 +859,9 @@ export default function PenggunaPage() {
               <div>
                 <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <Users className="w-5 h-5 text-blue-600" />
-                  Daftar User / Admin
+                  Daftar Admin
                 </h2>
-                <p className="text-sm text-slate-500 mt-1">Kelola akun pengguna aplikasi</p>
+                <p className="text-sm text-slate-500 mt-1">Kelola akun admin aplikasi</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="relative flex-1 sm:w-64">
