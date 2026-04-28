@@ -135,6 +135,7 @@ function HitungCetakanPage() {
   const [calculatedGlueBoronganSheet, setCalculatedGlueBoronganSheet] = useState<number>(0)
   const [prefilled, setPrefilled] = useState(false)
   const [profitPercent, setProfitPercent] = useState<number>(0)
+  const [biayaLain1Label, setBiayaLain1Label] = useState('Biaya Bikin Piso')
   const [biayaLain2Label, setBiayaLain2Label] = useState('Biaya')
 
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -944,7 +945,7 @@ function HitungCetakanPage() {
                       </div>
                     </div>
                     <div>
-                      <label className={labelClass}>Biaya Bikin Piso</label>
+                      <input type="text" value={biayaLain1Label} onChange={(e) => setBiayaLain1Label(e.target.value)} className="w-full border border-slate-200 rounded-md px-2 py-0.5 text-[10px] text-slate-600 mb-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                       <div className="relative">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                         <input type="number" placeholder="0" value={formData.biayaLain1} onChange={(e) => setFormData({ ...formData, biayaLain1: e.target.value })} className={`${inputClass} pl-9`} />
@@ -997,7 +998,7 @@ function HitungCetakanPage() {
                   {summaryShipping > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Kirim</span><span className="text-slate-400 font-medium">{formatRp(summaryShipping)}</span></div>}
                   {calculatedGlueCost > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Ongkos Lem</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
                   {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
-                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">Biaya Bikin Piso</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">{biayaLain1Label}</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
                   {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[10px]"><span className="text-slate-400">{biayaLain2Label}</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
@@ -1200,7 +1201,7 @@ function HitungCetakanPage() {
                     </div>
                   </div>
                   <div>
-                    <label className={labelClass}>Biaya Bikin Piso</label>
+                    <input type="text" value={biayaLain1Label} onChange={(e) => setBiayaLain1Label(e.target.value)} className="w-full border border-slate-200 rounded-md px-2 py-0.5 text-[10px] text-slate-600 mb-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rp</span>
                       <input type="number" placeholder="0" value={formData.biayaLain1} onChange={(e) => setFormData({ ...formData, biayaLain1: e.target.value })} className={`${inputClass} pl-9`} />
@@ -1254,7 +1255,7 @@ function HitungCetakanPage() {
                   {summaryShipping > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Kirim</span><span className="text-slate-400 font-medium">{formatRp(summaryShipping)}</span></div>}
                   {calculatedGlueCost > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Ongkos Lem</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueCost)}</span></div>}
                   {calculatedGlueBoronganSheet > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Lem Borongan</span><span className="text-slate-400 font-medium">{formatRp(calculatedGlueBoronganSheet)}</span></div>}
-                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">Biaya Bikin Piso</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
+                  {summaryBiayaLain1 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">{biayaLain1Label}</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain1)}</span></div>}
                   {summaryBiayaLain2 > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-400">{biayaLain2Label}</span><span className="text-slate-400 font-medium">{formatRp(summaryBiayaLain2)}</span></div>}
                 </div>
               </div>
@@ -1582,7 +1583,7 @@ function HitungCetakanPage() {
                           <div className="flex items-center gap-2">
                             <Banknote className="w-4 h-4 text-amber-500" />
                             <div>
-                              <p className="text-[9px] text-amber-500">Biaya Bikin Piso</p>
+                              <p className="text-[9px] text-amber-500">{biayaLain1Label}</p>
                               <p className="text-sm font-bold text-amber-700">{formatRp(summaryBiayaLain1)}</p>
                             </div>
                           </div>
@@ -1671,7 +1672,7 @@ function HitungCetakanPage() {
                     )}
                     {summaryBiayaLain1 > 0 && (
                       <div className="flex items-center justify-between px-1 py-1">
-                        <span className="text-[10px] text-slate-400">Biaya Bikin Piso</span>
+                        <span className="text-[10px] text-slate-400">{biayaLain1Label}</span>
                         <span className="text-[10px] font-semibold text-slate-400">{formatRp(summaryBiayaLain1)}</span>
                       </div>
                     )}
