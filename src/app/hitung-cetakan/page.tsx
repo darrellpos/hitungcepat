@@ -1415,24 +1415,10 @@ function HitungCetakanPage() {
                     <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Harga Bahan Kertas</p>
                   </div>
                   <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div>
-                        <p className="text-sm font-bold text-teal-800">{previewCalc.paperName || '-'}</p>
-                        <p className="text-[10px] text-teal-500">
-                          {selectedPaper?.grammage || 0} gsm · Ukuran Bahan: {previewCalc.paperLength || '-'}×{previewCalc.paperWidth || '-'} cm
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-extrabold text-teal-700">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : formatRp((parseFloat(previewCalc.pricePerSheet) || 0) * (parseInt(previewCalc.quantity) || 0))}</p>
-                        <p className="text-[9px] text-teal-500">Total harga kertas</p>
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-bold text-teal-800">{previewCalc.paperName || '-'}</p>
+                      <p className="text-lg font-extrabold text-teal-700">{totalPaperPrice > 0 ? formatRp(totalPaperPrice) : formatRp((parseFloat(previewCalc.pricePerSheet) || 0) * (parseInt(previewCalc.quantity) || 0))}</p>
                     </div>
-                    {parseInt(previewCalc.quantity || '0') > 0 && (
-                      <div className="mt-1.5 pt-1.5 border-t border-teal-200 text-[10px] text-teal-600">
-                        Harga per lembar: <strong>{formatRp(Math.round((totalPaperPrice || (parseFloat(previewCalc.pricePerSheet) || 0) * (parseInt(previewCalc.quantity) || 0)) / parseInt(previewCalc.quantity || '1')))}</strong>
-                        <span className="text-teal-400 ml-1">({parseInt(previewCalc.quantity || '0').toLocaleString('id-ID')} lbr)</span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -1446,26 +1432,9 @@ function HitungCetakanPage() {
                       <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">{t('ongkos_cetak_label')}</p>
                     </div>
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between">
                         <p className="text-sm font-bold text-blue-800">Total Ongkos Cetak</p>
                         <p className="text-lg font-extrabold text-blue-700">{formatRp(calculatedPrintingCost)}</p>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Nama Mesin</span>
-                          <span className="font-semibold text-slate-700">{previewCalc.machineName || '-'}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Jumlah Warna</span>
-                          <span className="font-semibold text-slate-700">
-                            {previewCalc.warna || 0} warna
-                            {previewCalc.warnaKhusus && parseInt(previewCalc.warnaKhusus) > 0 ? <span className="text-amber-600"> + {previewCalc.warnaKhusus} khusus</span> : ''}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Harga Plat</span>
-                          <span className="font-semibold text-slate-700">{formatRp(platTotal)}</span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -1481,19 +1450,9 @@ function HitungCetakanPage() {
                       <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Ongkos Cetak 2</p>
                     </div>
                     <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between">
                         <p className="text-sm font-bold text-fuchsia-800">Total Ongkos Cetak 2</p>
                         <p className="text-lg font-extrabold text-fuchsia-700">{formatRp(calculatedPrintingCost2)}</p>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Nama Mesin</span>
-                          <span className="font-semibold text-slate-700">{selectedMachine2?.machineName || '-'}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Harga Plat</span>
-                          <span className="font-semibold text-slate-700">{formatRp(platTotal2)}</span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -1509,21 +1468,10 @@ function HitungCetakanPage() {
                       <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">{t('finishing_label')}</p>
                     </div>
                     <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between">
                         <p className="text-sm font-bold text-rose-800">{previewCalc.finishingName}</p>
                         <p className="text-lg font-extrabold text-rose-700">{formatRp(calculatedFinishingCost)}</p>
                       </div>
-                      {selectedFinishingItems.length > 0 && (
-                        <div className="mt-1.5 pt-1.5 border-t border-rose-200">
-                          <p className="text-[9px] text-rose-500 font-medium mb-0.5">Detail:</p>
-                          <div className="space-y-1">
-                            {selectedFinishingItems.map((f, i) => {
-                              const r = getFinishingCost(f)
-                              return <p key={i} className="text-[9px] text-rose-600 leading-relaxed">{f.name}: {r.breakdown}</p>
-                            })}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
