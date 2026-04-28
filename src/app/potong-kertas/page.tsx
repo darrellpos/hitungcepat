@@ -697,8 +697,8 @@ function CalculatorPage() {
                 </div>
                 <div className="bg-sky-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-sky-600 font-medium leading-tight">Setelan Kertas</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-sky-700 leading-tight">{results.sheetsNeeded}</p>
-                  <p className="text-xs lg:text-xs text-sky-500">kali setel</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-sky-700 leading-tight">{Math.ceil(results.sheetsNeeded / 500)}</p>
+                  <p className="text-xs lg:text-xs text-sky-500">rim</p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
