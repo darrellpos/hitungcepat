@@ -18,10 +18,17 @@ const CuttingDiagram = dynamic(
   { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-xs text-slate-400">Memuat diagram...</div> }
 )
 
-// Form state keys for localStorage persistence
-const STORAGE_KEY = 'potong-kertas-form'
-const STORAGE_RESULTS_KEY = 'potong-kertas-results'
-const STORAGE_VERSION_KEY = 'potong-kertas-form-version'
+// Form state keys for localStorage persistence (per-user scoped)
+function userKey(base: string): string {
+  try {
+    const a = JSON.parse(localStorage.getItem('auth') || '{}')
+    if (a.id) return `${base}_${a.id}`
+  } catch {}
+  return base
+}
+const STORAGE_KEY = () => userKey('potong-kertas-form')
+const STORAGE_RESULTS_KEY = () => userKey('potong-kertas-results')
+const STORAGE_VERSION_KEY = () => userKey('potong-kertas-form-version')
 const STORAGE_VERSION = 'v4'
 
 interface FormData {
@@ -49,19 +56,19 @@ function getInitialFormState(): FormData {
     }
   }
   try {
-    const savedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+    const savedVersion = localStorage.getItem(STORAGE_VERSION_KEY())
     if (savedVersion && savedVersion !== STORAGE_VERSION) {
-      localStorage.removeItem(STORAGE_KEY)
-      localStorage.removeItem(STORAGE_RESULTS_KEY)
-      localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION)
+      localStorage.removeItem(STORAGE_KEY())
+      localStorage.removeItem(STORAGE_RESULTS_KEY())
+      localStorage.setItem(STORAGE_VERSION_KEY(), STORAGE_VERSION)
     }
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = localStorage.getItem(STORAGE_KEY())
     if (saved) return JSON.parse(saved)
   } catch {}
   return {
     paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
     selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-    quantity: '', setelanKertas: '', isCustomPaper: false, optimizationMode: 'maximal',
+    quantity: '', setelanKertas: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal',
   }
 }
 
@@ -91,7 +98,7 @@ function CalculatorPage() {
   const [results, setResults] = useState<CuttingResult | null>(() => {
     if (typeof window === 'undefined') return null
     try {
-      const savedResults = localStorage.getItem(STORAGE_RESULTS_KEY)
+      const savedResults = localStorage.getItem(STORAGE_RESULTS_KEY())
       if (savedResults) return JSON.parse(savedResults)
     } catch {}
     return null
@@ -112,7 +119,7 @@ function CalculatorPage() {
   }
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
+    localStorage.setItem(STORAGE_KEY(), JSON.stringify(formData))
   }, [formData])
 
   useEffect(() => {
@@ -190,7 +197,7 @@ function CalculatorPage() {
     })
 
     setResults(result)
-    localStorage.setItem(STORAGE_RESULTS_KEY, JSON.stringify(result))
+    localStorage.setItem(STORAGE_RESULTS_KEY(), JSON.stringify(result))
     setIsCalculating(false)
     toast.success('Perhitungan selesai!')
   }
@@ -211,8 +218,8 @@ function CalculatorPage() {
     setIsCustomPaper(false)
     setResults(null)
     setOptimizationMode('maximal')
-    localStorage.removeItem(STORAGE_KEY)
-    localStorage.removeItem(STORAGE_RESULTS_KEY)
+    localStorage.removeItem(STORAGE_KEY())
+    localStorage.removeItem(STORAGE_RESULTS_KEY())
     toast.success('Data berhasil direset')
   }
 

@@ -101,8 +101,16 @@ export default function HitungCetakanPageWrapper() {
   )
 }
 
-const FORM_STORAGE_KEY = 'hitung-cetakan-form-data'
-const FORM_STORAGE_VERSION_KEY = 'hitung-cetakan-form-data-version'
+// Form storage keys (per-user scoped)
+function userKey(base: string): string {
+  try {
+    const a = JSON.parse(localStorage.getItem('auth') || '{}')
+    if (a.id) return `${base}_${a.id}`
+  } catch {}
+  return base
+}
+const FORM_STORAGE_KEY = () => userKey('hitung-cetakan-form-data')
+const FORM_STORAGE_VERSION_KEY = () => userKey('hitung-cetakan-form-data-version')
 const FORM_STORAGE_VERSION = 'v4'
 
 function HitungCetakanPage() {
@@ -167,24 +175,24 @@ function HitungCetakanPage() {
   const loadFromStorage = () => {
     if (typeof window === 'undefined') return null
     try {
-      const savedVersion = localStorage.getItem(FORM_STORAGE_VERSION_KEY)
+      const savedVersion = localStorage.getItem(FORM_STORAGE_VERSION_KEY())
       if (savedVersion && savedVersion !== FORM_STORAGE_VERSION) {
-        localStorage.removeItem(FORM_STORAGE_KEY)
-        localStorage.setItem(FORM_STORAGE_VERSION_KEY, FORM_STORAGE_VERSION)
+        localStorage.removeItem(FORM_STORAGE_KEY())
+        localStorage.setItem(FORM_STORAGE_VERSION_KEY(), FORM_STORAGE_VERSION)
       }
-      const raw = localStorage.getItem(FORM_STORAGE_KEY)
+      const raw = localStorage.getItem(FORM_STORAGE_KEY())
       return raw ? JSON.parse(raw) : null
     } catch { return null }
   }
 
   const saveToStorage = (data: { formData: typeof formData; selectedFinishings: string[]; totalPaperPrice: number }) => {
     if (typeof window === 'undefined') return
-    try { localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data)) } catch {}
+    try { localStorage.setItem(FORM_STORAGE_KEY(), JSON.stringify(data)) } catch {}
   }
 
   const clearStorage = () => {
     if (typeof window === 'undefined') return
-    try { localStorage.removeItem(FORM_STORAGE_KEY) } catch {}
+    try { localStorage.removeItem(FORM_STORAGE_KEY()) } catch {}
   }
 
   // Load saved form data on mount

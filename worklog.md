@@ -34,3 +34,22 @@ Stage Summary:
 - Every new account registration now automatically clears ALL RiwayatCetakan records
 - Deployed to: https://darrellpos-new.vercel.app
 - Potong kertas has no backend data (client-side localStorage only), so nothing to clear server-side
+---
+Task ID: 2
+Agent: Main
+Task: Fix data isolation - admin and new accounts no longer share data
+
+Work Log:
+- Root cause: localStorage keys for potong-kertas and hitung-cetakan were generic (not per-user scoped)
+  - `potong-kertas-form`, `potong-kertas-results`, `hitung-cetakan-form-data` were shared across all users on same browser
+- Added `userKey()` helper function that prefixes localStorage keys with the logged-in user's ID
+- Updated potong-kertas/page.tsx: all 3 localStorage keys now per-user scoped
+- Updated hitung-cetakan/page.tsx: all 2 localStorage keys now per-user scoped
+- Removed destructive `deleteMany({})` from register route (was deleting admin's data too)
+- RiwayatCetakan DB data already filtered per-user via getDataFilter (userId: user.id)
+- Deployed to production
+
+Stage Summary:
+- Each user now has completely isolated data: form state (localStorage) + riwayat (database)
+- Admin and new demo accounts no longer share any data
+- Deployed to: https://darrellpos-new.vercel.app
