@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (authErr) return authErr
     const user = getServerUser(request)!
     const body = await request.json()
-    const { nama, nomorHP, email, alamat, catatan, status, role, expiredDate } = body
+    const { nama, nomorHP, email, alamat, catatan, status, role, expiredDate, username } = body
 
     if (!nama || !nomorHP) {
       return NextResponse.json(
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
         status: status || 'baru',
         role: role || 'demo',
         expiredDate: expiredDate ? new Date(expiredDate) : null,
+        username: username || null,
         userId: user?.id || null,
       }
     })
@@ -124,7 +125,7 @@ export async function PUT(request: NextRequest) {
     if (authErr) return authErr
     const user = getServerUser(request)!
     const body = await request.json()
-    const { id, nama, nomorHP, email, alamat, catatan, status, role, expiredDate } = body
+    const { id, nama, nomorHP, email, alamat, catatan, status, role, expiredDate, username } = body
 
     if (!id) {
       return NextResponse.json(
@@ -155,6 +156,7 @@ export async function PUT(request: NextRequest) {
     if (status !== undefined) updateData.status = status
     if (role !== undefined) updateData.role = role
     if (expiredDate !== undefined) updateData.expiredDate = expiredDate ? new Date(expiredDate) : null
+    if (username !== undefined) updateData.username = username || null
 
     const updated = await db.calonPembeli.update({
       where: { id },

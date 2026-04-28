@@ -180,6 +180,7 @@ export default function PenggunaPage() {
   const [calonStatus, setCalonStatus] = useState('baru')
   const [calonRole, setCalonRole] = useState('demo')
   const [calonExpiredDate, setCalonExpiredDate] = useState('')
+  const [calonUsername, setCalonUsername] = useState('')
   const [calonSaving, setCalonSaving] = useState(false)
 
   // Pembeli dialog state
@@ -363,6 +364,7 @@ export default function PenggunaPage() {
     setCalonStatus('baru')
     setCalonRole('demo')
     setCalonExpiredDate('')
+    setCalonUsername('')
     setEditingCalon(null)
   }
 
@@ -381,6 +383,7 @@ export default function PenggunaPage() {
     setCalonStatus(item.status)
     setCalonRole(item.role)
     setCalonExpiredDate(item.expiredDate ? new Date(item.expiredDate).toISOString().split('T')[0] : '')
+    setCalonUsername(item.username || '')
     setCalonDialogOpen(true)
   }
 
@@ -455,6 +458,7 @@ export default function PenggunaPage() {
             status: calonStatus,
             role: calonRole,
             expiredDate: calonExpiredDate || null,
+            username: calonUsername.trim() || null,
           })
         })
         if (res.ok) {
@@ -477,6 +481,7 @@ export default function PenggunaPage() {
             status: calonStatus,
             role: calonRole,
             expiredDate: calonExpiredDate || null,
+            username: calonUsername.trim() || null,
           })
         })
         if (res.ok) {
@@ -1102,6 +1107,10 @@ export default function PenggunaPage() {
               <div className="grid gap-2">
                 <Label htmlFor="c-email">Email</Label>
                 <Input id="c-email" type="email" placeholder="email@contoh.com" value={calonEmail} onChange={(e) => setCalonEmail(e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="c-username">Username</Label>
+                <Input id="c-username" type="text" placeholder="Masukkan username" value={calonUsername} onChange={(e) => setCalonUsername(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-alamat">Alamat</Label>
