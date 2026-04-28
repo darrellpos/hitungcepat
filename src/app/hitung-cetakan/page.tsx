@@ -103,7 +103,7 @@ export default function HitungCetakanPageWrapper() {
 
 const FORM_STORAGE_KEY = 'hitung-cetakan-form-data'
 const FORM_STORAGE_VERSION_KEY = 'hitung-cetakan-form-data-version'
-const FORM_STORAGE_VERSION = 'v4' // increment to force reset on deploy
+const FORM_STORAGE_VERSION = 'v4'
 
 function HitungCetakanPage() {
   const { t } = useLanguage()
@@ -168,10 +168,9 @@ function HitungCetakanPage() {
     if (typeof window === 'undefined') return null
     try {
       const savedVersion = localStorage.getItem(FORM_STORAGE_VERSION_KEY)
-      if (savedVersion !== FORM_STORAGE_VERSION) {
+      if (savedVersion && savedVersion !== FORM_STORAGE_VERSION) {
         localStorage.removeItem(FORM_STORAGE_KEY)
         localStorage.setItem(FORM_STORAGE_VERSION_KEY, FORM_STORAGE_VERSION)
-        return null
       }
       const raw = localStorage.getItem(FORM_STORAGE_KEY)
       return raw ? JSON.parse(raw) : null
