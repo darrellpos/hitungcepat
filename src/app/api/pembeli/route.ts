@@ -37,6 +37,14 @@ export async function GET(request: NextRequest) {
         })
         penggunaUsername = pengguna?.username || null
       }
+      // Fallback: match by nama + nomorHP
+      if (!penggunaUsername) {
+        const match = await db.pengguna.findFirst({
+          where: { namaLengkap: p.nama, nomorHP: p.nomorHP },
+          select: { username: true }
+        })
+        penggunaUsername = match?.username || null
+      }
       return { ...p, penggunaUsername }
     }))
 
