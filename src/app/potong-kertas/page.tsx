@@ -689,11 +689,16 @@ function CalculatorPage() {
           {results ? (
             <div className="flex-1 flex flex-col gap-1.5 lg:min-h-0 lg:overflow-hidden">
               {/* Stats Grid - mobile 2col, desktop 3col/5col */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 lg:gap-2 flex-shrink-0">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 lg:gap-2 flex-shrink-0">
                 <div className="bg-blue-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-blue-600 font-medium leading-tight">Diperlukan</p>
                   <p className="text-2xl lg:text-2xl font-bold text-blue-700 leading-tight">{results.quantity}</p>
                   <p className="text-xs lg:text-xs text-blue-500">lembar</p>
+                </div>
+                <div className="bg-sky-50 rounded-lg p-3 lg:p-2.5 text-center">
+                  <p className="text-xs lg:text-xs text-sky-600 font-medium leading-tight">Setelan Kertas</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-sky-700 leading-tight">{results.sheetsNeeded}</p>
+                  <p className="text-xs lg:text-xs text-sky-500">kali setel</p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
@@ -705,7 +710,7 @@ function CalculatorPage() {
                   <p className="text-2xl lg:text-2xl font-bold text-emerald-700 leading-tight">{results.sheetsNeeded}</p>
                   <p className="text-xs lg:text-xs text-emerald-500">lembar</p>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-3">
+                <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-4">
                   <p className="text-xs lg:text-xs text-orange-600 font-medium leading-tight">Total Harga</p>
                   <p className="text-[26px] lg:text-[26px] font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
                 </div>
