@@ -76,7 +76,13 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
     if (open) {
       setStep('form');
       setErrorMsg('');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [open]);
 
   const handlePay = useCallback(async () => {
@@ -157,15 +163,15 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={step === 'loading' ? undefined : onClose}
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10 my-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
