@@ -40,9 +40,9 @@ export async function POST(request: NextRequest) {
       data: {
         nama: calon.nama,
         nomorHP: calon.nomorHP,
-        email: calon.email,
-        alamat: calon.alamat,
-        catatan: `Dikonversi dari calon pembeli. ${calon.catatan}`,
+        email: calon.email || '',
+        alamat: calon.alamat || '',
+        catatan: `Dikonversi dari calon pembeli. ${calon.catatan || ''}`,
         role: newRole,
         expiredDate: newExpiredDate,
         userId: user?.id || null,
@@ -58,11 +58,21 @@ export async function POST(request: NextRequest) {
       })
 
       if (!existingPengguna) {
+        // Ensure email is unique for Pengguna (email has @unique constraint)
+        let penggunaEmail = calon.email || ''
+        const emailExists = await db.pengguna.findUnique({
+          where: { email: penggunaEmail }
+        })
+        if (emailExists) {
+          // Append timestamp to make email unique
+          penggunaEmail = `${calon.username}_${Date.now()}@local`
+        }
+
         const newPengguna = await db.pengguna.create({
           data: {
             namaLengkap: calon.nama,
             nomorHP: calon.nomorHP,
-            email: calon.email,
+            email: penggunaEmail,
             username: calon.username,
             password: calon.password,
             role: newRole,
@@ -90,7 +100,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Delete the CalonPembeli
+    // 5. Disconnect CalonPembeli from Pengguna (clear userId) before deleting
+    try {
+      await db.calonPembeli.update({
+        where: { id: calonId },
+        data: { userId: null }
+      })
+    } catch {}
+
+    // 6. Delete the CalonPembeli
     await db.calonPembeli.delete({
       where: { id: calonId }
     })
@@ -100,10 +118,11 @@ export async function POST(request: NextRequest) {
       penggunaId,
       hasLoginAccount: !!penggunaId,
     }, { status: 200 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Convert calon pembeli error:', error)
+    const message = error?.message || 'Gagal mengkonversi calon pembeli'
     return NextResponse.json(
-      { error: 'Gagal mengkonversi calon pembeli' },
+      { error: message },
       { status: 500 }
     )
   }
