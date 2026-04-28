@@ -381,3 +381,19 @@ Stage Summary:
 - Payment records stored in SQLite via Prisma
 - Webhook endpoint ready for Midtrans notification callbacks
 - To activate: Replace XXXXXXXX in .env with actual Midtrans Sandbox keys from https://dashboard.sandbox.midtrans.com
+---
+Task ID: 1
+Agent: Main
+Task: Update Daftar Cetakan - show finishing names, max 15 rows
+
+Work Log:
+- Analyzed hitung-cetakan/page.tsx Daftar Cetakan section
+- Desktop version: Changed `.slice(0, 10)` to `.slice(0, 15)` (line 1275)
+- Desktop version: Increased max-h from 260px to 390px to accommodate more rows (line 1274)
+- Mobile version: Added `.slice(0, 15)` limit (line 1314) - previously had no limit
+- Both mobile and desktop already show finishing name in each row (confirmed at lines 1281 and 1325)
+
+Stage Summary:
+- Daftar Cetakan now shows max 15 items on both mobile and desktop (was 10 on desktop, unlimited on mobile)
+- Finishing names are displayed for each item in the list
+- Desktop scroll area increased to 390px to fit more items

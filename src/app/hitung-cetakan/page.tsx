@@ -1271,8 +1271,8 @@ function HitungCetakanPage() {
                   <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">Daftar Cetakan</span>
                   <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{calculations.length}</span>
                 </div>
-                <div className="divide-y divide-slate-50 max-h-[260px] overflow-y-auto">
-                  {calculations.slice(0, 10).map((calc) => (
+                <div className="divide-y divide-slate-50 max-h-[390px] overflow-y-auto">
+                  {calculations.slice(0, 15).map((calc) => (
                     <div key={calc.id} className="px-2.5 py-1.5 hover:bg-slate-50 transition-colors">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
@@ -1311,7 +1311,7 @@ function HitungCetakanPage() {
                   <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{calculations.length} item</span>
                 </div>
                 <div className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto ">
-                  {calculations.map((calc) => (
+                  {calculations.slice(0, 15).map((calc) => (
                     <div key={calc.id} className="p-4 hover:bg-slate-50/60">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
