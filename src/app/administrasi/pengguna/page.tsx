@@ -401,31 +401,25 @@ export default function PenggunaPage() {
   }
 
   const handleConvertToPembeli = async (item: CalonPembeli) => {
-    if (!confirm(`Konversi "${item.nama}" menjadi pembeli?`)) return
+    if (!confirm(`Konversi "${item.nama}" menjadi pembeli?\n${item.username ? `Akun login (${item.username}) akan dibuat otomatis.` : 'Calon pembeli ini tidak memiliki username/password, sehingga tidak akan dibuatkan akun login.'}`)) return
     setCalonSaving(true)
     try {
-      const [resCreate, resDelete] = await Promise.all([
-        fetch('/api/pembeli', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nama: item.nama,
-            nomorHP: item.nomorHP,
-            email: item.email,
-            alamat: item.alamat,
-            catatan: `Dikonversi dari calon pembeli. ${item.catatan}`,
-            role: 'user',
-            expiredDate: item.expiredDate || null,
-          })
-        }),
-        fetch(`/api/calon-pembeli?id=${item.id}`, { method: 'DELETE' }),
-      ])
+      const res = await fetch('/api/calon-pembeli/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calonId: item.id })
+      })
 
-      if (resCreate.ok && resDelete.ok) {
+      if (res.ok) {
+        const data = await res.json()
         fetchAll()
-        toast.success(`"${item.nama}" berhasil dikonversi menjadi pembeli`)
+        const loginInfo = data.hasLoginAccount
+          ? ` Akun login berhasil dibuat.`
+          : ''
+        toast.success(`"${item.nama}" berhasil dikonversi menjadi pembeli.${loginInfo}`)
       } else {
-        toast.error('Gagal mengkonversi calon pembeli')
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Gagal mengkonversi calon pembeli')
       }
     } catch {
       toast.error('Terjadi kesalahan jaringan')
