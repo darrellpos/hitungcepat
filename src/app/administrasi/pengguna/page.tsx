@@ -712,9 +712,18 @@ export default function PenggunaPage() {
   const calonColumns = [
     {
       key: 'nama',
+      title: 'Nama',
+      render: (item: CalonPembeli) => (
+        <span className="font-medium text-slate-800">{item.nama}</span>
+      )
+    },
+    {
+      key: 'username',
       title: 'Username',
       render: (item: CalonPembeli) => (
-        <span className="font-medium text-slate-800">{item.username || item.nama}</span>
+        item.username
+          ? <span className="text-slate-600 font-medium">@{item.username}</span>
+          : <span className="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full">Belum ada</span>
       )
     },
     {
