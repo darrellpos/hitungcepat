@@ -59,12 +59,17 @@ export async function POST(request: NextRequest) {
 
       if (!existingPengguna) {
         // Ensure email is unique for Pengguna (email has @unique constraint)
-        let penggunaEmail = calon.email || ''
-        const emailExists = await db.pengguna.findUnique({
-          where: { email: penggunaEmail }
-        })
-        if (emailExists) {
-          // Append timestamp to make email unique
+        let penggunaEmail = (calon.email && calon.email.trim()) ? calon.email.trim() : `${calon.username}@local`
+        try {
+          const emailExists = await db.pengguna.findUnique({
+            where: { email: penggunaEmail }
+          })
+          if (emailExists) {
+            // Append timestamp to make email unique
+            penggunaEmail = `${calon.username}_${Date.now()}@local`
+          }
+        } catch {
+          // findUnique may fail on empty email in some edge cases
           penggunaEmail = `${calon.username}_${Date.now()}@local`
         }
 

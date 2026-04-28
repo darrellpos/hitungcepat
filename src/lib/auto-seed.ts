@@ -4,16 +4,31 @@ import { db } from '@/lib/db'
 let globalSeedChecked = false
 let dbPushDone = false
 
+// Detect if we're on PostgreSQL
+function isPostgreSQL(): boolean {
+  const url = process.env.DATABASE_URL || ''
+  return url.startsWith('postgres') || url.startsWith('postgresql')
+}
+
 // Create tables via raw SQL if they don't exist (works in Vercel serverless)
 async function ensureTablesExist(): Promise<void> {
   if (dbPushDone) return
   dbPushDone = true
-  try {
-    await db.$queryRaw`SELECT 1 FROM Pengguna LIMIT 1`
-    console.log('✅ Database tables already exist')
-    return
-  } catch {
-    console.log('📦 Tables not found, creating via raw SQL...')
+
+  const pg = isPostgreSQL()
+
+  if (pg) {
+    // PostgreSQL: use pg-specific syntax (DOUBLE PRECISION, TIMESTAMP(3), ADD COLUMN IF NOT EXISTS)
+    try {
+      await db.$queryRaw`SELECT 1 FROM "Pengguna" LIMIT 1`
+      console.log('✅ Database tables already exist')
+      // Even if tables exist, run migration for missing columns
+      await migrateExistingTablesPg()
+      return
+    } catch {
+      console.log('📦 Tables not found, creating via raw SQL...')
+    }
+
     try {
       await db.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS "User" ("id" TEXT NOT NULL PRIMARY KEY, "email" TEXT NOT NULL UNIQUE, "name" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL));
@@ -24,13 +39,38 @@ async function ensureTablesExist(): Promise<void> {
         CREATE TABLE IF NOT EXISTS "PrintingCost" ("id" TEXT NOT NULL PRIMARY KEY, "machineName" TEXT NOT NULL, "grammage" INTEGER NOT NULL, "printAreaWidth" DOUBLE PRECISION NOT NULL, "printAreaHeight" DOUBLE PRECISION NOT NULL, "pricePerColor" DOUBLE PRECISION NOT NULL, "specialColorPrice" DOUBLE PRECISION NOT NULL, "minimumPrintQuantity" INTEGER NOT NULL, "priceAboveMinimumPerSheet" DOUBLE PRECISION NOT NULL, "platePricePerSheet" DOUBLE PRECISION NOT NULL, "userId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
         CREATE TABLE IF NOT EXISTS "Finishing" ("id" TEXT NOT NULL PRIMARY KEY, "name" TEXT NOT NULL, "minimumSheets" INTEGER NOT NULL, "minimumPrice" DOUBLE PRECISION NOT NULL, "additionalPrice" DOUBLE PRECISION NOT NULL, "pricePerCm" DOUBLE PRECISION NOT NULL, "userId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
         CREATE TABLE IF NOT EXISTS "CalonPembeli" ("id" TEXT NOT NULL PRIMARY KEY, "nama" TEXT NOT NULL, "nomorHP" TEXT NOT NULL, "email" TEXT NOT NULL, "alamat" TEXT NOT NULL, "catatan" TEXT NOT NULL, "status" TEXT NOT NULL DEFAULT 'baru', "role" TEXT NOT NULL DEFAULT 'demo', "expiredDate" TIMESTAMP(3), "username" TEXT, "password" TEXT, "userId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
-        CREATE TABLE IF NOT EXISTS "Pembeli" ("id" TEXT NOT NULL PRIMARY KEY, "nama" TEXT NOT NULL, "nomorHP" TEXT NOT NULL, "email" TEXT NOT NULL, "alamat" TEXT NOT NULL, "catatan" TEXT NOT NULL, "role" TEXT NOT NULL DEFAULT 'demo', "expiredDate" TIMESTAMP(3), "userId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
+        CREATE TABLE IF NOT EXISTS "Pembeli" ("id" TEXT NOT NULL PRIMARY KEY, "nama" TEXT NOT NULL, "nomorHP" TEXT NOT NULL, "email" TEXT NOT NULL, "alamat" TEXT NOT NULL, "catatan" TEXT NOT NULL, "role" TEXT NOT NULL DEFAULT 'demo', "expiredDate" TIMESTAMP(3), "userId" TEXT, "penggunaId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
         CREATE TABLE IF NOT EXISTS "Setting" ("id" TEXT NOT NULL PRIMARY KEY, "key" TEXT NOT NULL UNIQUE, "value" TEXT NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
         CREATE TABLE IF NOT EXISTS "RiwayatCetakan" ("id" TEXT NOT NULL PRIMARY KEY, "printName" TEXT NOT NULL, "customerName" TEXT NOT NULL DEFAULT '', "paperName" TEXT NOT NULL, "paperGrammage" TEXT NOT NULL, "paperLength" TEXT NOT NULL, "paperWidth" TEXT NOT NULL, "cutWidth" TEXT NOT NULL, "cutHeight" TEXT NOT NULL, "quantity" TEXT NOT NULL, "warna" TEXT NOT NULL, "warnaKhusus" TEXT NOT NULL, "machineName" TEXT NOT NULL, "hargaPlat" DOUBLE PRECISION NOT NULL, "ongkosCetak" DOUBLE PRECISION NOT NULL, "ongkosCetakDetail" TEXT NOT NULL, "machineName2" TEXT NOT NULL DEFAULT '', "ongkosCetak2" DOUBLE PRECISION NOT NULL DEFAULT 0, "ongkosCetak2Detail" TEXT NOT NULL DEFAULT '', "totalPaperPrice" DOUBLE PRECISION NOT NULL, "finishingNames" TEXT NOT NULL, "finishingBreakdown" TEXT NOT NULL, "finishingCost" DOUBLE PRECISION NOT NULL, "packingCost" DOUBLE PRECISION NOT NULL, "shippingCost" DOUBLE PRECISION NOT NULL, "otherCost" DOUBLE PRECISION NOT NULL DEFAULT 0, "glueCost" DOUBLE PRECISION NOT NULL DEFAULT 0, "glueBorongan" DOUBLE PRECISION NOT NULL DEFAULT 0, "subTotal" DOUBLE PRECISION NOT NULL, "profitPercent" DOUBLE PRECISION NOT NULL, "profitAmount" DOUBLE PRECISION NOT NULL, "grandTotal" DOUBLE PRECISION NOT NULL, "userId" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
+        CREATE TABLE IF NOT EXISTS "Payment" ("id" TEXT NOT NULL PRIMARY KEY, "orderId" TEXT NOT NULL UNIQUE, "packageName" TEXT NOT NULL, "packageType" TEXT NOT NULL, "grossAmount" DOUBLE PRECISION NOT NULL, "customerName" TEXT NOT NULL DEFAULT '', "customerEmail" TEXT NOT NULL DEFAULT '', "customerPhone" TEXT NOT NULL DEFAULT '', "paymentType" TEXT, "transactionId" TEXT, "transactionTime" TIMESTAMP(3), "transactionStatus" TEXT NOT NULL DEFAULT 'pending', "fraudStatus" TEXT, "userId" TEXT, "metadata" TEXT NOT NULL DEFAULT '{}', "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL);
       `)
       console.log('✅ Database tables created via raw SQL')
     } catch (err: any) {
       console.error('⚠️ Failed to create tables:', err?.message || err)
+    }
+  } else {
+    // SQLite: local dev - tables managed by prisma db push, just verify connection
+    try {
+      await db.$queryRaw`SELECT 1 FROM "Pengguna" LIMIT 1`
+      console.log('✅ SQLite database connected')
+    } catch (err: any) {
+      console.error('⚠️ SQLite connection error:', err?.message || err)
+    }
+  }
+}
+
+// Migrate existing PostgreSQL tables to add missing columns
+async function migrateExistingTablesPg(): Promise<void> {
+  const migrations = [
+    { table: '"Pembeli"', column: '"penggunaId"', type: 'TEXT' },
+  ]
+  for (const m of migrations) {
+    try {
+      await db.$executeRawUnsafe(
+        `ALTER TABLE ${m.table} ADD COLUMN IF NOT EXISTS ${m.column} ${m.type}`
+      )
+    } catch (err: any) {
+      console.warn(`⚠️ Migration ${m.table}.${m.column} failed:`, err?.message)
     }
   }
 }
