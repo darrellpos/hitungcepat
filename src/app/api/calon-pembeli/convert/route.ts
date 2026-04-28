@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         // Link the Pengguna to the Pembeli
         await db.pembeli.update({
           where: { id: pembeli.id },
-          data: { penggunaId }
+          data: { userId: penggunaId }
         })
       } else {
         penggunaId = existingPengguna.id
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
         })
         await db.pembeli.update({
           where: { id: pembeli.id },
-          data: { penggunaId }
+          data: { userId: penggunaId }
         })
       }
     }
