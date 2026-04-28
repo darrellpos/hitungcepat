@@ -86,6 +86,7 @@ interface PrintCalculation {
   calculatedFinishingCost: number
   calculatedGlueCost: number
   calculatedGlueBoronganSheet: number
+  finishingBreakdown: { name: string; cost: number }[]
 }
 
 const inputClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors lg:py-1.5'
@@ -567,7 +568,8 @@ function HitungCetakanPage() {
       glueLengthCm: formData.glueLengthCm, glueCostPerCm: formData.glueCostPerCm, glueBoronganPerSheet: formData.glueBoronganPerSheet,
       biayaLain1: formData.biayaLain1, biayaLain2: formData.biayaLain2,
       totalPaperPrice, calculatedPrintingCost, calculatedPrintingCost2, calculatedFinishingCost,
-      calculatedGlueCost, calculatedGlueBoronganSheet
+      calculatedGlueCost, calculatedGlueBoronganSheet,
+      finishingBreakdown: selectedFinishingItems.map(fin => { const { cost } = getFinishingCost(fin); return { name: fin.name, cost } })
     }
     setCalculations([...calculations, newCalculation])
     toast.success('Cetakan berhasil ditambahkan ke daftar')
@@ -610,7 +612,8 @@ function HitungCetakanPage() {
       glueLengthCm: formData.glueLengthCm, glueCostPerCm: formData.glueCostPerCm, glueBoronganPerSheet: formData.glueBoronganPerSheet,
       biayaLain1: formData.biayaLain1, biayaLain2: formData.biayaLain2,
       totalPaperPrice, calculatedPrintingCost, calculatedPrintingCost2, calculatedFinishingCost,
-      calculatedGlueCost, calculatedGlueBoronganSheet
+      calculatedGlueCost, calculatedGlueBoronganSheet,
+      finishingBreakdown: selectedFinishingItems.map(fin => { const { cost } = getFinishingCost(fin); return { name: fin.name, cost } })
     }
     setPreviewCalc(previewData)
     setPreviewOpen(true)
@@ -1546,7 +1549,7 @@ function HitungCetakanPage() {
                 )}
 
                 {/* === FINISHING === */}
-                {previewCalc.finishingName && previewCalc.finishingName !== '' && calculatedFinishingCost > 0 && (
+                {((previewCalc.finishingName && previewCalc.finishingName !== '') || (previewCalc.finishingBreakdown && previewCalc.finishingBreakdown.length > 0)) && (
                   <div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className="w-5 h-5 rounded bg-rose-100 flex items-center justify-center">
@@ -1555,10 +1558,25 @@ function HitungCetakanPage() {
                       <p className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">{t('finishing_label')}</p>
                     </div>
                     <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-bold text-rose-800">{previewCalc.finishingName}</p>
-                        <p className="text-lg font-extrabold text-rose-700">{formatRp(calculatedFinishingCost)}</p>
-                      </div>
+                      {previewCalc.finishingBreakdown && previewCalc.finishingBreakdown.length > 0 ? (
+                        <div className="space-y-2">
+                          {previewCalc.finishingBreakdown.map((fb, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <p className="text-sm text-rose-800">{fb.name}</p>
+                              <p className="text-sm font-bold text-rose-700">{formatRp(fb.cost)}</p>
+                            </div>
+                          ))}
+                          <div className="border-t border-rose-200 pt-2 flex items-center justify-between">
+                            <p className="text-xs font-bold text-rose-600 uppercase">Total Finishing</p>
+                            <p className="text-base font-extrabold text-rose-700">{formatRp(previewCalc.calculatedFinishingCost)}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-bold text-rose-800">{previewCalc.finishingName}</p>
+                          <p className="text-lg font-extrabold text-rose-700">{formatRp(calculatedFinishingCost)}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
