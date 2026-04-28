@@ -485,3 +485,24 @@ Stage Summary:
 - `/api/auth/reclaim-session` no longer requires cookies - works with body data fallback
 - Client now shows toast on success/error instead of silently failing
 - All users (not just admin/superadmin) can now force logout other devices
+---
+Task ID: 3
+Agent: Main Agent
+Task: Fix username tidak muncul di daftar pembeli + pembeli tidak bisa login
+
+Work Log:
+- Root cause: Frontend `handleConvertToPembeli` bypassed the proper `/api/calon-pembeli/convert` endpoint
+- It manually created pembeli via POST /api/pembeli + DELETE /api/calon-pembeli in parallel
+- This lost the calon's username/password and never created a Pengguna record
+- The login API only checks Pengguna + CalonPembeli tables, so converted pembeli couldn't login
+- Fixed: Changed frontend to use `/api/calon-pembeli/convert` endpoint (which already creates Pengguna)
+- Enhanced: pembeli GET API now auto-links penggunaId when matching by nama+nomorHP
+- Added: `/api/pembeli/create-account` endpoint for creating login accounts for existing pembeli
+- Added: "Buat Akun" button on pembeli without username in the daftar pembeli table
+- Added: Dialog for creating login account with username/password form
+- Updated: Username column now shows "@username" or "Belum ada akun" badge
+
+Stage Summary:
+- Future conversions from CalonPembeli → Pembeli now automatically create Pengguna records
+- Existing pembeli without accounts get a "Buat Akun" button to create login credentials
+- Pembeli GET API auto-links penggunaId on fallback match

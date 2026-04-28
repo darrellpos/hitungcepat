@@ -1,6 +1,6 @@
 'use client'
 
-import { Users, Plus, Search, Eye, EyeOff, Bell, UserPlus, ShoppingCart, UserCheck, Phone, Mail, MapPin, StickyNote, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react'
+import { Users, Plus, Search, Eye, EyeOff, Bell, UserPlus, ShoppingCart, UserCheck, Phone, Mail, MapPin, StickyNote, CheckCircle, Clock, XCircle, Loader2, KeyRound } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { MobileTable } from '@/components/mobile-table'
@@ -192,6 +192,13 @@ export default function PenggunaPage() {
   const [pembeliRole, setPembeliRole] = useState('demo')
   const [pembeliExpiredDate, setPembeliExpiredDate] = useState('')
   const [pembeliSaving, setPembeliSaving] = useState(false)
+
+  // Create account dialog state
+  const [createAccountOpen, setCreateAccountOpen] = useState(false)
+  const [createAccountPembeli, setCreateAccountPembeli] = useState<Pembeli | null>(null)
+  const [caUsername, setCaUsername] = useState('')
+  const [caPassword, setCaPassword] = useState('')
+  const [caSaving, setCaSaving] = useState(false)
 
 
   // ==================== FETCH DATA ====================
@@ -389,31 +396,30 @@ export default function PenggunaPage() {
   }
 
   const handleConvertToPembeli = async (item: CalonPembeli) => {
-    if (!confirm(`Konversi "${item.nama}" menjadi pembeli?`)) return
+    const hasUsername = item.username && item.username.trim()
+    const msg = hasUsername
+      ? `Konversi "${item.nama}" (@${item.username}) menjadi pembeli?\n\nAkun login otomatis akan dibuat dengan username "${item.username}".`
+      : `Konversi "${item.nama}" menjadi pembeli?\n\nCatatan: Calon pembeli ini tidak memiliki username/password, sehingga tidak bisa login setelah dikonversi.`
+    if (!confirm(msg)) return
     setCalonSaving(true)
     try {
-      const [resCreate, resDelete] = await Promise.all([
-        fetch('/api/pembeli', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nama: item.nama,
-            nomorHP: item.nomorHP,
-            email: item.email,
-            alamat: item.alamat,
-            catatan: `Dikonversi dari calon pembeli. ${item.catatan}`,
-            role: 'user',
-            expiredDate: item.expiredDate || null,
-          })
-        }),
-        fetch(`/api/calon-pembeli?id=${item.id}`, { method: 'DELETE' }),
-      ])
+      const res = await fetch('/api/calon-pembeli/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calonId: item.id }),
+      })
 
-      if (resCreate.ok && resDelete.ok) {
+      const data = await res.json()
+
+      if (res.ok) {
         fetchAll()
-        toast.success(`"${item.nama}" berhasil dikonversi menjadi pembeli`)
+        if (data.hasLoginAccount) {
+          toast.success(`"${item.nama}" berhasil dikonversi menjadi pembeli. Akun login @${item.username} telah dibuat.`)
+        } else {
+          toast.success(`"${item.nama}" berhasil dikonversi menjadi pembeli.`, { description: 'Tidak ada akun login (username/password belum diatur).' })
+        }
       } else {
-        toast.error('Gagal mengkonversi calon pembeli')
+        toast.error(data.error || 'Gagal mengkonversi calon pembeli')
       }
     } catch {
       toast.error('Terjadi kesalahan jaringan')
@@ -592,6 +598,56 @@ export default function PenggunaPage() {
     }
   }
 
+  // ==================== CREATE ACCOUNT FOR PEMBELI ====================
+
+  const handleOpenCreateAccount = (item: Pembeli) => {
+    setCreateAccountPembeli(item)
+    setCaUsername('')
+    setCaPassword('')
+    setCreateAccountOpen(true)
+  }
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!createAccountPembeli || !caUsername.trim() || !caPassword) {
+      toast.error('Username dan password wajib diisi')
+      return
+    }
+    if (caUsername.trim().length < 3) {
+      toast.error('Username minimal 3 karakter')
+      return
+    }
+    if (caPassword.length < 6) {
+      toast.error('Password minimal 6 karakter')
+      return
+    }
+    setCaSaving(true)
+    try {
+      const res = await fetch('/api/pembeli/create-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pembeliId: createAccountPembeli.id,
+          username: caUsername.trim(),
+          password: caPassword,
+        })
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success(data.message || 'Akun login berhasil dibuat')
+        setCreateAccountOpen(false)
+        setCreateAccountPembeli(null)
+        fetchAll()
+      } else {
+        toast.error(data.error || 'Gagal membuat akun login')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan jaringan')
+    } finally {
+      setCaSaving(false)
+    }
+  }
+
   // ==================== USER TABLE COLUMNS ====================
 
   const userColumns = [
@@ -711,7 +767,9 @@ export default function PenggunaPage() {
       key: 'username',
       title: 'Username',
       render: (item: Pembeli) => (
-        <span className="text-slate-600">{item.penggunaUsername || '-'}</span>
+        item.penggunaUsername
+          ? <span className="text-slate-600 font-medium">@{item.penggunaUsername}</span>
+          : <span className="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full">Belum ada akun</span>
       )
     },
     {
@@ -933,7 +991,23 @@ export default function PenggunaPage() {
                 showAsButtons
                 emptyMessage="Belum ada data pembeli"
                 emptyIcon={<ShoppingCart className="w-12 h-12 mx-auto text-slate-400" />}
-
+                extraActions={(item: Pembeli) => {
+                  if (item.penggunaUsername) return undefined
+                  return (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-violet-600 border-violet-300 hover:bg-violet-50 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleOpenCreateAccount(item)
+                      }}
+                    >
+                      <KeyRound className="w-3 h-3 mr-1" />
+                      Buat Akun
+                    </Button>
+                  )
+                }}
               />
             )}
           </div>
@@ -1199,6 +1273,68 @@ export default function PenggunaPage() {
               <Button type="button" variant="outline" onClick={() => { resetPembeliForm(); setPembeliDialogOpen(false) }}>{t('batal')}</Button>
               <Button type="submit" disabled={pembeliSaving} className="bg-emerald-600 hover:bg-emerald-700">
                 {pembeliSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>Menyimpan...</>) : (editingPembeli ? 'Simpan Perubahan' : 'Tambah Pembeli')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== DIALOG: BUAT AKUN LOGIN UNTUK PEMBELI ===== */}
+      <Dialog open={createAccountOpen} onOpenChange={(open) => { if (!open) { setCreateAccountOpen(false); setCreateAccountPembeli(null) } }}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-violet-600" />
+              Buat Akun Login
+            </DialogTitle>
+            <DialogDescription>
+              {createAccountPembeli
+                ? `Buat akun login untuk pembeli "${createAccountPembeli.nama}" (${createAccountPembeli.nomorHP}).`
+                : 'Buat akun login untuk pembeli.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateAccount}>
+            <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-700">
+                  Pembeli ini belum memiliki akun login. Buatkan username dan password agar bisa login ke aplikasi.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="ca-username">Username <span className="text-red-500">*</span></Label>
+                <Input
+                  id="ca-username"
+                  type="text"
+                  placeholder="Minimal 3 karakter"
+                  required
+                  minLength={3}
+                  value={caUsername}
+                  onChange={(e) => setCaUsername(e.target.value)}
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="ca-password">Password <span className="text-red-500">*</span></Label>
+                <Input
+                  id="ca-password"
+                  type="text"
+                  placeholder="Minimal 6 karakter"
+                  required
+                  minLength={6}
+                  value={caPassword}
+                  onChange={(e) => setCaPassword(e.target.value)}
+                  autoComplete="off"
+                />
+                <p className="text-xs text-slate-400">Password disimpan dalam bentuk teks. Pastikan password yang aman.</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => { setCreateAccountOpen(false); setCreateAccountPembeli(null) }}>{t('batal')}</Button>
+              <Button type="submit" disabled={caSaving} className="bg-violet-600 hover:bg-violet-700">
+                {caSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>Menyimpan...</>) : 'Buat Akun'}
               </Button>
             </DialogFooter>
           </form>
