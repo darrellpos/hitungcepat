@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/dashboard-layout'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { getAuthHeaders } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 import { useLanguage } from '@/contexts/language-context'
 import { Language, TranslationKey } from '@/lib/i18n'
 import { useCompanyStore } from '@/stores/company-store'
@@ -130,7 +131,7 @@ export default function PengaturanPage() {
   // Fetch user profile
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/me', { headers: getAuthHeaders() })
+      const res = await authFetch('/api/auth/me', { headers: getAuthHeaders() })
       if (res.ok) {
         const data = await res.json()
         setUserProfile({
@@ -147,7 +148,7 @@ export default function PengaturanPage() {
   // Fetch profit
   const fetchProfitSetting = useCallback(async () => {
     try {
-      const res = await fetch('/api/settings?key=profit', { headers: getAuthHeaders() })
+      const res = await authFetch('/api/settings?key=profit', { headers: getAuthHeaders() })
       if (res.ok) {
         const data = await res.json()
         if (data.value !== null && data.value !== undefined && data.value !== '') {
@@ -161,7 +162,7 @@ export default function PengaturanPage() {
   const fetchGeneralSettings = useCallback(async () => {
     try {
       const keys = ['company_name', 'company_logo', 'company_address', 'company_email', 'company_phone']
-      const results = await Promise.all(keys.map(k => fetch(`/api/settings?key=${k}`, { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null)))
+      const results = await Promise.all(keys.map(k => authFetch(`/api/settings?key=${k}`, { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null)))
       if (results[0]?.value) setCompanyName(results[0].value)
       if (results[1]?.value) setCompanyLogo(results[1].value)
       if (results[2]?.value) setAddress(results[2].value)
@@ -174,7 +175,7 @@ export default function PengaturanPage() {
   const fetchColorSettings = useCallback(async () => {
     try {
       const keys = ['theme_sidebar_color', 'theme_bg_color', 'theme_popup_color', 'theme_banner_color', 'theme_login_color', 'app_font_size']
-      const results = await Promise.all(keys.map(k => fetch(`/api/settings?key=${k}`, { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null)))
+      const results = await Promise.all(keys.map(k => authFetch(`/api/settings?key=${k}`, { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null)))
       if (results[0]?.value) { setSidebarColor(results[0].value); applySidebarColor(results[0].value) }
       if (results[1]?.value) { setBgColor(results[1].value); applyBgColor(results[1].value) }
       if (results[2]?.value) { setPopupColor(results[2].value); applyPopupColor(results[2].value) }
@@ -279,7 +280,7 @@ export default function PengaturanPage() {
     const val = parseFloat(profitPercent)
     if (isNaN(val) || val < 0) { toast.error(t('profit_error_positive')); return false }
     try {
-      const res = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'profit', value: val.toString() }) })
+      const res = await authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'profit', value: val.toString() }) })
       return res.ok
     } catch { return false }
   }
@@ -297,11 +298,11 @@ export default function PengaturanPage() {
     setSaving(true)
     try {
       await Promise.all([
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_name', value: '' }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_address', value: '' }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_email', value: '' }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_phone', value: '' }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_logo', value: '' }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_name', value: '' }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_address', value: '' }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_email', value: '' }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_phone', value: '' }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_logo', value: '' }) }),
       ])
       setCompanyName('')
       setAddress('')
@@ -320,10 +321,10 @@ export default function PengaturanPage() {
     setSaving(true)
     try {
       await Promise.all([
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_name', value: companyName }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_address', value: address }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_email', value: email }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_phone', value: phone }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_name', value: companyName }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_address', value: address }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_email', value: email }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_phone', value: phone }) }),
       ])
       // Update the global company store for real-time sync across all components
       useCompanyStore.getState().updateBranding({ companyName: companyName || null })
@@ -337,13 +338,13 @@ export default function PengaturanPage() {
     setSaving(true)
     try {
       await Promise.all([
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_sidebar_color', value: sidebarColor }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_bg_color', value: bgColor }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_popup_color', value: popupColor }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_banner_color', value: bannerColor }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_login_color', value: loginColor }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'app_language', value: appLanguage }) }),
-        fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'app_font_size', value: fontSize }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_sidebar_color', value: sidebarColor }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_bg_color', value: bgColor }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_popup_color', value: popupColor }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_banner_color', value: bannerColor }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'theme_login_color', value: loginColor }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'app_language', value: appLanguage }) }),
+        authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'app_font_size', value: fontSize }) }),
       ])
       applySidebarColor(sidebarColor)
       applyBgColor(bgColor)
@@ -410,7 +411,7 @@ export default function PengaturanPage() {
       const compressed = file.size > 500 * 1024 ? await compressImage(file) : file
       const formData = new FormData()
       formData.append('logo', compressed)
-      const res = await fetch('/api/upload-logo', { method: 'POST', body: formData })
+      const res = await authFetch('/api/upload-logo', { method: 'POST', body: formData })
       const data = await res.json()
       if (res.ok && data.logo) { setCompanyLogo(data.logo); toast.success(t('logo_upload_success'))
         // Update the global company store for real-time sync
@@ -435,7 +436,7 @@ export default function PengaturanPage() {
         const compressed = file.size > 500 * 1024 ? await compressImage(file) : file
         const formData = new FormData()
         formData.append('logo', compressed)
-        const res = await fetch('/api/upload-logo', { method: 'POST', body: formData })
+        const res = await authFetch('/api/upload-logo', { method: 'POST', body: formData })
         const data = await res.json()
         if (res.ok && data.logo) { setCompanyLogo(data.logo); toast.success(t('logo_upload_success'))
           // Update the global company store for real-time sync
@@ -451,7 +452,7 @@ export default function PengaturanPage() {
   const handleRemoveLogo = async () => {
     setCompanyLogo(null)
     try {
-      await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_logo', value: '' }) })
+      await authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'company_logo', value: '' }) })
       // Update the global company store for real-time sync
       useCompanyStore.getState().updateBranding({ companyLogo: null })
       toast.success(t('logo_removed'))
@@ -462,7 +463,7 @@ export default function PengaturanPage() {
   const fetchBackups = useCallback(async () => {
     setLoadingBackups(true)
     try {
-      const res = await fetch('/api/database/backups', { headers: getAuthHeaders() })
+      const res = await authFetch('/api/database/backups', { headers: getAuthHeaders() })
       if (res.ok) { const data = await res.json(); if (data.success) setBackups(data.backups) }
     } catch { /* silent */ }
     setLoadingBackups(false)
@@ -472,7 +473,7 @@ export default function PengaturanPage() {
 
   const fetchAutoBackupDays = useCallback(async () => {
     try {
-      const res = await fetch('/api/settings?key=auto_backup_days', { headers: getAuthHeaders() })
+      const res = await authFetch('/api/settings?key=auto_backup_days', { headers: getAuthHeaders() })
       if (res.ok) { const data = await res.json(); if (data.value) setAutoBackupDays(parseInt(data.value) || 7) }
     } catch { /* silent */ }
   }, [])
@@ -482,7 +483,7 @@ export default function PengaturanPage() {
   const handleBackupDatabase = async () => {
     setBackupLoading(true)
     try {
-      const res = await fetch('/api/database/backup', { method: 'POST', headers: getAuthHeaders() })
+      const res = await authFetch('/api/database/backup', { method: 'POST', headers: getAuthHeaders() })
       if (res.ok) {
         const data = await res.json()
         if (data.success) {
@@ -504,7 +505,7 @@ export default function PengaturanPage() {
     setShowRestoreConfirm(null); setRestoreLoading(true)
     try {
       const text = await file.text(); const backupData = JSON.parse(text)
-      const res = await fetch('/api/database/restore', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ backupData }) })
+      const res = await authFetch('/api/database/restore', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ backupData }) })
       if (res.ok) { const data = await res.json(); if (data.success) toast.success(`${t('restore_success')} ${data.restoredTables} ${t('restore_table_count')} ${t('restore_from')} ${file.name}`); else toast.error(data.error || t('restore_error')) }
       else { const data = await res.json(); toast.error(data.error || t('restore_error')) }
     } catch { toast.error(t('backup_file_invalid')) }
@@ -514,7 +515,7 @@ export default function PengaturanPage() {
   const handleRestoreFromServer = async (fileName: string) => {
     setRestoreLoading(true); setShowRestoreConfirm(null)
     try {
-      const res = await fetch('/api/database/restore', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ fileName }) })
+      const res = await authFetch('/api/database/restore', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ fileName }) })
       if (res.ok) { const data = await res.json(); if (data.success) toast.success(`${t('restore_success')} ${data.restoredTables} ${t('restore_table_count')}`); else toast.error(data.error || t('restore_error')) }
       else { const data = await res.json(); toast.error(data.error || t('restore_error')) }
     } catch { toast.error(t('restore_error')) }
@@ -523,7 +524,7 @@ export default function PengaturanPage() {
 
   const handleDeleteBackup = async (fileName: string) => {
     try {
-      const res = await fetch(`/api/database/backups?fileName=${encodeURIComponent(fileName)}`, { method: 'DELETE', headers: getAuthHeaders() })
+      const res = await authFetch(`/api/database/backups?fileName=${encodeURIComponent(fileName)}`, { method: 'DELETE', headers: getAuthHeaders() })
       if (res.ok) { toast.success(t('backup_deleted')); fetchBackups() } else toast.error(t('backup_delete_error'))
     } catch { toast.error(t('backup_delete_error')) }
   }
@@ -531,7 +532,7 @@ export default function PengaturanPage() {
   const handleSaveAutoBackup = async () => {
     setSaving(true)
     try {
-      const res = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'auto_backup_days', value: autoBackupDays.toString() }) })
+      const res = await authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'auto_backup_days', value: autoBackupDays.toString() }) })
       if (res.ok) toast.success(`${t('auto_backup_set')} ${autoBackupDays} ${t('auto_backup_unit')}`)
     } catch { toast.error(t('auto_backup_save_error')) }
     setSaving(false)

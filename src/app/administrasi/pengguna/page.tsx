@@ -25,6 +25,7 @@ import {
 import { toast } from 'sonner'
 import { getAuthUser } from '@/lib/auth'
 import { hasSubPermission } from '@/lib/permissions'
+import { authFetch } from '@/lib/auth-fetch'
 import { useLanguage } from '@/contexts/language-context'
 
 // ==================== TYPES ====================
@@ -206,9 +207,9 @@ export default function PenggunaPage() {
   const fetchAll = useCallback(async () => {
     try {
       const [resPengguna, resCalon, resPembeli] = await Promise.all([
-        fetch('/api/pengguna'),
-        fetch('/api/calon-pembeli'),
-        fetch('/api/pembeli'),
+        authFetch('/api/pengguna'),
+        authFetch('/api/calon-pembeli'),
+        authFetch('/api/pembeli'),
       ])
 
       if (resPengguna.ok) setPenggunaList(await resPengguna.json())
@@ -272,7 +273,7 @@ export default function PenggunaPage() {
     }
     if (confirm(`Apakah Anda yakin ingin menghapus user "${user.namaLengkap}"?`)) {
       try {
-        const res = await fetch(`/api/pengguna?id=${user.id}`, { method: 'DELETE' })
+        const res = await authFetch(`/api/pengguna?id=${user.id}`, { method: 'DELETE' })
         if (res.ok) {
           setPenggunaList(prev => prev.filter(u => u.id !== user.id))
           toast.success('User berhasil dihapus')
@@ -295,7 +296,7 @@ export default function PenggunaPage() {
     setSaving(true)
     try {
       if (editingUser) {
-        const res = await fetch('/api/pengguna', {
+        const res = await authFetch('/api/pengguna', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -322,7 +323,7 @@ export default function PenggunaPage() {
           setSaving(false)
           return
         }
-        const res = await fetch('/api/pengguna', {
+        const res = await authFetch('/api/pengguna', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -386,7 +387,7 @@ export default function PenggunaPage() {
   const handleDeleteCalon = async (item: CalonPembeli) => {
     if (confirm(`Hapus calon pembeli "${item.nama}"?`)) {
       try {
-        const res = await fetch(`/api/calon-pembeli?id=${item.id}`, { method: 'DELETE' })
+        const res = await authFetch(`/api/calon-pembeli?id=${item.id}`, { method: 'DELETE' })
         if (res.ok) {
           setCalonList(prev => prev.filter(c => c.id !== item.id))
           toast.success('Calon pembeli berhasil dihapus')
@@ -407,7 +408,7 @@ export default function PenggunaPage() {
     if (!confirm(msg)) return
     setCalonSaving(true)
     try {
-      const res = await fetch('/api/calon-pembeli/convert', {
+      const res = await authFetch('/api/calon-pembeli/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ calonId: item.id }),
@@ -441,7 +442,7 @@ export default function PenggunaPage() {
     setCalonSaving(true)
     try {
       if (editingCalon) {
-        const res = await fetch('/api/calon-pembeli', {
+        const res = await authFetch('/api/calon-pembeli', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -464,7 +465,7 @@ export default function PenggunaPage() {
           toast.error(data.error || 'Gagal memperbarui')
         }
       } else {
-        const res = await fetch('/api/calon-pembeli', {
+        const res = await authFetch('/api/calon-pembeli', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -528,7 +529,7 @@ export default function PenggunaPage() {
   const handleDeletePembeli = async (item: Pembeli) => {
     if (confirm(`Hapus pembeli "${item.nama}"?`)) {
       try {
-        const res = await fetch(`/api/pembeli?id=${item.id}`, { method: 'DELETE' })
+        const res = await authFetch(`/api/pembeli?id=${item.id}`, { method: 'DELETE' })
         if (res.ok) {
           setPembeliList(prev => prev.filter(p => p.id !== item.id))
           toast.success('Pembeli berhasil dihapus')
@@ -550,7 +551,7 @@ export default function PenggunaPage() {
     setPembeliSaving(true)
     try {
       if (editingPembeli) {
-        const res = await fetch('/api/pembeli', {
+        const res = await authFetch('/api/pembeli', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -572,7 +573,7 @@ export default function PenggunaPage() {
           toast.error(data.error || 'Gagal memperbarui')
         }
       } else {
-        const res = await fetch('/api/pembeli', {
+        const res = await authFetch('/api/pembeli', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -627,7 +628,7 @@ export default function PenggunaPage() {
     }
     setCaSaving(true)
     try {
-      const res = await fetch('/api/pembeli/create-account', {
+      const res = await authFetch('/api/pembeli/create-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

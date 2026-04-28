@@ -9,6 +9,7 @@ import { DialogForm } from '@/components/dialog-form'
 import { useLanguage } from '@/contexts/language-context'
 import { toast } from 'sonner'
 import { getAuthUser } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 import { hasSubPermission } from '@/lib/permissions'
 
 interface PrintingCost {
@@ -46,7 +47,7 @@ export default function MasterOngkosCetakPage() {
 
   const fetchPrintingCosts = async () => {
     try {
-      const response = await fetch('/api/printing-costs')
+      const response = await authFetch('/api/printing-costs')
       const data = await response.json()
       setPrintingCosts(data)
     } catch (error) {
@@ -74,7 +75,7 @@ export default function MasterOngkosCetakPage() {
   const handleDelete = async (cost: PrintingCost) => {
     if (confirm(`Apakah Anda yakin ingin menghapus ${cost.machineName}?`)) {
       try {
-        const response = await fetch(`/api/printing-costs/${cost.id}`, {
+        const response = await authFetch(`/api/printing-costs/${cost.id}`, {
           method: 'DELETE'
         })
         if (response.ok) {
@@ -171,7 +172,7 @@ export default function MasterOngkosCetakPage() {
     try {
       if (editingCost) {
         // Update existing printing cost
-        const response = await fetch(`/api/printing-costs/${editingCost.id}`, {
+        const response = await authFetch(`/api/printing-costs/${editingCost.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -185,7 +186,7 @@ export default function MasterOngkosCetakPage() {
         }
       } else {
         // Add new printing cost
-        const response = await fetch('/api/printing-costs', {
+        const response = await authFetch('/api/printing-costs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

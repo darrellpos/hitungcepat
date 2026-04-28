@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { useLanguage } from '@/contexts/language-context'
+import { authFetch } from '@/lib/auth-fetch'
 
 export default function KeamananPage() {
   const { t } = useLanguage()
@@ -30,7 +31,7 @@ export default function KeamananPage() {
     let cancelled = false
     ;(async () => {
       try {
-        const res = await fetch('/api/settings')
+        const res = await authFetch('/api/settings')
         const data = await res.json()
         if (cancelled) return
         if (Array.isArray(data)) {
@@ -50,7 +51,7 @@ export default function KeamananPage() {
 
   const saveSetting = async (key: string, value: string) => {
     try {
-      const res = await fetch('/api/settings', {
+      const res = await authFetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, value })

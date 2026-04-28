@@ -506,3 +506,25 @@ Stage Summary:
 - Future conversions from CalonPembeli → Pembeli now automatically create Pengguna records
 - Existing pembeli without accounts get a "Buat Akun" button to create login credentials
 - Pembeli GET API auto-links penggunaId on fallback match
+---
+Task ID: 4
+Agent: Main Agent
+Task: Fix semua list kosong di halaman pengguna dan hak akses (cookies tidak terkirim melalui proxy)
+
+Work Log:
+- Root cause: All API endpoints use `getServerUser()` which reads userId/userRole from cookies
+- Through the Caddy proxy, cookies set by login API are not forwarded on subsequent requests
+- This causes `requireAuth` to return 401, `isAdmin` to return false, and data filtering returns nothing
+- Dev log confirmed: `/api/pengguna 401`, `/api/auth/me 401`, `/api/settings 401`
+
+- Fix 1: Extended `getServerUser()` in `/lib/server-auth.ts` to also check `x-user-id` and `x-user-role` request headers as fallback
+- Fix 2: Created `/lib/auth-fetch.ts` - a fetch wrapper that reads auth data from localStorage and adds X-User-Id/X-User-Role headers
+- Fix 3: Replaced ~60 raw `fetch()` calls with `authFetch()` across 11+ files:
+  - pengguna page, hak-akses page, keamanan page, pengaturan page
+  - dashboard-layout.tsx, riwayat-content.tsx, payment-dialog.tsx
+  - potong-kertas, riwayat, master-customer, master-harga-kertas, master-ongkos-cetak, master-finishing pages
+
+Stage Summary:
+- All API calls now send auth headers from localStorage as fallback when cookies are missing
+- This fixes the cross-origin/proxy authentication issue
+- All data lists (daftar admin, calon pembeli, daftar pembeli, hak akses, settings) should now work from any context

@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import type { Customer, Paper, CuttingResult } from '@/lib/cutting-engine'
 import dynamic from 'next/dynamic'
 import { getAuthUser } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 
 const CuttingDiagram = dynamic(
   () => import('@/components/cutting-results').then(m => ({ default: m.CuttingDiagram })),
@@ -115,12 +116,12 @@ function CalculatorPage() {
   }, [formData])
 
   useEffect(() => {
-    fetch('/api/customers')
+    authFetch('/api/customers')
       .then(res => { if (!res.ok) return []; return res.json() })
       .then(data => { if (Array.isArray(data)) setCustomers(data); else setCustomers([]) })
       .catch(() => setCustomers([]))
 
-    fetch('/api/papers')
+    authFetch('/api/papers')
       .then(res => { if (!res.ok) return []; return res.json() })
       .then(data => { if (Array.isArray(data)) setPapers(data); else setPapers([]) })
       .catch(() => setPapers([]))
@@ -221,7 +222,7 @@ function CalculatorPage() {
       return
     }
     try {
-      await fetch('/api/riwayat-cetakan', {
+      await authFetch('/api/riwayat-cetakan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

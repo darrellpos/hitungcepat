@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { getAuthUser } from '@/lib/auth'
 import { saveAllPermissions } from '@/lib/permissions'
+import { authFetch } from '@/lib/auth-fetch'
 import { useLanguage } from '@/contexts/language-context'
 
 interface SubPermission {
@@ -195,7 +196,7 @@ export default function HakAksesPage() {
     let cancelled = false
     ;(async () => {
       try {
-        const res = await fetch('/api/settings')
+        const res = await authFetch('/api/settings')
         const data = await res.json()
         if (cancelled) return
         if (Array.isArray(data)) {
@@ -250,7 +251,7 @@ export default function HakAksesPage() {
 
   const saveSetting = async (key: string, value: string) => {
     try {
-      const res = await fetch('/api/settings', {
+      const res = await authFetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, value })
@@ -301,7 +302,7 @@ export default function HakAksesPage() {
 
     // Save to database
     try {
-      const saveRes = await fetch('/api/settings', {
+      const saveRes = await authFetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'role_permissions', value: JSON.stringify(permData) })
@@ -351,14 +352,14 @@ export default function HakAksesPage() {
 
     // Clean up permissions in database
     try {
-      const res = await fetch('/api/settings')
+      const res = await authFetch('/api/settings')
       const data = await res.json()
       if (Array.isArray(data)) {
         const permEntry = data.find((s: any) => s.key === 'role_permissions')
         if (permEntry?.value) {
           const permData = JSON.parse(permEntry.value)
           delete permData[roleId]
-          await fetch('/api/settings', {
+          await authFetch('/api/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ key: 'role_permissions', value: JSON.stringify(permData) })

@@ -9,6 +9,7 @@ import { DialogForm } from '@/components/dialog-form'
 import { useLanguage } from '@/contexts/language-context'
 import { toast } from 'sonner'
 import { getAuthUser } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 import { hasSubPermission } from '@/lib/permissions'
 
 interface Customer {
@@ -42,7 +43,7 @@ export default function MasterCustomerPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customers')
+      const response = await authFetch('/api/customers')
       const data = await response.json()
       setCustomers(data)
     } catch (error) {
@@ -74,7 +75,7 @@ export default function MasterCustomerPage() {
   const handleDelete = async (customer: Customer) => {
     if (confirm(`Apakah Anda yakin ingin menghapus customer ${customer.name}?`)) {
       try {
-        const response = await fetch(`/api/customers/${customer.id}`, {
+        const response = await authFetch(`/api/customers/${customer.id}`, {
           method: 'DELETE'
         })
         if (response.ok) {
@@ -93,7 +94,7 @@ export default function MasterCustomerPage() {
   const handleSave = async (data: any) => {
     try {
       if (editingCustomer) {
-        const response = await fetch(`/api/customers/${editingCustomer.id}`, {
+        const response = await authFetch(`/api/customers/${editingCustomer.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -106,7 +107,7 @@ export default function MasterCustomerPage() {
           toast.error('Gagal memperbarui customer')
         }
       } else {
-        const response = await fetch('/api/customers', {
+        const response = await authFetch('/api/customers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

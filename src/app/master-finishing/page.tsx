@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/table"
 import { toast } from 'sonner'
 import { getAuthUser } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 import { hasSubPermission } from '@/lib/permissions'
 
 interface Finishing {
@@ -73,7 +74,7 @@ export default function MasterFinishingPage() {
   const fetchFinishings = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/finishings')
+      const response = await authFetch('/api/finishings')
       const data = await response.json()
 
       if (Array.isArray(data)) {
@@ -129,7 +130,7 @@ export default function MasterFinishingPage() {
   const handleDelete = async (finishing: Finishing) => {
     if (confirm(`Apakah Anda yakin ingin menghapus ${finishing.name}?`)) {
       try {
-        const response = await fetch(`/api/finishings/${finishing.id}`, {
+        const response = await authFetch(`/api/finishings/${finishing.id}`, {
           method: 'DELETE'
         })
         if (response.ok) {
@@ -163,7 +164,7 @@ export default function MasterFinishingPage() {
 
       const method = editingFinishing ? 'PUT' : 'POST'
 
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -5,6 +5,7 @@ import { Sidebar, MobileHeader } from './sidebar'
 import { useRouter, usePathname } from 'next/navigation'
 import { getAuthUser, clearAuthUser } from '@/lib/auth'
 import { hasFeatureAccess, getFeatureIdForPath, saveRolePermissions } from '@/lib/permissions'
+import { authFetch } from '@/lib/auth-fetch'
 import { AlertTriangle, LogOut, Smartphone, ShieldAlert } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -83,7 +84,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         setUser(authUser)
 
         // Fetch user profile for header dates
-        fetch('/api/auth/me')
+        authFetch('/api/auth/me')
           .then(r => r.ok ? r.json() : null)
           .then(data => { if (data) setUserProfile({ createdAt: data.createdAt || null, validUntil: data.validUntil || null }) })
           .catch(() => {})
@@ -99,7 +100,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         }
 
         // Fetch security settings
-        fetch('/api/auth/verify-session', {
+        authFetch('/api/auth/verify-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId, role: authUser.role }),
@@ -158,7 +159,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       const authUser = getAuthUser()
       if (!authUser || !authUser.sessionId) return
 
-      fetch('/api/auth/verify-session', {
+      authFetch('/api/auth/verify-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId, role: authUser.role }),
@@ -361,7 +362,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
                         handleLogout()
                         return
                       }
-                      const res = await fetch('/api/auth/reclaim-session', {
+                      const res = await authFetch('/api/auth/reclaim-session', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId, userId: authUser.id }),

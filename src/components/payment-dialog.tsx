@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import { authFetch } from '@/lib/auth-fetch';
 
 declare global {
   interface Window {
@@ -114,7 +115,7 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
     setStep('loading');
 
     try {
-      const res = await fetch('/api/payment/create-transaction', {
+      const res = await authFetch('/api/payment/create-transaction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

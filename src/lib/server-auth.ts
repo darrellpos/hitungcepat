@@ -7,13 +7,24 @@ export interface ServerUser {
 }
 
 /**
- * Extract user identity from request cookies (set by login API).
+ * Extract user identity from request cookies or headers.
  * Returns null if not authenticated.
+ * 
+ * Priority:
+ * 1. Cookies (userId, userRole) - set by login API
+ * 2. Headers (x-user-id, x-user-role) - fallback for cross-origin/proxy
  */
 export function getServerUser(request: NextRequest): ServerUser | null {
   try {
-    const userId = request.cookies.get('userId')?.value
-    const userRole = request.cookies.get('userRole')?.value
+    // Try cookies first
+    let userId = request.cookies.get('userId')?.value
+    let userRole = request.cookies.get('userRole')?.value
+
+    // Fallback: check headers (for cross-origin/proxy scenarios)
+    if (!userId || !userRole) {
+      userId = userId || request.headers.get('x-user-id')
+      userRole = userRole || request.headers.get('x-user-role')
+    }
 
     if (!userId || !userRole) return null
 

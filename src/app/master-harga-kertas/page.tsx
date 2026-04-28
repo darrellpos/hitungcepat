@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from 'sonner'
 import { getAuthUser } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 import { hasSubPermission } from '@/lib/permissions'
 
 interface Paper {
@@ -69,7 +70,7 @@ export default function MasterHargaKertasPage() {
 
   const fetchPapers = async () => {
     try {
-      const response = await fetch('/api/papers')
+      const response = await authFetch('/api/papers')
       const data = await response.json()
       setPapers(data)
     } catch (error) {
@@ -119,7 +120,7 @@ export default function MasterHargaKertasPage() {
   const handleDelete = async (paper: Paper) => {
     if (confirm(`Apakah Anda yakin ingin menghapus ${paper.name}?`)) {
       try {
-        const response = await fetch(`/api/papers/${paper.id}`, {
+        const response = await authFetch(`/api/papers/${paper.id}`, {
           method: 'DELETE'
         })
         if (response.ok) {
@@ -281,7 +282,7 @@ export default function MasterHargaKertasPage() {
     try {
       if (editingPaper) {
         // Update existing paper
-        const response = await fetch(`/api/papers/${editingPaper.id}`, {
+        const response = await authFetch(`/api/papers/${editingPaper.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -295,7 +296,7 @@ export default function MasterHargaKertasPage() {
         }
       } else {
         // Add new paper
-        const response = await fetch('/api/papers', {
+        const response = await authFetch('/api/papers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

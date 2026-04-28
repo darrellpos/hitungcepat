@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/language-context'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { getAuthHeaders } from '@/lib/auth'
+import { authFetch } from '@/lib/auth-fetch'
 
 interface RiwayatItem {
   id: string
@@ -73,7 +74,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
   const fetchRiwayat = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/riwayat-cetakan', { headers: getAuthHeaders() })
+      const res = await authFetch('/api/riwayat-cetakan', { headers: getAuthHeaders() })
       if (res.ok) {
         const data = await res.json()
         setHistories(Array.isArray(data) ? data : [])
@@ -114,7 +115,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
 
   const handleDelete = (item: RiwayatItem) => {
     if (!confirm(`Hapus riwayat "${item.printName}"?`)) return
-    fetch(`/api/riwayat-cetakan/${item.id}`, {
+    authFetch(`/api/riwayat-cetakan/${item.id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     })
