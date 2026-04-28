@@ -156,7 +156,9 @@ function CalculatorPage() {
     const cw = parseFloat(cutWidth)
     const ch = parseFloat(cutHeight)
     const qty = parseInt(quantity) || 0
+    const setelan = parseInt(setelanKertas) || 0
     const price = parseFloat(pricePerSheet) || 0
+    const totalQty = qty + setelan
 
     if (!pw || !ph || !cw || !ch) {
       toast.error('Mohon lengkapi semua ukuran!')
@@ -172,7 +174,7 @@ function CalculatorPage() {
     const { calculateCuts } = await import('@/lib/cutting-engine')
     const result = calculateCuts({
       paperWidth: pw, paperHeight: ph, cutWidth: cw, cutHeight: ch,
-      quantity: qty, pricePerSheet: price, optimizationMode,
+      quantity: totalQty, pricePerSheet: price, optimizationMode,
       customerName: selectedCustomer?.name || '',
       paperMaterial: selectedPaper?.name || '',
       grammage: selectedPaper?.grammage || 0,
@@ -699,13 +701,13 @@ function CalculatorPage() {
               <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 lg:gap-2 flex-shrink-0">
                 <div className="bg-blue-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-blue-600 font-medium leading-tight">Diperlukan</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-blue-700 leading-tight">{results.quantity}</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-blue-700 leading-tight">{quantity || '0'}</p>
                   <p className="text-xs lg:text-xs text-blue-500">lembar</p>
                 </div>
                 <div className="bg-sky-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-sky-600 font-medium leading-tight">Setelan Kertas</p>
                   <p className="text-2xl lg:text-2xl font-bold text-sky-700 leading-tight">{setelanKertas || '0'}</p>
-                  <p className="text-xs lg:text-xs text-sky-500">kali</p>
+                  <p className="text-xs lg:text-xs text-sky-500">lembar</p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
