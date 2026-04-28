@@ -108,6 +108,15 @@ export async function POST(request: NextRequest) {
     const expiredDate = new Date()
     expiredDate.setDate(expiredDate.getDate() + demoDays)
 
+    // Hapus semua data riwayat cetakan, hitung cetakan, dan potong kertas
+    // setiap ada pendaftaran akun baru agar data selalu bersih
+    try {
+      await db.riwayatCetakan.deleteMany({})
+      console.log('🗑️ All RiwayatCetakan deleted on new registration')
+    } catch (err) {
+      console.error('⚠️ Failed to delete RiwayatCetakan:', err)
+    }
+
     // HANYA buat CalonPembeli (TIDAK buat Pengguna)
     // Data muncul di Calon Pembeli saja, bukan Daftar User
     const calon = await db.calonPembeli.create({

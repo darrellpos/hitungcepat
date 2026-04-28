@@ -18,3 +18,19 @@ Stage Summary:
 - Root cause of convert failure: Missing penggunaId column on Pembeli table in PostgreSQL
 - Deployed to https://darrellpos-new.vercel.app
 - All fixes are backward compatible with existing data (ALTER TABLE IF NOT EXISTS for migration)
+---
+Task ID: 1
+Agent: Main
+Task: Auto-delete riwayat cetakan data on every new account registration
+
+Work Log:
+- Investigated codebase: RiwayatCetakan is the only DB table for hitung cetakan & riwayat data
+- Potong kertas & hitung cetakan form state stored in localStorage (per-browser, client-side only)
+- Added `db.riwayatCetakan.deleteMany({})` in `/api/register/route.ts` before creating new CalonPembeli
+- Ran lint (only pre-existing PDF script errors), built Next.js, deployed to Vercel production
+- Swapped Prisma schema back to SQLite for local dev
+
+Stage Summary:
+- Every new account registration now automatically clears ALL RiwayatCetakan records
+- Deployed to: https://darrellpos-new.vercel.app
+- Potong kertas has no backend data (client-side localStorage only), so nothing to clear server-side
