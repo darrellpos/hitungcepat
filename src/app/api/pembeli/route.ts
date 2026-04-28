@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     // Admin can see ALL pembeli (same as calon pembeli)
     // Regular users can only see their own
     const whereFilter = user && isAdmin(user.role) ? {} : await getDataFilter(user)
-    const list = await db.pembeli.findMany({
+    const pembeliList = await db.pembeli.findMany({
       where: whereFilter,
       orderBy: { createdAt: 'desc' },
       select: {
@@ -21,10 +21,25 @@ export async function GET(request: NextRequest) {
         role: true,
         expiredDate: true,
         userId: true,
+        penggunaId: true,
         createdAt: true,
         updatedAt: true,
       }
     })
+
+    // Enrich with linked Pengguna username
+    const list = await Promise.all(pembeliList.map(async (p) => {
+      let penggunaUsername: string | null = null
+      if (p.penggunaId) {
+        const pengguna = await db.pengguna.findUnique({
+          where: { id: p.penggunaId },
+          select: { username: true }
+        })
+        penggunaUsername = pengguna?.username || null
+      }
+      return { ...p, penggunaUsername }
+    }))
+
     return NextResponse.json(list)
   } catch (error) {
     console.error('Get pembeli error:', error)

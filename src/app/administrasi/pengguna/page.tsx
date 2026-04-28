@@ -66,6 +66,9 @@ interface Pembeli {
   catatan: string
   role: string
   expiredDate: string | null
+  userId: string | null
+  penggunaId: string | null
+  penggunaUsername: string | null
   createdAt: string
   updatedAt: string
 }
@@ -787,9 +790,9 @@ export default function PenggunaPage() {
     },
     {
       key: 'username',
-      title: 'User Name',
+      title: 'Username',
       render: (item: Pembeli) => (
-        <span className="text-slate-600">{item.email?.split('@')[0] || '-'}</span>
+        <span className="text-slate-600">{item.penggunaUsername || '-'}</span>
       )
     },
     {
