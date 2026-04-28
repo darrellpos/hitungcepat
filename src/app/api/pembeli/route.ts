@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     if (authErr) return authErr
     const user = getServerUser(request)!
     const body = await request.json()
-    const { nama, nomorHP, email, alamat, catatan, role, expiredDate } = body
+    const { nama, nomorHP, email, alamat, catatan, role, expiredDate, username } = body
 
     if (!nama || !nomorHP) {
       return NextResponse.json(
@@ -94,6 +94,38 @@ export async function POST(request: NextRequest) {
         userId: user?.id || null,
       }
     })
+
+    // If username provided, create or link a Pengguna account
+    if (username && username.trim()) {
+      try {
+        const existingPengguna = await db.pengguna.findUnique({
+          where: { username: username.trim() }
+        })
+        if (existingPengguna) {
+          await db.pembeli.update({
+            where: { id: pembeli.id },
+            data: { penggunaId: existingPengguna.id }
+          })
+        } else {
+          const newPengguna = await db.pengguna.create({
+            data: {
+              namaLengkap: nama,
+              nomorHP: nomorHP || '',
+              email: email || '',
+              username: username.trim(),
+              password: 'changeme',
+              role: role || 'demo',
+            }
+          })
+          await db.pembeli.update({
+            where: { id: pembeli.id },
+            data: { penggunaId: newPengguna.id }
+          })
+        }
+      } catch (err) {
+        console.error('Link username to pembeli error:', err)
+      }
+    }
 
     return NextResponse.json(pembeli, { status: 201 })
   } catch (error) {
@@ -154,7 +186,7 @@ export async function PUT(request: NextRequest) {
     if (authErr) return authErr
     const user = getServerUser(request)!
     const body = await request.json()
-    const { id, nama, nomorHP, email, alamat, catatan, role, expiredDate } = body
+    const { id, nama, nomorHP, email, alamat, catatan, role, expiredDate, username } = body
 
     if (!id) {
       return NextResponse.json(
@@ -184,6 +216,49 @@ export async function PUT(request: NextRequest) {
     if (catatan !== undefined) updateData.catatan = catatan
     if (role !== undefined) updateData.role = role
     if (expiredDate !== undefined) updateData.expiredDate = expiredDate ? new Date(expiredDate) : null
+
+    // Handle username update - create or link Pengguna
+    if (username !== undefined && username) {
+      const trimmedUsername = username.trim()
+      if (existing.penggunaId) {
+        const linkedPengguna = await db.pengguna.findUnique({ where: { id: existing.penggunaId } })
+        if (linkedPengguna) {
+          await db.pengguna.update({
+            where: { id: linkedPengguna.id },
+            data: { username: trimmedUsername, namaLengkap: nama || linkedPengguna.namaLengkap }
+          })
+        } else {
+          const newPengguna = await db.pengguna.create({
+            data: {
+              namaLengkap: nama || existing.nama,
+              nomorHP: nomorHP || existing.nomorHP,
+              email: email || existing.email,
+              username: trimmedUsername,
+              password: 'changeme',
+              role: role || existing.role,
+            }
+          })
+          updateData.penggunaId = newPengguna.id
+        }
+      } else {
+        const existingPengguna = await db.pengguna.findUnique({ where: { username: trimmedUsername } })
+        if (existingPengguna) {
+          updateData.penggunaId = existingPengguna.id
+        } else {
+          const newPengguna = await db.pengguna.create({
+            data: {
+              namaLengkap: nama || existing.nama,
+              nomorHP: nomorHP || existing.nomorHP,
+              email: email || existing.email,
+              username: trimmedUsername,
+              password: 'changeme',
+              role: role || existing.role,
+            }
+          })
+          updateData.penggunaId = newPengguna.id
+        }
+      }
+    }
 
     const updated = await db.pembeli.update({
       where: { id },

@@ -193,6 +193,7 @@ export default function PenggunaPage() {
   const [pembeliCatatan, setPembeliCatatan] = useState('')
   const [pembeliRole, setPembeliRole] = useState('demo')
   const [pembeliExpiredDate, setPembeliExpiredDate] = useState('')
+  const [pembeliUsername, setPembeliUsername] = useState('')
   const [pembeliSaving, setPembeliSaving] = useState(false)
 
   // Create account dialog state
@@ -511,6 +512,7 @@ export default function PenggunaPage() {
     setPembeliCatatan('')
     setPembeliRole('demo')
     setPembeliExpiredDate('')
+    setPembeliUsername('')
     setEditingPembeli(null)
   }
 
@@ -528,6 +530,7 @@ export default function PenggunaPage() {
     setPembeliCatatan(item.catatan)
     setPembeliRole(item.role || 'demo')
     setPembeliExpiredDate(item.expiredDate ? new Date(item.expiredDate).toISOString().split('T')[0] : '')
+    setPembeliUsername(item.penggunaUsername || '')
     setPembeliDialogOpen(true)
   }
 
@@ -568,6 +571,7 @@ export default function PenggunaPage() {
             catatan: pembeliCatatan.trim(),
             role: pembeliRole,
             expiredDate: pembeliExpiredDate || null,
+            username: pembeliUsername.trim() || null,
           })
         })
         if (res.ok) {
@@ -589,6 +593,7 @@ export default function PenggunaPage() {
             catatan: pembeliCatatan.trim(),
             role: pembeliRole,
             expiredDate: pembeliExpiredDate || null,
+            username: pembeliUsername.trim() || null,
           })
         })
         if (res.ok) {
@@ -1196,6 +1201,10 @@ export default function PenggunaPage() {
               <div className="grid gap-2">
                 <Label htmlFor="p-email">Email</Label>
                 <Input id="p-email" type="email" placeholder="email@contoh.com" value={pembeliEmail} onChange={(e) => setPembeliEmail(e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="p-username">Username</Label>
+                <Input id="p-username" type="text" placeholder="Masukkan username" value={pembeliUsername} onChange={(e) => setPembeliUsername(e.target.value)} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="p-alamat">Alamat</Label>
