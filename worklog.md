@@ -397,3 +397,36 @@ Stage Summary:
 - Daftar Cetakan now shows max 15 items on both mobile and desktop (was 10 on desktop, unlimited on mobile)
 - Finishing names are displayed for each item in the list
 - Desktop scroll area increased to 390px to fit more items
+
+---
+Task ID: 1
+Agent: Main
+Task: Create A4 portrait print/PDF output from Detail Rincian Cetakan popup
+
+Work Log:
+- Read hitung-cetakan/page.tsx to understand buildPrintHtml, handlePrint, handlePdf functions
+- Rewrote `buildPrintHtml()` function to produce clean A4 portrait layout matching the preview popup content
+  - Added `@page { size: A4 portrait; margin: 12mm 15mm; }` CSS
+  - Informasi Cetakan section: 3-column grid (Customer, Cetakan, Jumlah, Ukuran, Warna, Mesin) with color-coded cards
+  - Harga Bahan Kertas section: teal-themed card with paper name and price
+  - Ongkos Cetak section: blue-themed card
+  - Ongkos Cetak 2 section: fuchsia-themed card
+  - Finishing section: per-item breakdown with total, matching preview dialog
+  - Biaya Tambahan section: 2-column grid with individual items (Packing, Kirim, Lem, Borongan, Biaya Bikin Piso, Biaya) - matching preview dialog
+  - Uang Capek section: orange-themed card with percentage
+  - Grand Total section: dark slate-900 card with emerald green total, sub total and profit breakdown
+  - Proper CSS classes (not inline styles) for better print rendering
+  - `-webkit-print-color-adjust: exact` for background color printing
+- Updated `handlePdf()` for proper A4 portrait PDF generation:
+  - Rendered at 794×1123px (A4 at 96dpi) for correct proportions
+  - Scale factor 3 for high-quality output
+  - Properly scales image to fit A4 portrait dimensions (210mm × 297mm)
+  - Centered horizontally on the page
+- Biaya Tambahan now shows each item separately (was combined as "Biaya Lain") matching the preview dialog layout
+- Sub Total/Grand Total calculation now uses the same formula as preview dialog for consistency
+
+Stage Summary:
+- Cetak and PDF buttons in Detail Rincian Cetakan popup now produce A4 portrait output matching the preview content
+- All sections match: Informasi Cetakan, Harga Bahan Kertas, Ongkos Cetak 1&2, Finishing (per-item), Biaya Tambahan (per-item), Uang Capek, Grand Total
+- PDF output fits single A4 portrait page with proper scaling and centering
+- Print output uses `@page { size: A4 portrait }` for correct paper size

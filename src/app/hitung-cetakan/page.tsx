@@ -487,178 +487,410 @@ function HitungCetakanPage() {
     const now = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
     const paperPrice = calc.totalPaperPrice || ((parseFloat(calc.pricePerSheet) || 0) * (parseInt(calc.quantity) || 0))
-    const profitAmt = calc.printingCost > 0 ? (calc.totalPrice * profitPercent / (100 + profitPercent)) : 0
-    const subTotal = calc.totalPrice - profitAmt
+    const biayaLain1 = parseFloat(calc.biayaLain1) || 0
+    const biayaLain2 = parseFloat(calc.biayaLain2) || 0
+    const packing = parseFloat(calc.packingCost) || 0
+    const shipping = parseFloat(calc.shippingCost) || 0
+    const glueCost = calc.calculatedGlueCost || 0
+    const glueBorongan = calc.calculatedGlueBoronganSheet || 0
+    const subTotal = paperPrice + (calc.calculatedPrintingCost || 0) + (calc.calculatedPrintingCost2 || 0) + (calc.calculatedFinishingCost || 0) + packing + shipping + biayaLain1 + biayaLain2 + glueCost + glueBorongan
+    const profitAmt = subTotal * (profitPercent / 100)
+    const grandTotal = subTotal + profitAmt
 
     let sections = ''
 
-    // Informasi Cetakan
-    sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb">ℹ</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Informasi Cetakan</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:5px 7px">
-            <div style="font-size:8px;color:#3b82f6;font-weight:500">Nama Customer</div>
-            <div style="font-size:11px;font-weight:700;color:#1e40af">${calc.customerName || '-'}</div>
-          </div>
-          <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;padding:5px 7px">
-            <div style="font-size:8px;color:#6366f1;font-weight:500">Nama Cetakan</div>
-            <div style="font-size:11px;font-weight:700;color:#3730a3">${calc.printName || '-'}</div>
-          </div>
-          <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:4px;padding:5px 7px">
-            <div style="font-size:8px;color:#a855f7;font-weight:500">Jumlah Cetakan</div>
-            <div style="font-size:11px;font-weight:700;color:#7e22ce">${fmtQ(calc.quantity)} <span style="font-size:9px;font-weight:400;color:#a855f7">lembar</span></div>
-          </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:5px 7px">
-            <div style="font-size:8px;color:#64748b;font-weight:500">Ukuran Potongan</div>
-            <div style="font-size:11px;font-weight:700;color:#334155">${calc.cutWidth && calc.cutHeight ? `${calc.cutWidth} × ${calc.cutHeight} cm` : `${calc.paperLength} × ${calc.paperWidth} cm`}</div>
-          </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:5px 7px">
-            <div style="font-size:8px;color:#64748b;font-weight:500">Warna Cetak</div>
-            <div style="font-size:11px;font-weight:700;color:#334155">${calc.warna || 0} warna${calc.warnaKhusus && parseInt(calc.warnaKhusus) > 0 ? ` + ${calc.warnaKhusus} khusus` : ''}</div>
-          </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:5px 7px">
-            <div style="font-size:8px;color:#64748b;font-weight:500">Mesin</div>
-            <div style="font-size:11px;font-weight:700;color:#334155">${calc.machineName || '-'}</div>
-          </div>
-        </div>
-      </div>`
+    // === INFORMASI CETAKAN ===
+    const warnaText = `${calc.warna || 0} warna${calc.warnaKhusus && parseInt(calc.warnaKhusus) > 0 ? ` + ${calc.warnaKhusus} khusus` : ''}`
+    const ukuranText = calc.cutWidth && calc.cutHeight ? `${calc.cutWidth} × ${calc.cutHeight} cm` : (calc.paperLength && calc.paperWidth ? `${calc.paperLength} × ${calc.paperWidth} cm` : '-')
 
-    // Harga Bahan Kertas
+    sections += `
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">ℹ</div>
+        <span>Informasi Cetakan</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-card blue">
+          <div class="info-label">Nama Customer</div>
+          <div class="info-value">${calc.customerName || '-'}</div>
+        </div>
+        <div class="info-card indigo">
+          <div class="info-label">Nama Cetakan</div>
+          <div class="info-value">${calc.printName || '-'}</div>
+        </div>
+        <div class="info-card purple">
+          <div class="info-label">Jumlah Cetakan</div>
+          <div class="info-value">${fmtQ(calc.quantity)} <small>lembar</small></div>
+        </div>
+        <div class="info-card slate">
+          <div class="info-label">Ukuran Potongan</div>
+          <div class="info-value">${ukuranText}</div>
+        </div>
+        <div class="info-card slate">
+          <div class="info-label">Warna Cetak</div>
+          <div class="info-value">${warnaText}</div>
+        </div>
+        <div class="info-card slate">
+          <div class="info-label">Mesin</div>
+          <div class="info-value">${calc.machineName || '-'}</div>
+        </div>
+      </div>
+    </div>`
+
+    // === HARGA BAHAN KERTAS ===
     if (paperPrice > 0) {
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#ccfbf1;display:flex;align-items:center;justify-content:center;font-size:9px;color:#0d9488">📄</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Harga Bahan Kertas</span>
-        </div>
-        <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;font-weight:700;color:#115e59">${calc.paperName || '-'}</span>
-          <span style="font-size:13px;font-weight:800;color:#0f766e">${rp(paperPrice)}</span>
-        </div>
-      </div>`
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon teal">📄</div>
+        <span>Harga Bahan Kertas</span>
+      </div>
+      <div class="cost-card teal">
+        <span class="cost-label">${calc.paperName || '-'}</span>
+        <span class="cost-value teal">${rp(paperPrice)}</span>
+      </div>
+    </div>`
     }
 
-    // Ongkos Cetak
+    // === ONGKOS CETAK ===
     if (calc.calculatedPrintingCost > 0) {
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb">🔢</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Ongkos Cetak</span>
-        </div>
-        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;font-weight:700;color:#1e40af">Total Ongkos Cetak</span>
-          <span style="font-size:13px;font-weight:800;color:#1d4ed8">${rp(calc.calculatedPrintingCost)}</span>
-        </div>
-      </div>`
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">🔢</div>
+        <span>Ongkos Cetak</span>
+      </div>
+      <div class="cost-card blue">
+        <span class="cost-label">Total Ongkos Cetak</span>
+        <span class="cost-value blue">${rp(calc.calculatedPrintingCost)}</span>
+      </div>
+    </div>`
     }
 
-    // Ongkos Cetak 2
+    // === ONGKOS CETAK 2 ===
     if (calc.calculatedPrintingCost2 > 0) {
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#fae8ff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#c026d3">🔢</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Ongkos Cetak 2</span>
-        </div>
-        <div style="background:#fdf4ff;border:1px solid #f0abfc;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;font-weight:700;color:#a21caf">Total Ongkos Cetak 2</span>
-          <span style="font-size:13px;font-weight:800;color:#c026d3">${rp(calc.calculatedPrintingCost2)}</span>
-        </div>
-      </div>`
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon fuchsia">🔢</div>
+        <span>Ongkos Cetak 2</span>
+      </div>
+      <div class="cost-card fuchsia">
+        <span class="cost-label">Total Ongkos Cetak 2</span>
+        <span class="cost-value fuchsia">${rp(calc.calculatedPrintingCost2)}</span>
+      </div>
+    </div>`
     }
 
-    // Finishing
+    // === FINISHING ===
     if (calc.finishingBreakdown && calc.finishingBreakdown.length > 0) {
       const finRows = calc.finishingBreakdown.map(fb =>
-        `<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="font-size:10px;color:#9f1239">${fb.name}</span><span style="font-size:10px;font-weight:700;color:#be123c">${rp(fb.cost)}</span></div>`
+        `<div class="fin-row"><span>${fb.name}</span><span class="fin-price">${rp(fb.cost)}</span></div>`
       ).join('')
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#ffe4e6;display:flex;align-items:center;justify-content:center;font-size:9px;color:#e11d48">✂</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Finishing</span>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon rose">✂</div>
+        <span>Finishing</span>
+      </div>
+      <div class="fin-card">
+        ${finRows}
+        <div class="fin-total">
+          <span>Total Finishing</span>
+          <span class="fin-total-price">${rp(calc.calculatedFinishingCost)}</span>
         </div>
-        <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:4px;padding:6px 8px">
-          ${finRows}
-          <div style="border-top:1px solid #fecdd3;margin-top:4px;padding-top:4px;display:flex;justify-content:space-between">
-            <span style="font-size:9px;font-weight:700;color:#e11d48;text-transform:uppercase">Total Finishing</span>
-            <span style="font-size:11px;font-weight:800;color:#be123c">${rp(calc.calculatedFinishingCost)}</span>
-          </div>
-        </div>
-      </div>`
+      </div>
+    </div>`
     } else if (calc.finishingName && calc.calculatedFinishingCost > 0) {
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#ffe4e6;display:flex;align-items:center;justify-content:center;font-size:9px;color:#e11d48">✂</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Finishing</span>
-        </div>
-        <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;font-weight:700;color:#9f1239">${calc.finishingName}</span>
-          <span style="font-size:13px;font-weight:800;color:#be123c">${rp(calc.calculatedFinishingCost)}</span>
-        </div>
-      </div>`
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon rose">✂</div>
+        <span>Finishing</span>
+      </div>
+      <div class="cost-card rose">
+        <span class="cost-label">${calc.finishingName}</span>
+        <span class="cost-value rose">${rp(calc.calculatedFinishingCost)}</span>
+      </div>
+    </div>`
     }
 
-    // Biaya Tambahan
+    // === BIAYA TAMBAHAN ===
     const extras = [
-      { name: 'Packing', val: parseFloat(calc.packingCost) || 0 },
-      { name: 'Kirim', val: parseFloat(calc.shippingCost) || 0 },
-      { name: 'Ongkos Lem', val: calc.calculatedGlueCost || 0 },
-      { name: 'Lem Borongan', val: calc.calculatedGlueBoronganSheet || 0 },
-      { name: 'Biaya Lain', val: (parseFloat(calc.biayaLain1) || 0) + (parseFloat(calc.biayaLain2) || 0) },
-    ].filter(e => e.val > 0)
-    if (extras.length > 0) {
-      const extraRows = extras.map(e =>
-        `<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="font-size:10px;color:#92400e">${e.name}</span><span style="font-size:10px;font-weight:700;color:#b45309">${rp(e.val)}</span></div>`
+      { name: 'Ongkos Packing', val: packing },
+      { name: 'Ongkos Kirim', val: shipping },
+      { name: 'Ongkos Lem', val: glueCost },
+      { name: 'Lem Borongan', val: glueBorongan },
+    ]
+    if (biayaLain1 > 0) extras.push({ name: 'Biaya Bikin Piso', val: biayaLain1 })
+    if (biayaLain2 > 0) extras.push({ name: 'Biaya', val: biayaLain2 })
+    const filteredExtras = extras.filter(e => e.val > 0)
+    if (filteredExtras.length > 0) {
+      const extraRows = filteredExtras.map(e =>
+        `<div class="extra-item"><div class="extra-icon">💰</div><div class="extra-text"><div class="extra-label">${e.name}</div><div class="extra-price">${rp(e.val)}</div></div></div>`
       ).join('')
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-          <div style="width:16px;height:16px;border-radius:3px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#d97706">💰</div>
-          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Biaya Tambahan</span>
-        </div>
-        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:6px 8px">${extraRows}</div>
-      </div>`
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon amber">💰</div>
+        <span>Biaya Tambahan</span>
+      </div>
+      <div class="extra-grid">${extraRows}</div>
+    </div>`
     }
 
-    // Profit
+    // === UANG CAPEK ===
     if (profitPercent > 0 && profitAmt > 0) {
       sections += `
-      <div style="margin-bottom:8px">
-        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:#ea580c">Uang Capek (${profitPercent}%)</span>
-          <span style="font-size:13px;font-weight:700;color:#c2410c">${rp(Math.round(profitAmt))}</span>
-        </div>
-      </div>`
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon orange">%</div>
+        <span>Uang Capek</span>
+      </div>
+      <div class="cost-card orange">
+        <span class="cost-label">Uang Capek (${profitPercent}%)</span>
+        <span class="cost-value orange">${rp(Math.round(profitAmt))}</span>
+      </div>
+    </div>`
     }
 
     return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${calc.printName}</title>
       <style>
-        @page { size: A4; margin: 12mm; }
+        @page { size: A4 portrait; margin: 12mm 15mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; font-size: 11px; }
-        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+        body {
+          font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
+          color: #1e293b;
+          font-size: 11px;
+          line-height: 1.4;
+          width: 210mm;
+          min-height: 297mm;
+        }
+        @media print {
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .page { page-break-after: avoid; }
+        }
+        .page {
+          padding: 0;
+        }
+        .header {
+          text-align: center;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #e2e8f0;
+          margin-bottom: 10px;
+        }
+        .header h1 {
+          font-size: 18px;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: -0.3px;
+        }
+        .header p {
+          font-size: 10px;
+          color: #64748b;
+          margin-top: 3px;
+        }
+        .section {
+          margin-bottom: 8px;
+        }
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 5px;
+        }
+        .section-header span {
+          font-size: 11px;
+          font-weight: 700;
+          color: #334155;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .section-icon {
+          width: 20px;
+          height: 20px;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 700;
+        }
+        .section-icon.blue { background: #dbeafe; color: #2563eb; }
+        .section-icon.teal { background: #ccfbf1; color: #0d9488; }
+        .section-icon.fuchsia { background: #fae8ff; color: #c026d3; }
+        .section-icon.rose { background: #ffe4e6; color: #e11d48; }
+        .section-icon.amber { background: #fef3c7; color: #d97706; }
+        .section-icon.orange { background: #ffedd5; color: #ea580c; }
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 4px;
+        }
+        .info-card {
+          border-radius: 6px;
+          padding: 6px 8px;
+        }
+        .info-card.blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .info-card.indigo { background: #eef2ff; border: 1px solid #c7d2fe; }
+        .info-card.purple { background: #faf5ff; border: 1px solid #e9d5ff; }
+        .info-card.slate { background: #f8fafc; border: 1px solid #e2e8f0; }
+        .info-label {
+          font-size: 8px;
+          font-weight: 500;
+          color: #64748b;
+          margin-bottom: 1px;
+        }
+        .info-card.blue .info-label { color: #3b82f6; }
+        .info-card.indigo .info-label { color: #6366f1; }
+        .info-card.purple .info-label { color: #a855f7; }
+        .info-value {
+          font-size: 12px;
+          font-weight: 700;
+          color: #334155;
+        }
+        .info-card.blue .info-value { color: #1e40af; }
+        .info-card.indigo .info-value { color: #3730a3; }
+        .info-card.purple .info-value { color: #7e22ce; }
+        .info-value small {
+          font-size: 9px;
+          font-weight: 400;
+          color: #a855f7;
+        }
+        .cost-card {
+          border-radius: 6px;
+          padding: 8px 10px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .cost-card.teal { background: #f0fdfa; border: 1px solid #99f6e4; }
+        .cost-card.blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .cost-card.fuchsia { background: #fdf4ff; border: 1px solid #f0abfc; }
+        .cost-card.rose { background: #fff1f2; border: 1px solid #fecdd3; }
+        .cost-card.orange { background: #fff7ed; border: 1px solid #fed7aa; }
+        .cost-label {
+          font-size: 12px;
+          font-weight: 700;
+          color: #334155;
+        }
+        .cost-card.teal .cost-label { color: #115e59; }
+        .cost-card.blue .cost-label { color: #1e40af; }
+        .cost-card.fuchsia .cost-label { color: #a21caf; }
+        .cost-card.rose .cost-label { color: #9f1239; }
+        .cost-card.orange .cost-label { color: #ea580c; }
+        .cost-value {
+          font-size: 15px;
+          font-weight: 800;
+        }
+        .cost-value.teal { color: #0f766e; }
+        .cost-value.blue { color: #1d4ed8; }
+        .cost-value.fuchsia { color: #c026d3; }
+        .cost-value.rose { color: #be123c; }
+        .cost-value.orange { color: #c2410c; }
+        .fin-card {
+          background: #fff1f2;
+          border: 1px solid #fecdd3;
+          border-radius: 6px;
+          padding: 8px 10px;
+        }
+        .fin-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 2px 0;
+          font-size: 11px;
+          color: #9f1239;
+        }
+        .fin-price {
+          font-weight: 700;
+          color: #be123c;
+        }
+        .fin-total {
+          border-top: 1px solid #fecdd3;
+          margin-top: 4px;
+          padding-top: 5px;
+          display: flex;
+          justify-content: space-between;
+        }
+        .fin-total span:first-child {
+          font-size: 10px;
+          font-weight: 700;
+          color: #e11d48;
+          text-transform: uppercase;
+        }
+        .fin-total-price {
+          font-size: 13px;
+          font-weight: 800;
+          color: #be123c;
+        }
+        .extra-grid {
+          background: #fffbeb;
+          border: 1px solid #fde68a;
+          border-radius: 6px;
+          padding: 8px 10px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px;
+        }
+        .extra-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .extra-icon {
+          font-size: 14px;
+        }
+        .extra-label {
+          font-size: 9px;
+          color: #b45309;
+        }
+        .extra-price {
+          font-size: 12px;
+          font-weight: 700;
+          color: #92400e;
+        }
+        .grand-total {
+          background: #0f172a;
+          color: white;
+          border-radius: 10px;
+          padding: 14px 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 6px;
+        }
+        .grand-total-label {
+          font-size: 11px;
+          color: #94a3b8;
+        }
+        .grand-total-value {
+          font-size: 24px;
+          font-weight: 800;
+          color: #34d399;
+        }
+        .grand-total-detail {
+          text-align: right;
+          font-size: 9px;
+          color: #94a3b8;
+          line-height: 1.7;
+        }
       </style>
     </head><body>
-      <div style="text-align:center;padding-bottom:8px;border-bottom:2px solid #e2e8f0;margin-bottom:8px">
-        <div style="font-size:15px;font-weight:800;color:#0f172a">Rincian Harga Cetakan</div>
-        <div style="font-size:9px;color:#64748b;margin-top:2px">${calc.printName} · ${now}</div>
-      </div>
-      ${sections}
-      <div style="background:#0f172a;color:white;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-        <div>
-          <div style="font-size:9px;color:#94a3b8">Grand Total</div>
-          <div style="font-size:20px;font-weight:800;color:#34d399">${rp(calc.totalPrice)}</div>
+      <div class="page">
+        <div class="header">
+          <h1>Rincian Harga Cetakan</h1>
+          <p>${calc.printName} · ${now}</p>
         </div>
-        <div style="text-align:right;font-size:8px;color:#94a3b8;line-height:1.6">
-          <div>Sub Total: ${rp(Math.round(subTotal))}</div>
-          ${profitAmt > 0 ? `<div>Uang Capek: ${rp(Math.round(profitAmt))}</div>` : ''}
+        ${sections}
+        <div class="grand-total">
+          <div>
+            <div class="grand-total-label">Grand Total</div>
+            <div class="grand-total-value">${rp(Math.round(grandTotal))}</div>
+          </div>
+          <div class="grand-total-detail">
+            <div>Sub Total: ${rp(Math.round(subTotal))}</div>
+            ${profitAmt > 0 ? `<div>Uang Capek: ${rp(Math.round(profitAmt))}</div>` : ''}
+          </div>
         </div>
       </div>
     </body></html>`
@@ -678,29 +910,33 @@ function HitungCetakanPage() {
     setIsGeneratingPdf(true)
     try {
       const { jsPDF } = await import('jspdf')
+      // A4 portrait: 210mm x 297mm
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const pdfW = pdf.internal.pageSize.getWidth()
-      const pdfH = pdf.internal.pageSize.getHeight()
-      const margin = 10
+      const pdfW = pdf.internal.pageSize.getWidth() // 210
+      const pdfH = pdf.internal.pageSize.getHeight() // 297
+      const margin = 8
       const contentW = pdfW - margin * 2
+      const contentH = pdfH - margin * 2
 
-      // Render HTML to canvas via hidden iframe
+      // Render HTML to canvas via hidden iframe at A4 pixel dimensions
+      const a4PxW = 794 // ~210mm at 96dpi
+      const a4PxH = 1123 // ~297mm at 96dpi
       const iframe = document.createElement('iframe')
-      iframe.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:' + (pdfW * 3.78) + 'px;height:' + (pdfH * 3.78) + 'px;border:none;'
+      iframe.style.cssText = `position:fixed;left:-9999px;top:-9999px;width:${a4PxW}px;height:${a4PxH}px;border:none;`
       document.body.appendChild(iframe)
       const iframeDoc = iframe.contentDocument!
       iframeDoc.open()
       iframeDoc.write(buildPrintHtml(previewCalc))
       iframeDoc.close()
 
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 600))
 
       const html2canvas = (await import('html2canvas')).default
       const canvas = await html2canvas(iframeDoc.body, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         backgroundColor: '#ffffff',
-        width: iframeDoc.body.scrollWidth,
+        width: a4PxW,
         height: iframeDoc.body.scrollHeight,
       })
 
@@ -709,14 +945,15 @@ function HitungCetakanPage() {
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
       const imgW = contentW
       const imgH = (canvas.height * imgW) / canvas.width
-      const maxH = pdfH - margin * 2
 
-      if (imgH <= maxH) {
+      // Scale to fit A4 portrait in 1 page
+      if (imgH <= contentH) {
+        const offsetX = margin + (contentW - imgW) / 2
         pdf.addImage(imgData, 'JPEG', margin, margin, imgW, imgH)
       } else {
-        // Scale to fit 1 page
-        const scaledW = maxH * imgW / imgH
-        pdf.addImage(imgData, 'JPEG', margin, margin, scaledW, maxH)
+        const scaledW = (contentH * imgW) / imgH
+        const offsetX = margin + (contentW - scaledW) / 2
+        pdf.addImage(imgData, 'JPEG', offsetX, margin, scaledW, contentH)
       }
 
       pdf.save(`rincian-${previewCalc.printName}-${Date.now()}.pdf`)
