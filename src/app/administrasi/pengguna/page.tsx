@@ -916,12 +916,7 @@ export default function PenggunaPage() {
                 </h2>
                 <p className="text-sm text-slate-500 mt-1">Data prospek dan calon pelanggan baru</p>
               </div>
-              {canAddCalon && (
-              <Button onClick={handleAddCalon} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 whitespace-nowrap">
-                <Plus className="w-4 h-4 mr-2" />
-                Tambah Calon Pembeli
-              </Button>
-              )}
+
             </div>
           </div>
           <div className="p-4 lg:p-6">
@@ -970,14 +965,7 @@ export default function PenggunaPage() {
                 </h2>
                 <p className="text-sm text-slate-500 mt-1">Data pelanggan yang sudah bertransaksi</p>
               </div>
-              {canAddPembeli && (
-              <div className="flex items-center gap-2">
-                <Button onClick={handleAddPembeli} className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Tambah Pembeli
-                </Button>
-              </div>
-              )}
+
             </div>
           </div>
           <div className="p-4 lg:p-6">
