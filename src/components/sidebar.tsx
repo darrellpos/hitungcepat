@@ -202,7 +202,6 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                     )}
                     style={isActive(item.href) ? undefined : { color: 'var(--app-sidebar-text)' }}
                   >
-                    {idx === 0 && <Menu className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--app-sidebar-text-muted)' }} />}
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span className={cn("transition-opacity", !isOpen && "lg:opacity-100 opacity-0")}>{t(item.titleKey)}</span>
                   </Link>
@@ -241,7 +240,6 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                   )}
                   style={isActive(item.href) ? undefined : { color: 'var(--app-sidebar-text)' }}
                 >
-                  {idx === 0 && <Menu className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--app-sidebar-text-muted)' }} />}
                   <item.icon className="w-5 h-5 flex-shrink-0" />
                   <span className={cn("transition-opacity", !isOpen && "lg:opacity-100 opacity-0")}>{t(item.titleKey)}</span>
                 </Link>
