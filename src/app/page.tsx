@@ -1247,7 +1247,9 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Payment Dialog */}
+      </motion.div>
+
+      {/* Payment Dialog — outside motion.div so fixed positioning works correctly */}
       {selectedPkg && (
         <PaymentDialog
           open={paymentOpen}
@@ -1255,8 +1257,6 @@ export default function Home() {
           pkg={selectedPkg}
         />
       )}
-
-      </motion.div>
       </div>
   );
 }
