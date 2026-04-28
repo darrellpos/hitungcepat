@@ -52,6 +52,8 @@ interface PrintCalculation {
   printName: string
   paperLength: string
   paperWidth: string
+  cutWidth: string
+  cutHeight: string
   quantity: string
   warna: string
   warnaKhusus: string
@@ -67,6 +69,23 @@ interface PrintCalculation {
   pricePerSheet: string
   hargaPlat: string
   totalPrice: number
+  customerName: string
+  machineId2: string
+  machineName2: string
+  warna2: string
+  warnaKhusus2: string
+  hargaPlat2: string
+  glueLengthCm: string
+  glueCostPerCm: string
+  glueBoronganPerSheet: string
+  biayaLain1: string
+  biayaLain2: string
+  totalPaperPrice: number
+  calculatedPrintingCost: number
+  calculatedPrintingCost2: number
+  calculatedFinishingCost: number
+  calculatedGlueCost: number
+  calculatedGlueBoronganSheet: number
 }
 
 const inputClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors lg:py-1.5'
@@ -534,13 +553,21 @@ function HitungCetakanPage() {
     const newCalculation: PrintCalculation = {
       id: Date.now().toString(),
       printName: formData.printName, paperLength: formData.paperLength, paperWidth: formData.paperWidth,
+      cutWidth: formData.cutWidth, cutHeight: formData.cutHeight,
       quantity: formData.quantity, warna: formData.warna, warnaKhusus: formData.warnaKhusus,
       hargaPlat: formData.hargaPlat, paperId: formData.paperId, paperName: selectedPaper?.name || '',
       machineId: formData.machineId, machineName: selectedMachine?.machineName || '',
       printingCost: calculatedCost, finishingId: selectedFinishings.join(','),
       finishingName: selectedFinishingItems.map(f => f.name).join(', '),
       packingCost: formData.packingCost, shippingCost: formData.shippingCost,
-      pricePerSheet: formData.pricePerSheet, totalPrice: totalCost
+      pricePerSheet: formData.pricePerSheet, totalPrice: totalCost,
+      customerName: formData.customerName,
+      machineId2: formData.machineId2, machineName2: selectedMachine2?.machineName || '',
+      warna2: formData.warna2, warnaKhusus2: formData.warnaKhusus2, hargaPlat2: formData.hargaPlat2,
+      glueLengthCm: formData.glueLengthCm, glueCostPerCm: formData.glueCostPerCm, glueBoronganPerSheet: formData.glueBoronganPerSheet,
+      biayaLain1: formData.biayaLain1, biayaLain2: formData.biayaLain2,
+      totalPaperPrice, calculatedPrintingCost, calculatedPrintingCost2, calculatedFinishingCost,
+      calculatedGlueCost, calculatedGlueBoronganSheet
     }
     setCalculations([...calculations, newCalculation])
     toast.success('Cetakan berhasil ditambahkan ke daftar')
@@ -569,13 +596,21 @@ function HitungCetakanPage() {
     const previewData: PrintCalculation = {
       id: 'preview',
       printName: formData.printName, paperLength: formData.paperLength, paperWidth: formData.paperWidth,
+      cutWidth: formData.cutWidth, cutHeight: formData.cutHeight,
       quantity: formData.quantity, warna: formData.warna, warnaKhusus: formData.warnaKhusus,
       hargaPlat: formData.hargaPlat, paperId: formData.paperId, paperName: selectedPaper?.name || 'Custom',
       machineId: formData.machineId, machineName: selectedMachine?.machineName || '-',
       printingCost: calculatedCost, finishingId: selectedFinishings.join(','),
       finishingName: selectedFinishingItems.map(f => f.name).join(', '),
       packingCost: formData.packingCost, shippingCost: formData.shippingCost,
-      pricePerSheet: formData.pricePerSheet, totalPrice: totalCost
+      pricePerSheet: formData.pricePerSheet, totalPrice: totalCost,
+      customerName: formData.customerName,
+      machineId2: formData.machineId2, machineName2: selectedMachine2?.machineName || '',
+      warna2: formData.warna2, warnaKhusus2: formData.warnaKhusus2, hargaPlat2: formData.hargaPlat2,
+      glueLengthCm: formData.glueLengthCm, glueCostPerCm: formData.glueCostPerCm, glueBoronganPerSheet: formData.glueBoronganPerSheet,
+      biayaLain1: formData.biayaLain1, biayaLain2: formData.biayaLain2,
+      totalPaperPrice, calculatedPrintingCost, calculatedPrintingCost2, calculatedFinishingCost,
+      calculatedGlueCost, calculatedGlueBoronganSheet
     }
     setPreviewCalc(previewData)
     setPreviewOpen(true)
@@ -584,6 +619,58 @@ function HitungCetakanPage() {
   const handleDeleteCalculation = (id: string) => {
     setCalculations(calculations.filter(c => c.id !== id))
     toast.success('Cetakan berhasil dihapus dari daftar')
+  }
+
+  const handleRestoreCalc = (calc: PrintCalculation) => {
+    const restoredForm = {
+      customerName: calc.customerName || '',
+      printName: calc.printName || '',
+      paperLength: calc.paperLength || '',
+      paperWidth: calc.paperWidth || '',
+      cutWidth: calc.cutWidth || '',
+      cutHeight: calc.cutHeight || '',
+      quantity: calc.quantity || '',
+      warna: calc.warna || '',
+      warnaKhusus: calc.warnaKhusus || '',
+      hargaPlat: calc.hargaPlat || '',
+      paperId: calc.paperId || '',
+      machineId: calc.machineId || '',
+      packingCost: calc.packingCost || '',
+      shippingCost: calc.shippingCost || '',
+      pricePerSheet: calc.pricePerSheet || '',
+      glueLengthCm: calc.glueLengthCm || '',
+      glueCostPerCm: calc.glueCostPerCm || '',
+      glueBoronganPerSheet: calc.glueBoronganPerSheet || '',
+      biayaLain1: calc.biayaLain1 || '',
+      biayaLain2: calc.biayaLain2 || '',
+      machineId2: calc.machineId2 || '',
+      warna2: calc.warna2 || '',
+      warnaKhusus2: calc.warnaKhusus2 || '',
+      hargaPlat2: calc.hargaPlat2 || ''
+    }
+    // Restore finishing IDs by matching names
+    const finIds: string[] = []
+    if (calc.finishingId) {
+      calc.finishingId.split(',').forEach(id => {
+        if (id && !finIds.includes(id)) finIds.push(id.trim())
+      })
+    }
+    // Also try matching by name for safety
+    if (finIds.length === 0 && calc.finishingName) {
+      const names = calc.finishingName.split(',').map(n => n.trim()).filter(Boolean)
+      names.forEach(name => {
+        const found = finishings.find(f => f.name === name)
+        if (found && !finIds.includes(found.id)) finIds.push(found.id)
+      })
+    }
+
+    setFormData(restoredForm)
+    setSelectedFinishings(finIds)
+    if (calc.totalPaperPrice) setTotalPaperPrice(calc.totalPaperPrice)
+    saveToStorage({ formData: restoredForm, selectedFinishings: finIds, totalPaperPrice: calc.totalPaperPrice || 0 })
+    setPreviewOpen(false)
+    setPreviewCalc(null)
+    toast.success('Data berhasil dikembalikan ke form')
   }
 
   const resetForm = () => {
@@ -1578,7 +1665,7 @@ function HitungCetakanPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-3">
+              <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 flex gap-2">
                 <button onClick={handlePrint}
                   className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
                   <Printer className="w-4 h-4" /> Cetak
@@ -1587,6 +1674,12 @@ function HitungCetakanPage() {
                   className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-semibold py-3 rounded-xl transition-colors">
                   {isGeneratingPdf ? <><Loader2 className="w-4 h-4 animate-spin" />PDF...</> : <><FileImage className="w-4 h-4" /> PDF</>}
                 </button>
+                {previewCalc && previewCalc.id !== 'preview' && (
+                  <button onClick={() => handleRestoreCalc(previewCalc)}
+                    className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors">
+                    <RotateCcw className="w-4 h-4" /> Restore
+                  </button>
+                )}
               </div>
             </>
           )}
