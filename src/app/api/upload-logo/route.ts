@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/server-auth'
+import { requireAuth } from '@/lib/server-auth'
 import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
-    // Only admin can upload logo
-    const authErr = requireAdmin(request)
+    // Any authenticated user can upload logo
+    const authErr = requireAuth(request)
     if (authErr) return authErr
 
     const formData = await request.formData()

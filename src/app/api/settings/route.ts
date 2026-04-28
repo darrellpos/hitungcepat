@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { requireAuth, requireAdmin, getServerUser } from '@/lib/server-auth'
+import { requireAuth, getServerUser } from '@/lib/server-auth'
 import { ensureSeedData } from '@/lib/auto-seed'
 
 export async function GET(request: NextRequest) {
@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Only admin can modify settings
-    const authErr = requireAdmin(request)
+    // Any authenticated user can modify settings
+    const authErr = requireAuth(request)
     if (authErr) return authErr
 
     const body = await request.json()
