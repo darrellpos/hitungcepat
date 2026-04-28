@@ -430,3 +430,28 @@ Stage Summary:
 - All sections match: Informasi Cetakan, Harga Bahan Kertas, Ongkos Cetak 1&2, Finishing (per-item), Biaya Tambahan (per-item), Uang Capek, Grand Total
 - PDF output fits single A4 portrait page with proper scaling and centering
 - Print output uses `@page { size: A4 portrait }` for correct paper size
+
+---
+Task ID: 2
+Agent: Main
+Task: Add A4 portrait print/PDF output to Riwayat preview dialog
+
+Work Log:
+- Read riwayat/page.tsx to understand preview dialog structure (both Potong Kertas and Hitung Cetakan types)
+- Created `buildRiwayatPrintHtml()` useCallback function that generates A4 portrait HTML for both types:
+  - **Potong Kertas**: Informasi (Customer, Kertas, Jumlah, Ukuran), Hasil Potong stats (Diperlukan, Potongan/Lembar, Kertas Dibutuhkan, Efisiensi), Harga Kertas, Total Harga
+  - **Hitung Cetakan**: Informasi Cetakan, Harga Bahan (Kertas, Ukuran, Total Harga Kertas), Ongkos Cetak, Finishing (per-name breakdown), Biaya Tambahan (per-item), Profit, Rincian (sub-total breakdown), Grand Total
+  - Same CSS class-based styling as hitung-cetakan for consistent A4 portrait output
+  - `@page { size: A4 portrait; margin: 12mm 15mm; }` with print-color-adjust
+- Updated `handlePrint()` to use `buildRiwayatPrintHtml()` instead of raw innerHTML capture
+- Updated `handlePdf()` to use iframe + html2canvas + jsPDF approach (same as hitung-cetakan):
+  - Renders at A4 pixel dimensions (794×1123px)
+  - Scale 3x for high quality
+  - Scales to fit 1 A4 portrait page with centering
+- Both Potong Kertas and Hitung Cetakan types auto-detected and rendered appropriately
+- Verified compilation: riwayat page returns 200, no lint errors in src/
+
+Stage Summary:
+- Riwayat preview Cetak and PDF buttons now produce A4 portrait output matching preview content
+- Two distinct layouts: Potong Kertas (cutting-focused) and Hitung Cetakan (printing-focused)
+- Same quality and formatting as hitung-cetakan page print/PDF output
