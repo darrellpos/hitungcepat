@@ -38,12 +38,17 @@ export function logout(): void {
   clearAuthUser()
 }
 
+/**
+ * Get auth headers for API requests.
+ * Includes x-user-id and x-user-role so server can identify the user
+ * for strict per-user data isolation.
+ */
 export function getAuthHeaders(): Record<string, string> {
   if (typeof window === 'undefined') return {}
   const user = getAuthUser()
   if (!user) return {}
-  const token = btoa(`${user.username}:${user.password}`)
-  return {
-    'Authorization': `Basic ${token}`
-  }
+  const headers: Record<string, string> = {}
+  if (user.id) headers['x-user-id'] = user.id
+  if (user.role) headers['x-user-role'] = user.role
+  return headers
 }
