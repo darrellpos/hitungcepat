@@ -32,6 +32,7 @@ interface FormData {
   grammage: string
   pricePerSheet: string
   quantity: string
+  setelanKertas: string
   printName: string
   isCustomPaper: boolean
   optimizationMode: string
@@ -42,7 +43,7 @@ function getInitialFormState(): FormData {
     return {
       paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
       selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-      quantity: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal',
+      quantity: '', setelanKertas: '', printName: '', isCustomPaper: false, optimizationMode: 'maximal',
     }
   }
   try {
@@ -58,7 +59,7 @@ function getInitialFormState(): FormData {
   return {
     paperWidth: '', paperHeight: '', cutWidth: '', cutHeight: '',
     selectedCustomerId: '', selectedPaperId: '', grammage: '', pricePerSheet: '',
-    quantity: '', isCustomPaper: false, optimizationMode: 'maximal',
+    quantity: '', setelanKertas: '', isCustomPaper: false, optimizationMode: 'maximal',
   }
 }
 
@@ -82,6 +83,7 @@ function CalculatorPage() {
   const [grammage, setGrammage] = useState(initialForm.current.grammage)
   const [pricePerSheet, setPricePerSheet] = useState(initialForm.current.pricePerSheet)
   const [quantity, setQuantity] = useState(initialForm.current.quantity)
+  const [setelanKertas, setSetelanKertas] = useState(initialForm.current.setelanKertas)
   const [printName, setPrintName] = useState(initialForm.current.printName)
   const [isCustomPaper, setIsCustomPaper] = useState(initialForm.current.isCustomPaper)
   const [results, setResults] = useState<CuttingResult | null>(null)
@@ -97,7 +99,7 @@ function CalculatorPage() {
   const formData: FormData = {
     paperWidth, paperHeight, cutWidth, cutHeight,
     selectedCustomerId, selectedPaperId, grammage, pricePerSheet,
-    quantity, printName, isCustomPaper, optimizationMode,
+    quantity, setelanKertas, printName, isCustomPaper, optimizationMode,
   }
 
   useEffect(() => {
@@ -192,6 +194,7 @@ function CalculatorPage() {
     setGrammage('')
     setPricePerSheet('')
     setQuantity('')
+    setSetelanKertas('')
     setPrintName('')
     setIsCustomPaper(false)
     setResults(null)
@@ -609,6 +612,10 @@ function CalculatorPage() {
                 <label className={lbl}>{t('jumlah_cetakan')}</label>
                 <input type="number" step="1" min="0" placeholder="100" value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inp} />
               </div>
+              <div>
+                <label className={lbl}>Setelan Kertas</label>
+                <input type="number" step="1" min="0" placeholder="0" value={setelanKertas} onChange={(e) => setSetelanKertas(e.target.value)} className={inp} />
+              </div>
             </div>
           </div>
 
@@ -697,8 +704,8 @@ function CalculatorPage() {
                 </div>
                 <div className="bg-sky-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-sky-600 font-medium leading-tight">Setelan Kertas</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-sky-700 leading-tight">{Math.ceil(results.sheetsNeeded / 500)}</p>
-                  <p className="text-xs lg:text-xs text-sky-500">rim</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-sky-700 leading-tight">{setelanKertas || '0'}</p>
+                  <p className="text-xs lg:text-xs text-sky-500">kali</p>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-purple-600 font-medium leading-tight">Potongan/Lembar</p>
