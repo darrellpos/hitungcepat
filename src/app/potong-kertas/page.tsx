@@ -19,6 +19,7 @@ const CuttingDiagram = dynamic(
 
 // Form state keys for localStorage persistence
 const STORAGE_KEY = 'potong-kertas-form'
+const STORAGE_RESULTS_KEY = 'potong-kertas-results'
 const STORAGE_VERSION_KEY = 'potong-kertas-form-version'
 const STORAGE_VERSION = 'v4' // increment to force reset on deploy
 
@@ -86,7 +87,14 @@ function CalculatorPage() {
   const [setelanKertas, setSetelanKertas] = useState(initialForm.current.setelanKertas)
   const [printName, setPrintName] = useState(initialForm.current.printName)
   const [isCustomPaper, setIsCustomPaper] = useState(initialForm.current.isCustomPaper)
-  const [results, setResults] = useState<CuttingResult | null>(null)
+  const [results, setResults] = useState<CuttingResult | null>(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const savedResults = localStorage.getItem(STORAGE_RESULTS_KEY)
+      if (savedResults) return JSON.parse(savedResults)
+    } catch {}
+    return null
+  })
   const [optimizationMode, setOptimizationMode] = useState<'fast' | 'maximal'>(initialForm.current.optimizationMode as 'fast' | 'maximal')
   const [isCalculating, setIsCalculating] = useState(false)
 
@@ -181,6 +189,7 @@ function CalculatorPage() {
     })
 
     setResults(result)
+    localStorage.setItem(STORAGE_RESULTS_KEY, JSON.stringify(result))
     setIsCalculating(false)
     toast.success('Perhitungan selesai!')
   }
@@ -202,6 +211,7 @@ function CalculatorPage() {
     setResults(null)
     setOptimizationMode('maximal')
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(STORAGE_RESULTS_KEY)
     toast.success('Data berhasil direset')
   }
 
