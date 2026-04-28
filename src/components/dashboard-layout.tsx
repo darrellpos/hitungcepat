@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { getAuthUser, clearAuthUser } from '@/lib/auth'
 import { hasFeatureAccess, getFeatureIdForPath, saveRolePermissions } from '@/lib/permissions'
 import { AlertTriangle, LogOut, Smartphone, ShieldAlert } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -354,18 +355,28 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
                     setIsReclaiming(true)
                     try {
                       const authUser = getAuthUser()
-                      if (!authUser?.sessionId) return
+                      if (!authUser?.sessionId) {
+                        toast.error('Data sesi tidak ditemukan, silakan login ulang')
+                        setIsReclaiming(false)
+                        handleLogout()
+                        return
+                      }
                       const res = await fetch('/api/auth/reclaim-session', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId }),
+                        body: JSON.stringify({ username: authUser.username, sessionId: authUser.sessionId, userId: authUser.id }),
                       })
                       const data = await res.json()
                       if (res.ok) {
                         setSessionWarning(null)
                         setForceLogoutAvailable(false)
+                        toast.success('Perangkat lain berhasil di-logout')
+                      } else {
+                        toast.error(data.error || 'Gagal mengklaim sesi. Silakan coba lagi.')
                       }
-                    } catch {}
+                    } catch {
+                      toast.error('Terjadi kesalahan jaringan')
+                    }
                     setIsReclaiming(false)
                   }}
                   disabled={isReclaiming}

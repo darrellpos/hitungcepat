@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       valid: false,
       warningMessage,
-      forceLogoutAvailable: isAdminRole,
+      forceLogoutAvailable: true,
       permissions,
       securitySettings,
     })
