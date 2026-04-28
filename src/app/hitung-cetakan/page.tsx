@@ -481,61 +481,250 @@ function HitungCetakanPage() {
     toast.success('Mencetak detail cetakan...')
   }
 
+  const buildPrintHtml = (calc: PrintCalculation) => {
+    const rp = (n: number) => `Rp ${n.toLocaleString('id-ID')}`
+    const fmtQ = (s: string) => parseInt(s || '0').toLocaleString('id-ID')
+    const now = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+
+    const paperPrice = calc.totalPaperPrice || ((parseFloat(calc.pricePerSheet) || 0) * (parseInt(calc.quantity) || 0))
+    const profitAmt = calc.printingCost > 0 ? (calc.totalPrice * profitPercent / (100 + profitPercent)) : 0
+    const subTotal = calc.totalPrice - profitAmt
+
+    let sections = ''
+
+    // Informasi Cetakan
+    sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb">ℹ</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Informasi Cetakan</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:5px 7px">
+            <div style="font-size:8px;color:#3b82f6;font-weight:500">Nama Customer</div>
+            <div style="font-size:11px;font-weight:700;color:#1e40af">${calc.customerName || '-'}</div>
+          </div>
+          <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:4px;padding:5px 7px">
+            <div style="font-size:8px;color:#6366f1;font-weight:500">Nama Cetakan</div>
+            <div style="font-size:11px;font-weight:700;color:#3730a3">${calc.printName || '-'}</div>
+          </div>
+          <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:4px;padding:5px 7px">
+            <div style="font-size:8px;color:#a855f7;font-weight:500">Jumlah Cetakan</div>
+            <div style="font-size:11px;font-weight:700;color:#7e22ce">${fmtQ(calc.quantity)} <span style="font-size:9px;font-weight:400;color:#a855f7">lembar</span></div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:5px 7px">
+            <div style="font-size:8px;color:#64748b;font-weight:500">Ukuran Potongan</div>
+            <div style="font-size:11px;font-weight:700;color:#334155">${calc.cutWidth && calc.cutHeight ? `${calc.cutWidth} × ${calc.cutHeight} cm` : `${calc.paperLength} × ${calc.paperWidth} cm`}</div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:5px 7px">
+            <div style="font-size:8px;color:#64748b;font-weight:500">Warna Cetak</div>
+            <div style="font-size:11px;font-weight:700;color:#334155">${calc.warna || 0} warna${calc.warnaKhusus && parseInt(calc.warnaKhusus) > 0 ? ` + ${calc.warnaKhusus} khusus` : ''}</div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:5px 7px">
+            <div style="font-size:8px;color:#64748b;font-weight:500">Mesin</div>
+            <div style="font-size:11px;font-weight:700;color:#334155">${calc.machineName || '-'}</div>
+          </div>
+        </div>
+      </div>`
+
+    // Harga Bahan Kertas
+    if (paperPrice > 0) {
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#ccfbf1;display:flex;align-items:center;justify-content:center;font-size:9px;color:#0d9488">📄</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Harga Bahan Kertas</span>
+        </div>
+        <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:700;color:#115e59">${calc.paperName || '-'}</span>
+          <span style="font-size:13px;font-weight:800;color:#0f766e">${rp(paperPrice)}</span>
+        </div>
+      </div>`
+    }
+
+    // Ongkos Cetak
+    if (calc.calculatedPrintingCost > 0) {
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb">🔢</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Ongkos Cetak</span>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:700;color:#1e40af">Total Ongkos Cetak</span>
+          <span style="font-size:13px;font-weight:800;color:#1d4ed8">${rp(calc.calculatedPrintingCost)}</span>
+        </div>
+      </div>`
+    }
+
+    // Ongkos Cetak 2
+    if (calc.calculatedPrintingCost2 > 0) {
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#fae8ff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#c026d3">🔢</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Ongkos Cetak 2</span>
+        </div>
+        <div style="background:#fdf4ff;border:1px solid #f0abfc;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:700;color:#a21caf">Total Ongkos Cetak 2</span>
+          <span style="font-size:13px;font-weight:800;color:#c026d3">${rp(calc.calculatedPrintingCost2)}</span>
+        </div>
+      </div>`
+    }
+
+    // Finishing
+    if (calc.finishingBreakdown && calc.finishingBreakdown.length > 0) {
+      const finRows = calc.finishingBreakdown.map(fb =>
+        `<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="font-size:10px;color:#9f1239">${fb.name}</span><span style="font-size:10px;font-weight:700;color:#be123c">${rp(fb.cost)}</span></div>`
+      ).join('')
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#ffe4e6;display:flex;align-items:center;justify-content:center;font-size:9px;color:#e11d48">✂</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Finishing</span>
+        </div>
+        <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:4px;padding:6px 8px">
+          ${finRows}
+          <div style="border-top:1px solid #fecdd3;margin-top:4px;padding-top:4px;display:flex;justify-content:space-between">
+            <span style="font-size:9px;font-weight:700;color:#e11d48;text-transform:uppercase">Total Finishing</span>
+            <span style="font-size:11px;font-weight:800;color:#be123c">${rp(calc.calculatedFinishingCost)}</span>
+          </div>
+        </div>
+      </div>`
+    } else if (calc.finishingName && calc.calculatedFinishingCost > 0) {
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#ffe4e6;display:flex;align-items:center;justify-content:center;font-size:9px;color:#e11d48">✂</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Finishing</span>
+        </div>
+        <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:700;color:#9f1239">${calc.finishingName}</span>
+          <span style="font-size:13px;font-weight:800;color:#be123c">${rp(calc.calculatedFinishingCost)}</span>
+        </div>
+      </div>`
+    }
+
+    // Biaya Tambahan
+    const extras = [
+      { name: 'Packing', val: parseFloat(calc.packingCost) || 0 },
+      { name: 'Kirim', val: parseFloat(calc.shippingCost) || 0 },
+      { name: 'Ongkos Lem', val: calc.calculatedGlueCost || 0 },
+      { name: 'Lem Borongan', val: calc.calculatedGlueBoronganSheet || 0 },
+      { name: 'Biaya Lain', val: (parseFloat(calc.biayaLain1) || 0) + (parseFloat(calc.biayaLain2) || 0) },
+    ].filter(e => e.val > 0)
+    if (extras.length > 0) {
+      const extraRows = extras.map(e =>
+        `<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="font-size:10px;color:#92400e">${e.name}</span><span style="font-size:10px;font-weight:700;color:#b45309">${rp(e.val)}</span></div>`
+      ).join('')
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+          <div style="width:16px;height:16px;border-radius:3px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#d97706">💰</div>
+          <span style="font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px">Biaya Tambahan</span>
+        </div>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:6px 8px">${extraRows}</div>
+      </div>`
+    }
+
+    // Profit
+    if (profitPercent > 0 && profitAmt > 0) {
+      sections += `
+      <div style="margin-bottom:8px">
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;color:#ea580c">Uang Capek (${profitPercent}%)</span>
+          <span style="font-size:13px;font-weight:700;color:#c2410c">${rp(Math.round(profitAmt))}</span>
+        </div>
+      </div>`
+    }
+
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${calc.printName}</title>
+      <style>
+        @page { size: A4; margin: 12mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; font-size: 11px; }
+        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+      </style>
+    </head><body>
+      <div style="text-align:center;padding-bottom:8px;border-bottom:2px solid #e2e8f0;margin-bottom:8px">
+        <div style="font-size:15px;font-weight:800;color:#0f172a">Rincian Harga Cetakan</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px">${calc.printName} · ${now}</div>
+      </div>
+      ${sections}
+      <div style="background:#0f172a;color:white;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8">Grand Total</div>
+          <div style="font-size:20px;font-weight:800;color:#34d399">${rp(calc.totalPrice)}</div>
+        </div>
+        <div style="text-align:right;font-size:8px;color:#94a3b8;line-height:1.6">
+          <div>Sub Total: ${rp(Math.round(subTotal))}</div>
+          ${profitAmt > 0 ? `<div>Uang Capek: ${rp(Math.round(profitAmt))}</div>` : ''}
+        </div>
+      </div>
+    </body></html>`
+  }
+
   const handlePrint = () => {
-    const el = previewRef.current
-    if (!el) { toast.error('Preview tidak tersedia'); return }
+    if (!previewCalc) { toast.error('Preview tidak tersedia'); return }
     const pw = window.open('', '_blank')
     if (!pw) { toast.error('Popup diblokir'); return }
-    pw.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview - ${formData.printName}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        @page { size: A4; margin: 10mm; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; }
-        .header { text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
-        .header h1 { font-size: 16px; font-weight: 700; color: #0f172a; }
-        .header p { font-size: 10px; color: #64748b; margin-top: 2px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-        .cell { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 6px 8px; }
-        .cell .lbl { font-size: 8px; color: #64748b; font-weight: 500; }
-        .cell .val { font-size: 12px; font-weight: 700; color: #0f172a; }
-        .cell .val.grn { color: #059669; }
-        .cell .val.red { color: #e11d48; }
-        .row { display: flex; gap: 6px; margin-bottom: 6px; }
-        .row .full { flex: 1; }
-        .breakdown { background: #fef2f2; border: 1px solid #fecaca; border-radius: 5px; padding: 6px 8px; margin-bottom: 8px; }
-        .breakdown-title { font-size: 9px; font-weight: 700; color: #991b1b; margin-bottom: 3px; }
-        .breakdown-text { font-size: 9px; color: #7f1d1d; white-space: pre-line; }
-        .total-bar { background: #0f172a; color: white; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; }
-        .total-bar .lbl { font-size: 9px; color: #94a3b8; }
-        .total-bar .val { font-size: 16px; font-weight: 800; color: #22c55e; }
-      </style>
-    </head><body>${el.innerHTML}</body></html>`)
+    pw.document.write(buildPrintHtml(previewCalc))
     pw.document.close()
-    pw.onload = () => pw.print()
+    pw.onload = () => setTimeout(() => pw.print(), 200)
   }
 
   const handlePdf = async () => {
-    const el = previewRef.current
-    if (!el) return
+    if (!previewCalc) return
     setIsGeneratingPdf(true)
     try {
-      const html2canvas = (await import('html2canvas')).default
-      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
-      const imgData = canvas.toDataURL('image/jpeg', 0.95)
       const { jsPDF } = await import('jspdf')
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pdfW = pdf.internal.pageSize.getWidth()
       const pdfH = pdf.internal.pageSize.getHeight()
-      const margin = 8
-      const cw = pdfW - margin * 2
-      const ih = (canvas.height * cw) / canvas.width
+      const margin = 10
+      const contentW = pdfW - margin * 2
+
+      // Render HTML to canvas via hidden iframe
+      const iframe = document.createElement('iframe')
+      iframe.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:' + (pdfW * 3.78) + 'px;height:' + (pdfH * 3.78) + 'px;border:none;'
+      document.body.appendChild(iframe)
+      const iframeDoc = iframe.contentDocument!
+      iframeDoc.open()
+      iframeDoc.write(buildPrintHtml(previewCalc))
+      iframeDoc.close()
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      const html2canvas = (await import('html2canvas')).default
+      const canvas = await html2canvas(iframeDoc.body, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: iframeDoc.body.scrollWidth,
+        height: iframeDoc.body.scrollHeight,
+      })
+
+      document.body.removeChild(iframe)
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95)
+      const imgW = contentW
+      const imgH = (canvas.height * imgW) / canvas.width
       const maxH = pdfH - margin * 2
-      let fw = cw, fh = ih
-      if (fh > maxH) { fw = (maxH * cw) / ih; fh = maxH }
-      pdf.addImage(imgData, 'JPEG', margin + (cw - fw) / 2, margin, fw, fh)
-      pdf.save(`hitung-cetakan-${Date.now()}.pdf`)
+
+      if (imgH <= maxH) {
+        pdf.addImage(imgData, 'JPEG', margin, margin, imgW, imgH)
+      } else {
+        // Scale to fit 1 page
+        const scaledW = maxH * imgW / imgH
+        pdf.addImage(imgData, 'JPEG', margin, margin, scaledW, maxH)
+      }
+
+      pdf.save(`rincian-${previewCalc.printName}-${Date.now()}.pdf`)
       toast.success('PDF berhasil diunduh!')
-    } catch { toast.error('Gagal menghasilkan PDF') }
+    } catch (e) {
+      console.error('PDF error:', e)
+      toast.error('Gagal menghasilkan PDF')
+    }
     finally { setIsGeneratingPdf(false) }
   }
 
