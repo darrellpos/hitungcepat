@@ -1,6 +1,6 @@
 'use client'
 
-import { Users, Plus, Search, Eye, EyeOff, Bell, UserPlus, ShoppingCart, UserCheck, Phone, Mail, MapPin, StickyNote, CheckCircle, Clock, XCircle, Loader2, Link2, Unlink, KeyRound } from 'lucide-react'
+import { Users, Plus, Search, Eye, EyeOff, Bell, UserPlus, ShoppingCart, UserCheck, Phone, Mail, MapPin, StickyNote, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { MobileTable } from '@/components/mobile-table'
@@ -193,21 +193,6 @@ export default function PenggunaPage() {
   const [pembeliExpiredDate, setPembeliExpiredDate] = useState('')
   const [pembeliSaving, setPembeliSaving] = useState(false)
 
-  // Add Account dialog state
-  const [addAccountDialogOpen, setAddAccountDialogOpen] = useState(false)
-  const [addAccountPembeli, setAddAccountPembeli] = useState<Pembeli | null>(null)
-  const [addAccountUsername, setAddAccountUsername] = useState('')
-  const [addAccountPassword, setAddAccountPassword] = useState('')
-  const [addAccountRole, setAddAccountRole] = useState('demo')
-  const [addAccountExpiredDate, setAddAccountExpiredDate] = useState('')
-  const [addAccountSaving, setAddAccountSaving] = useState(false)
-  const [addAccountShowPassword, setAddAccountShowPassword] = useState(false)
-
-  // Linked accounts dialog state
-  const [linkedAccountsDialogOpen, setLinkedAccountsDialogOpen] = useState(false)
-  const [linkedAccountsPembeli, setLinkedAccountsPembeli] = useState<Pembeli | null>(null)
-  const [linkedAccountsList, setLinkedAccountsList] = useState<any[]>([])
-  const [linkedAccountsLoading, setLinkedAccountsLoading] = useState(false)
 
   // ==================== FETCH DATA ====================
 
@@ -607,72 +592,6 @@ export default function PenggunaPage() {
     }
   }
 
-  // ==================== ADD ACCOUNT TO PEMBELI ====================
-
-  const handleOpenAddAccount = (item: Pembeli) => {
-    setAddAccountPembeli(item)
-    setAddAccountUsername('')
-    setAddAccountPassword('')
-    setAddAccountRole(item.role || 'demo')
-    setAddAccountExpiredDate(item.expiredDate ? new Date(item.expiredDate).toISOString().split('T')[0] : '')
-    setAddAccountShowPassword(false)
-    setAddAccountDialogOpen(true)
-  }
-
-  const handleSaveAddAccount = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!addAccountPembeli || !addAccountUsername.trim() || !addAccountPassword) {
-      toast.error('Username dan password wajib diisi')
-      return
-    }
-    setAddAccountSaving(true)
-    try {
-      const res = await fetch('/api/pembeli/add-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pembeliId: addAccountPembeli.id,
-          username: addAccountUsername.trim(),
-          password: addAccountPassword,
-          role: addAccountRole,
-          expiredDate: addAccountExpiredDate || null,
-        })
-      })
-      if (res.ok) {
-        toast.success(`Akun "${addAccountUsername.trim()}" berhasil ditambahkan ke ${addAccountPembeli.nama}`)
-        setAddAccountDialogOpen(false)
-        fetchAll()
-      } else {
-        const data = await res.json()
-        toast.error(data.error || 'Gagal menambahkan akun')
-      }
-    } catch {
-      toast.error('Terjadi kesalahan jaringan')
-    } finally {
-      setAddAccountSaving(false)
-    }
-  }
-
-  // ==================== VIEW LINKED ACCOUNTS ====================
-
-  const handleViewLinkedAccounts = async (item: Pembeli) => {
-    setLinkedAccountsPembeli(item)
-    setLinkedAccountsDialogOpen(true)
-    setLinkedAccountsLoading(true)
-    try {
-      const res = await fetch(`/api/pembeli/linked-accounts?pembeliId=${item.id}`)
-      if (res.ok) {
-        setLinkedAccountsList(await res.json())
-      } else {
-        setLinkedAccountsList([])
-      }
-    } catch {
-      setLinkedAccountsList([])
-    } finally {
-      setLinkedAccountsLoading(false)
-    }
-  }
-
   // ==================== USER TABLE COLUMNS ====================
 
   const userColumns = [
@@ -860,21 +779,6 @@ export default function PenggunaPage() {
         )
       }
     },
-    {
-      key: 'akun',
-      title: 'Akun Terhubung',
-      render: (item: Pembeli) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-7 px-2"
-          onClick={(e) => { e.stopPropagation(); handleViewLinkedAccounts(item) }}
-        >
-          <Link2 className="w-3 h-3 mr-1" />
-          Lihat Akun
-        </Button>
-      ),
-    },
   ]
 
   // ==================== RENDER ====================
@@ -1029,15 +933,7 @@ export default function PenggunaPage() {
                 showAsButtons
                 emptyMessage="Belum ada data pembeli"
                 emptyIcon={<ShoppingCart className="w-12 h-12 mx-auto text-slate-400" />}
-                extraActions={(item: Pembeli) => canAddPembeli ? (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleOpenAddAccount(item) }}
-                    className="text-violet-600 border-violet-300 hover:bg-violet-50 text-xs"
-                  >
-                    <KeyRound className="w-3 h-3 mr-1" />
-                    Tambah Akun
-                  </button>
-                ) : undefined}
+
               />
             )}
           </div>
@@ -1309,137 +1205,6 @@ export default function PenggunaPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ===== DIALOG: TAMBAH AKUN TERHUBUNG ===== */}
-      <Dialog open={addAccountDialogOpen} onOpenChange={setAddAccountDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-violet-600" />
-              Tambah Akun Terhubung
-            </DialogTitle>
-            <DialogDescription>
-              Buat akun login baru yang terhubung dengan pembeli <strong className="text-violet-700">{addAccountPembeli?.nama}</strong>. Data antar akun akan saling terhubung.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSaveAddAccount}>
-            <div className="grid gap-4 py-4">
-              <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
-                <p className="text-xs font-medium text-violet-700">Pembeli</p>
-                <p className="text-sm font-bold text-violet-800">{addAccountPembeli?.nama}</p>
-                <p className="text-xs text-violet-500">{addAccountPembeli?.nomorHP}</p>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="aa-username">Username <span className="text-red-500">*</span></Label>
-                <div className="relative">
-                  <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input id="aa-username" type="text" placeholder="Minimal 3 karakter" required minLength={3} value={addAccountUsername} onChange={(e) => setAddAccountUsername(e.target.value)} className="pl-9" />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="aa-password">Password <span className="text-red-500">*</span></Label>
-                <div className="relative">
-                  <Input id="aa-password" type={addAccountShowPassword ? 'text' : 'password'} placeholder="Minimal 6 karakter" required minLength={6} value={addAccountPassword} onChange={(e) => setAddAccountPassword(e.target.value)} className="pr-10" />
-                  <button type="button" onClick={() => setAddAccountShowPassword(!addAccountShowPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors" tabIndex={-1}>
-                    {addAccountShowPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label>Role</Label>
-                  <Select value={addAccountRole} onValueChange={setAddAccountRole}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {ROLE_OPTIONS.map((r) => (
-                        <SelectItem key={r} value={r} className="capitalize">
-                          {r.charAt(0).toUpperCase() + r.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="aa-expired">Expired Date</Label>
-                  <Input id="aa-expired" type="date" value={addAccountExpiredDate} onChange={(e) => setAddAccountExpiredDate(e.target.value)} />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setAddAccountDialogOpen(false)}>{t('batal')}</Button>
-              <Button type="submit" disabled={addAccountSaving} className="bg-violet-600 hover:bg-violet-700">
-                {addAccountSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>Menyimpan...</>) : 'Tambah Akun'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* ===== DIALOG: LIHAT AKUN TERHUBUNG ===== */}
-      <Dialog open={linkedAccountsDialogOpen} onOpenChange={setLinkedAccountsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Link2 className="w-5 h-5 text-blue-600" />
-              Akun Terhubung
-            </DialogTitle>
-            <DialogDescription>
-              Daftar akun login yang terhubung dengan <strong className="text-blue-700">{linkedAccountsPembeli?.nama}</strong>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            {linkedAccountsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-sm text-slate-500">Memuat...</span>
-              </div>
-            ) : linkedAccountsList.length === 0 ? (
-              <div className="text-center py-8">
-                <Unlink className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                <p className="text-sm text-slate-500">Belum ada akun yang terhubung</p>
-                <p className="text-xs text-slate-400 mt-1">Klik tombol "Tambah Akun" untuk menambahkan</p>
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                {linkedAccountsList.map((acc: any) => (
-                  <div key={acc.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-800">{acc.username}</p>
-                        <p className="text-xs text-slate-500">{acc.namaLengkap}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${roleColors[acc.role] || 'bg-slate-100 text-slate-700'}`}>
-                        {acc.role}
-                      </span>
-                      {acc.validUntil && (
-                        <p className={`text-[10px] mt-0.5 ${new Date(acc.validUntil) < new Date() ? 'text-red-500' : 'text-slate-400'}`}>
-                          {new Date(acc.validUntil) < new Date() ? 'Expired' : `s/d ${formatDate(acc.validUntil)}`}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          {linkedAccountsPembeli && canAddPembeli && (
-            <DialogFooter>
-              <Button
-                type="button"
-                onClick={() => { setLinkedAccountsDialogOpen(false); handleOpenAddAccount(linkedAccountsPembeli) }}
-                className="bg-violet-600 hover:bg-violet-700"
-              >
-                <KeyRound className="w-4 h-4 mr-2" />
-                Tambah Akun Baru
-              </Button>
-            </DialogFooter>
-          )}
-        </DialogContent>
-      </Dialog>
     </DashboardLayout>
   )
 }
