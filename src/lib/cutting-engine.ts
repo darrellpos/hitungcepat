@@ -69,9 +69,6 @@ export interface CuttingResult {
   efficiency: number
   steps: string[]
   strategy: string
-  insit: number
-  effectiveWidth: number
-  effectiveHeight: number
 }
 
 // Helper: create a Block from calculation results
@@ -589,26 +586,11 @@ export interface CalculateCutsParams {
   customerName: string
   paperMaterial: string
   grammage: number
-  insit?: number
 }
 
 // Main calculation function - standalone, no React dependencies
 export function calculateCuts(params: CalculateCutsParams): CuttingResult {
-  const { paperWidth: rawPw, paperHeight: rawPh, cutWidth: cw, cutHeight: ch, quantity: qty, pricePerSheet: price, optimizationMode, customerName, paperMaterial, grammage, insit: rawInsit } = params
-
-  const insit = rawInsit && rawInsit > 0 ? rawInsit : 0
-  const pw = rawPw - (insit * 2)
-  const ph = rawPh - (insit * 2)
-
-  if (pw <= 0 || ph <= 0) {
-    return {
-      totalPieces: 0, quantity: qty, sheetsNeeded: 0, totalPrice: 0, pricePerSheet: price,
-      blocks: [], paperWidth: rawPw, paperHeight: rawPh, cutWidth: cw, cutHeight: ch,
-      customerName, paperMaterial, grammage, scenarioType: 'error',
-      totalWasteArea: rawPw * rawPh, efficiency: 0, steps: [`Insit (${insit}cm) terlalu besar untuk ukuran kertas (${rawPw}×${rawPh}cm)`],
-      strategy: 'Error', insit, effectiveWidth: pw, effectiveHeight: ph
-    }
-  }
+  const { paperWidth: pw, paperHeight: ph, cutWidth: cw, cutHeight: ch, quantity: qty, pricePerSheet: price, optimizationMode, customerName, paperMaterial, grammage } = params
 
   const scenarios: Scenario[] = []
 
@@ -658,13 +640,12 @@ export function calculateCuts(params: CalculateCutsParams): CuttingResult {
     }
   }
 
-  // Calculate total waste and efficiency (based on full paper area including insit)
+  // Calculate total waste and efficiency
   const totalUsedArea = bestScenario.blocks.reduce((sum, b) =>
     sum + (b.usedWidth * b.usedHeight), 0)
-  const effectiveArea = pw * ph
-  const totalPaperArea = rawPw * rawPh
+  const totalPaperArea = pw * ph
   const totalWasteArea = totalPaperArea - totalUsedArea
-  const efficiency = ((totalUsedArea / effectiveArea) * 100)
+  const efficiency = ((totalUsedArea / totalPaperArea) * 100)
 
   // Calculate sheets needed and price
   const sheetsNeeded = qty > 0 ? Math.ceil(qty / bestScenario.total) : 1
@@ -679,8 +660,8 @@ export function calculateCuts(params: CalculateCutsParams): CuttingResult {
     cutPosition: bestScenario.cutPosition,
     cutPositionY: bestScenario.cutPositionY,
     blocks: bestScenario.blocks,
-    paperWidth: rawPw,
-    paperHeight: rawPh,
+    paperWidth: pw,
+    paperHeight: ph,
     cutWidth: cw,
     cutHeight: ch,
     customerName,
@@ -690,9 +671,6 @@ export function calculateCuts(params: CalculateCutsParams): CuttingResult {
     totalWasteArea,
     efficiency,
     steps: bestScenario.steps,
-    strategy: bestScenario.strategy,
-    insit,
-    effectiveWidth: pw,
-    effectiveHeight: ph
+    strategy: bestScenario.strategy
   }
 }
