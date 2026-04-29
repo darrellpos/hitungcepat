@@ -280,9 +280,19 @@ export default function PengaturanPage() {
     const val = parseFloat(profitPercent)
     if (isNaN(val) || val < 0) { toast.error(t('profit_error_positive')); return false }
     try {
-      const res = await authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify({ key: 'profit', value: val.toString() }) })
-      return res.ok
-    } catch { return false }
+      const res = await authFetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'profit', value: val.toString() }) })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        console.error('Save profit failed:', res.status, data)
+        toast.error(data?.error || t('profit_error_save'))
+        return false
+      }
+      return true
+    } catch (err) {
+      console.error('Save profit error:', err)
+      toast.error(t('profit_error_save'))
+      return false
+    }
   }
 
   const handleSaveProfit = async () => {
@@ -290,7 +300,6 @@ export default function PengaturanPage() {
     const success = await saveProfitSetting()
     setSaving(false)
     if (success) toast.success(t('profit_success'))
-    else toast.error(t('profit_error_save'))
   }
 
   // Reset company info (Umum tab)
