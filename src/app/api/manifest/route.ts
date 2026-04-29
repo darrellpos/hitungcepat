@@ -22,7 +22,7 @@ export async function GET() {
       display: 'standalone',
       background_color: '#ffffff',
       theme_color: '#3b82f6',
-      orientation: 'any',
+      orientation: 'portrait',
       icons: [
         {
           src: '/api/app-icon?size=192',
@@ -54,6 +54,7 @@ export async function GET() {
       display: 'standalone',
       background_color: '#ffffff',
       theme_color: '#3b82f6',
+      orientation: 'portrait',
       icons: [
         { src: '/api/app-icon?size=192', sizes: '192x192', type: 'image/png' },
         { src: '/api/app-icon?size=512', sizes: '512x512', type: 'image/png' },
