@@ -405,7 +405,7 @@ function CalculatorPage() {
     </div>
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:2.5mm 3mm;">
       <div style="font-size:7.5pt;color:#ea580c;font-weight:500;">Total Harga Kertas</div>
-      <div style="font-size:12pt;font-weight:700;color:#c2410c;">Rp ${r.totalPrice.toLocaleString('id-ID')}</div>
+      <div style="font-size:12pt;font-weight:700;color:#c2410c;">Rp ${Math.round(r.totalPrice).toLocaleString('id-ID')}</div>
     </div>
     <div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:4px;padding:2.5mm 3mm;">
       <div style="font-size:7.5pt;color:#e11d48;font-weight:500;">Sisa Potongan</div>
@@ -413,7 +413,7 @@ function CalculatorPage() {
     </div>
     <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:2.5mm 3mm;">
       <div style="font-size:7.5pt;color:#0d9488;font-weight:500;">Efisiensi Bahan</div>
-      <div style="font-size:13pt;font-weight:700;color:#0f766e;">${r.efficiency.toFixed(2)}%</div>
+      <div style="font-size:13pt;font-weight:700;color:#0f766e;">${Math.round(r.efficiency * 10) / 10}%</div>
     </div>
   </div>
 
@@ -519,9 +519,9 @@ function CalculatorPage() {
         `🔢 Jumlah Diperlukan: *${r.quantity} lembar*`,
         `📦 Potongan/Lembar: *${r.totalPieces} pcs*`,
         `📝 Lembar Kertas: *${r.sheetsNeeded} lembar*`,
-        `💰 Total Harga: *Rp ${r.totalPrice.toLocaleString('id-ID')}*`,
-        `🗑️ Sisa Potongan: *${r.totalWasteArea.toFixed(2)} cm²*`,
-        `📈 Efisiensi: *${r.efficiency.toFixed(2)}%*`,
+        `💰 Total Harga: *Rp ${Math.round(r.totalPrice).toLocaleString('id-ID')}*`,
+        `🗑️ Sisa Potongan: *${Math.round(r.totalWasteArea)} cm²*`,
+        `📈 Efisiensi: *${Math.round(r.efficiency * 10) / 10}%*`,
         ``,
         `_${r.blocks.map((b: any) => `• ${b.name}: ${b.horizontal}×${b.vertical}${b.rotated ? ' (90°)' : ''}`).join('\\n')}_`,
         ``,
@@ -737,13 +737,17 @@ function CalculatorPage() {
                   <p className="text-2xl lg:text-2xl font-bold text-emerald-700 leading-tight">{results.sheetsNeeded}</p>
                   <p className="text-xs lg:text-xs text-emerald-500">lembar</p>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-4">
+                <div className="bg-amber-50 rounded-lg p-3 lg:p-2.5 text-center">
+                  <p className="text-xs lg:text-xs text-amber-600 font-medium leading-tight">Harga / Lembar</p>
+                  <p className="text-lg lg:text-lg font-bold text-amber-700 leading-tight">Rp {Math.round(parseFloat(pricePerSheet) || 0).toLocaleString('id-ID')}</p>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-3 lg:p-2.5 text-center col-span-2 xl:col-span-5">
                   <p className="text-xs lg:text-xs text-orange-600 font-medium leading-tight">Total Harga</p>
-                  <p className="text-[26px] lg:text-[26px] font-bold text-orange-700 leading-tight">Rp {results.totalPrice.toLocaleString('id-ID')}</p>
+                  <p className="text-[26px] lg:text-[26px] font-bold text-orange-700 leading-tight">Rp {Math.round(results.totalPrice).toLocaleString('id-ID')}</p>
                 </div>
                 <div className="bg-teal-50 rounded-lg p-3 lg:p-2.5 text-center">
                   <p className="text-xs lg:text-xs text-teal-600 font-medium leading-tight">Efisiensi</p>
-                  <p className="text-2xl lg:text-2xl font-bold text-teal-700 leading-tight">{results.efficiency.toFixed(1)}%</p>
+                  <p className="text-2xl lg:text-2xl font-bold text-teal-700 leading-tight">{Math.round(results.efficiency * 10) / 10}%</p>
                   <p className="text-xs lg:text-xs text-teal-500">bahan</p>
                 </div>
               </div>
@@ -853,7 +857,7 @@ function CalculatorPage() {
               </div>
               <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
                 <p className="text-[10px] text-orange-600 font-medium">Total Harga Kertas</p>
-                <p className="text-[24px] font-bold text-orange-700">Rp {results?.totalPrice.toLocaleString('id-ID')}</p>
+                <p className="text-[24px] font-bold text-orange-700">Rp {Math.round(results?.totalPrice || 0).toLocaleString('id-ID')}</p>
               </div>
               <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
                 <p className="text-[10px] text-rose-600 font-medium">Sisa Potongan</p>
@@ -861,7 +865,7 @@ function CalculatorPage() {
               </div>
               <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
                 <p className="text-[10px] text-teal-600 font-medium">Efisiensi Bahan</p>
-                <p className="text-xl font-bold text-teal-700">{results?.efficiency.toFixed(2)}%</p>
+                <p className="text-xl font-bold text-teal-700">{Math.round((results?.efficiency || 0) * 10) / 10}%</p>
               </div>
             </div>
 
