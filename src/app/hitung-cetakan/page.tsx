@@ -238,7 +238,7 @@ function HitungCetakanPage() {
     const isPond = finishing.name.toLowerCase().includes('pond')
 
     if (qty <= 0) {
-      return { cost: minPrice, isMin: true, breakdown: `Harga minimum: Rp ${minPrice.toLocaleString('id-ID')}` }
+      return { cost: minPrice, isMin: true, breakdown: `Harga minimum: Rp ${Math.round(minPrice).toLocaleString('id-ID')}` }
     }
 
     if (isPond) {
@@ -246,7 +246,7 @@ function HitungCetakanPage() {
         return {
           cost: minPrice,
           isMin: true,
-          breakdown: `Qty ${qty} ≤ minim ${minSheets} → Harga minimum: Rp ${minPrice.toLocaleString('id-ID')}`
+          breakdown: `Qty ${qty} ≤ minim ${minSheets} → Harga minimum: Rp ${Math.round(minPrice).toLocaleString('id-ID')}`
         }
       }
       const selisih = qty - minSheets
@@ -255,7 +255,7 @@ function HitungCetakanPage() {
       return {
         cost: total,
         isMin: false,
-        breakdown: `Harga minimum Rp ${minPrice.toLocaleString('id-ID')} + ((${qty} - ${minSheets}) × Rp ${hargaLebih.toLocaleString('id-ID')}) = Rp ${total.toLocaleString('id-ID')}`
+        breakdown: `Harga minimum Rp ${Math.round(minPrice).toLocaleString('id-ID')} + ((${qty} - ${minSheets}) × Rp ${Math.round(hargaLebih).toLocaleString('id-ID')}) = Rp ${Math.round(total).toLocaleString('id-ID')}`
       }
     }
 
@@ -264,7 +264,7 @@ function HitungCetakanPage() {
     if (qty > minSheets && hargaLebih > 0) {
       const selisih = qty - minSheets
       part1 = selisih * hargaLebih
-      part1Text = `(${qty} - ${minSheets}) × Rp ${hargaLebih.toLocaleString('id-ID')} = Rp ${part1.toLocaleString('id-ID')}`
+      part1Text = `(${qty} - ${minSheets}) × Rp ${Math.round(hargaLebih).toLocaleString('id-ID')} = Rp ${Math.round(part1).toLocaleString('id-ID')}`
     }
 
     let part2 = 0
@@ -272,23 +272,23 @@ function HitungCetakanPage() {
     if (cw > 0 && ch > 0 && hargaPerCm > 0) {
       const areaCost = cw * ch * hargaPerCm
       part2 = areaCost * qty
-      part2Text = `(${cw} × ${ch}) × Rp ${hargaPerCm.toLocaleString('id-ID')} × ${qty} = Rp ${part2.toLocaleString('id-ID')}`
+      part2Text = `(${cw} × ${ch}) × Rp ${Math.round(hargaPerCm).toLocaleString('id-ID')} × ${qty} = Rp ${Math.round(part2).toLocaleString('id-ID')}`
     }
 
     const total = part1 + part2
 
     if (total <= minPrice) {
       const parts = [part1Text, part2Text].filter(Boolean)
-      const calcText = parts.length > 0 ? `${parts.join(' + ')} = Rp ${total.toLocaleString('id-ID')} ≤ Rp ${minPrice.toLocaleString('id-ID')}` : ''
+      const calcText = parts.length > 0 ? `${parts.join(' + ')} = Rp ${Math.round(total).toLocaleString('id-ID')} ≤ Rp ${Math.round(minPrice).toLocaleString('id-ID')}` : ''
       return {
         cost: minPrice,
         isMin: true,
-        breakdown: calcText ? `${calcText} → Harga minimum: Rp ${minPrice.toLocaleString('id-ID')}` : `Harga minimum: Rp ${minPrice.toLocaleString('id-ID')}`
+        breakdown: calcText ? `${calcText} → Harga minimum: Rp ${Math.round(minPrice).toLocaleString('id-ID')}` : `Harga minimum: Rp ${Math.round(minPrice).toLocaleString('id-ID')}`
       }
     }
 
     const parts = [part1Text, part2Text].filter(Boolean)
-    const breakdown = parts.join(' + ') + ` = Rp ${total.toLocaleString('id-ID')}`
+    const breakdown = parts.join(' + ') + ` = Rp ${Math.round(total).toLocaleString('id-ID')}`
 
     return { cost: total, isMin: false, breakdown }
   }
@@ -481,7 +481,7 @@ function HitungCetakanPage() {
     const packingCost = parseInt(calc.packingCost) || 0
     const shippingCost = parseInt(calc.shippingCost) || 0
     const paperCost = (parseFloat(calc.pricePerSheet) || 0) * (parseInt(calc.quantity) || 0)
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview</title><style>*{margin:0;padding:0;box-sizing:border-box}@page{size:A4;margin:10mm}body{font-family:'Segoe UI',Arial,sans-serif;color:#1e293b}.header{text-align:center;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}.header h1{font-size:18px;font-weight:700}.header p{font-size:11px;color:#64748b;margin-top:2px}.ig{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.ii{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px}.ii .l{font-size:9px;color:#64748b;font-weight:500}.ii .v{font-size:13px;font-weight:700}.ds{margin:10px 0}.ds h3{font-size:12px;font-weight:700;margin-bottom:6px}.dr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9}.dr:last-child{border:none}.dr .dl{font-size:11px;color:#64748b}.dr .dv{font-size:12px;font-weight:600}.gt{background:linear-gradient(135deg,#059669,#0d9488);color:white;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center}.gt .gl{font-size:12px;font-weight:600}.gt .gv{font-size:18px;font-weight:800}</style></head><body><div class="header"><h1>Preview Hitung Cetakan</h1><p>${calc.printName} · ${calc.paperName}</p></div><div class="ig"><div class="ii"><p class="l">Jumlah</p><p class="v">${parseInt(calc.quantity).toLocaleString('id-ID')} lbr</p></div><div class="ii"><p class="l">Ukuran</p><p class="v">${calc.paperLength} × ${calc.paperWidth} cm</p></div><div class="ii"><p class="l">Mesin</p><p class="v">${calc.machineName}</p></div><div class="ii"><p class="l">Warna</p><p class="v">${calc.warna} warna</p></div><div class="ii"><p class="l">Ongkos Cetak</p><p class="v">Rp ${ongkosCetak.toLocaleString('id-ID')}</p></div><div class="ii"><p class="l">Kertas</p><p class="v">Rp ${paperCost.toLocaleString('id-ID')}</p></div></div>${calc.finishingName ? `<div class="ds"><h3>Finishing</h3><div class="dr"><span class="dl">${calc.finishingName}</span></div></div>` : ''}<div class="ds"><h3>Biaya Tambahan</h3><div class="dr"><span class="dl">Packing</span><span class="dv">${packingCost > 0 ? `Rp ${packingCost.toLocaleString('id-ID')}` : '-'}</span></div><div class="dr"><span class="dl">Kirim</span><span class="dv">${shippingCost > 0 ? `Rp ${shippingCost.toLocaleString('id-ID')}` : '-'}</span></div></div><div class="gt"><span class="gl">Total Harga</span><span class="gv">Rp ${calc.totalPrice.toLocaleString('id-ID')}</span></div></body></html>`
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview</title><style>*{margin:0;padding:0;box-sizing:border-box}@page{size:A4;margin:10mm}body{font-family:'Segoe UI',Arial,sans-serif;color:#1e293b}.header{text-align:center;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}.header h1{font-size:18px;font-weight:700}.header p{font-size:11px;color:#64748b;margin-top:2px}.ig{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.ii{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px}.ii .l{font-size:9px;color:#64748b;font-weight:500}.ii .v{font-size:13px;font-weight:700}.ds{margin:10px 0}.ds h3{font-size:12px;font-weight:700;margin-bottom:6px}.dr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9}.dr:last-child{border:none}.dr .dl{font-size:11px;color:#64748b}.dr .dv{font-size:12px;font-weight:600}.gt{background:linear-gradient(135deg,#059669,#0d9488);color:white;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center}.gt .gl{font-size:12px;font-weight:600}.gt .gv{font-size:18px;font-weight:800}</style></head><body><div class="header"><h1>Preview Hitung Cetakan</h1><p>${calc.printName} · ${calc.paperName}</p></div><div class="ig"><div class="ii"><p class="l">Jumlah</p><p class="v">${parseInt(calc.quantity).toLocaleString('id-ID')} lbr</p></div><div class="ii"><p class="l">Ukuran</p><p class="v">${calc.paperLength} × ${calc.paperWidth} cm</p></div><div class="ii"><p class="l">Mesin</p><p class="v">${calc.machineName}</p></div><div class="ii"><p class="l">Warna</p><p class="v">${calc.warna} warna</p></div><div class="ii"><p class="l">Ongkos Cetak</p><p class="v">Rp ${Math.round(ongkosCetak).toLocaleString('id-ID')}</p></div><div class="ii"><p class="l">Kertas</p><p class="v">Rp ${Math.round(paperCost).toLocaleString('id-ID')}</p></div></div>${calc.finishingName ? `<div class="ds"><h3>Finishing</h3><div class="dr"><span class="dl">${calc.finishingName}</span></div></div>` : ''}<div class="ds"><h3>Biaya Tambahan</h3><div class="dr"><span class="dl">Packing</span><span class="dv">${packingCost > 0 ? `Rp ${Math.round(packingCost).toLocaleString('id-ID')}` : '-'}</span></div><div class="dr"><span class="dl">Kirim</span><span class="dv">${shippingCost > 0 ? `Rp ${Math.round(shippingCost).toLocaleString('id-ID')}` : '-'}</span></div></div><div class="gt"><span class="gl">Total Harga</span><span class="gv">Rp ${Math.round(calc.totalPrice).toLocaleString('id-ID')}</span></div></body></html>`
     printWindow.document.write(html)
     printWindow.document.close()
     setTimeout(() => { printWindow.print() }, 250)
@@ -489,7 +489,7 @@ function HitungCetakanPage() {
   }
 
   const buildPrintHtml = (calc: PrintCalculation) => {
-    const rp = (n: number) => `Rp ${n.toLocaleString('id-ID')}`
+    const rp = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`
     const fmtQ = (s: string) => parseInt(s || '0').toLocaleString('id-ID')
     const now = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -1139,13 +1139,13 @@ function HitungCetakanPage() {
       machineName: selectedMachine?.machineName || '',
       hargaPlat: parseFloat(formData.hargaPlat) || 0,
       ongkosCetak: calculatedPrintingCost,
-      ongkosCetakDetail: selectedMachine ? `(Rp ${selectedMachine.pricePerColor.toLocaleString('id-ID')} × ${formData.warna || 0} warna)${parseInt(formData.warnaKhusus || '0') > 0 ? ` + (Rp ${selectedMachine.specialColorPrice.toLocaleString('id-ID')} × ${formData.warnaKhusus} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine.minimumPrintQuantity}) × Rp ${selectedMachine.priceAboveMinimumPerSheet.toLocaleString('id-ID')}` : ''} + Rp ${selectedMachine.platePricePerSheet.toLocaleString('id-ID')} × ${parseInt(formData.warna || '0') + parseInt(formData.warnaKhusus || '0')} plat` : '',
+      ongkosCetakDetail: selectedMachine ? `(Rp ${Math.round(selectedMachine.pricePerColor).toLocaleString('id-ID')} × ${formData.warna || 0} warna)${parseInt(formData.warnaKhusus || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna || '0') + parseInt(formData.warnaKhusus || '0')} plat` : '',
       machineName2: selectedMachine2?.machineName || '',
       ongkosCetak2: calculatedPrintingCost2,
-      ongkosCetak2Detail: selectedMachine2 ? `(Rp ${selectedMachine2.pricePerColor.toLocaleString('id-ID')} × ${formData.warna2 || 0} warna)${parseInt(formData.warnaKhusus2 || '0') > 0 ? ` + (Rp ${selectedMachine2.specialColorPrice.toLocaleString('id-ID')} × ${formData.warnaKhusus2} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine2.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine2.minimumPrintQuantity}) × Rp ${selectedMachine2.priceAboveMinimumPerSheet.toLocaleString('id-ID')}` : ''} + Rp ${selectedMachine2.platePricePerSheet.toLocaleString('id-ID')} × ${parseInt(formData.warna2 || '0') + parseInt(formData.warnaKhusus2 || '0')} plat` : '',
+      ongkosCetak2Detail: selectedMachine2 ? `(Rp ${Math.round(selectedMachine2.pricePerColor).toLocaleString('id-ID')} × ${formData.warna2 || 0} warna)${parseInt(formData.warnaKhusus2 || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine2.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus2} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine2.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine2.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine2.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine2.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna2 || '0') + parseInt(formData.warnaKhusus2 || '0')} plat` : '',
       totalPaperPrice,
       finishingNames: selectedFinishingItems.map(f => f.name).join(', '),
-      finishingBreakdown: selectedFinishingItems.map(f => { const r = getFinishingCost(f); return `${f.name}: ${r.breakdown} = Rp ${r.cost.toLocaleString('id-ID')}` }).join(' | '),
+      finishingBreakdown: selectedFinishingItems.map(f => { const r = getFinishingCost(f); return `${f.name}: ${r.breakdown} = Rp ${Math.round(r.cost).toLocaleString('id-ID')}` }).join(' | '),
       finishingCost: calculatedFinishingCost, packingCost: packing, shippingCost: shipping,
       biayaLain1: biayaLain1Val, biayaLain2: biayaLain2Val,
       glueCost: calculatedGlueCost, glueBoronganPerSheet: calculatedGlueBoronganSheet,
@@ -1209,7 +1209,7 @@ function HitungCetakanPage() {
     </div>
   )
 
-  const fmtNum = (n: number) => n.toLocaleString('id-ID')
+  const fmtNum = (n: number) => Math.round(n).toLocaleString('id-ID')
   const formatRp = (n: number) => `Rp ${fmtNum(n)}`
 
   return (
@@ -1277,7 +1277,7 @@ function HitungCetakanPage() {
                   </div>
                   <div>
                     <label className={labelClass}>Total Harga Kertas</label>
-                    <ValueBox label={t('kertas')} value={totalPaperPrice > 0 ? `Rp ${totalPaperPrice.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-teal-50 to-emerald-50 border-teal-200" />
+                    <ValueBox label={t('kertas')} value={totalPaperPrice > 0 ? `Rp ${Math.round(totalPaperPrice).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-teal-50 to-emerald-50 border-teal-200" />
                   </div>
                 </div>
               </div>
@@ -1311,11 +1311,11 @@ function HitungCetakanPage() {
                   </div>
                   <div>
                     <label className={labelClass}>{t('harga_plat')}</label>
-                    <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${platTotal.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
+                    <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${Math.round(platTotal).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
                   </div>
                   <div className="col-span-2">
                     <label className={labelClass}>Total Ongkos</label>
-                    <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${calculatedPrintingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
+                    <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${Math.round(calculatedPrintingCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
                   </div>
               </div>
               </div>
@@ -1347,11 +1347,11 @@ function HitungCetakanPage() {
                   </div>
                   <div>
                     <label className={labelClass}>{t('harga_plat')}</label>
-                    <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${platTotal2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
+                    <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${Math.round(platTotal2).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
                   </div>
                   <div className="col-span-2">
                     <label className={labelClass}>Total Ongkos 2</label>
-                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${Math.round(calculatedPrintingCost2).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
                   </div>
               </div>
               </div>
@@ -1390,7 +1390,7 @@ function HitungCetakanPage() {
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-slate-800 truncate">{fin.name}</p>
                             </div>
-                            <span className="text-xs font-bold text-rose-700 flex-shrink-0">Rp {cost.toLocaleString('id-ID')}</span>
+                            <span className="text-xs font-bold text-rose-700 flex-shrink-0">Rp {Math.round(cost).toLocaleString('id-ID')}</span>
                             <button onClick={() => handleRemoveFinishing(fin.id)} className="w-5 h-5 rounded bg-white border border-rose-200 hover:bg-rose-100 flex items-center justify-center flex-shrink-0"><X className="w-3 h-3 text-rose-500" /></button>
                           </div>
                         )
@@ -1398,7 +1398,7 @@ function HitungCetakanPage() {
                     </div>
                   )}
                   <div className="mt-2">
-                    <ValueBox label={`Finishing (${selectedFinishingItems.length} item)`} value={calculatedFinishingCost > 0 ? `Rp ${calculatedFinishingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
+                    <ValueBox label={`Finishing (${selectedFinishingItems.length} item)`} value={calculatedFinishingCost > 0 ? `Rp ${Math.round(calculatedFinishingCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
                   </div>
                 </div>
               </div>
@@ -1490,19 +1490,19 @@ function HitungCetakanPage() {
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-slate-600">Sub Total</span>
-                    <span className="text-base font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-base font-bold text-slate-700">Rp {Math.round(summarySubTotal).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-1.5"><Percent className="w-3.5 h-3.5 text-amber-600" /><span className="text-xs font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
-                    <span className="text-xs font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
+                    <span className="text-xs font-bold text-amber-700">Rp {Math.round(summaryProfitAmount).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div className="p-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-semibold text-white">Total Hitung Cetakan</span>
-                    <span className="text-[26px] font-semibold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[26px] font-semibold text-white">Rp {Math.round(summaryGrandTotal).toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-white/30">
@@ -1566,11 +1566,11 @@ function HitungCetakanPage() {
                   </div>
                   <div>
                     <label className={labelClass}>{t('harga_plat')}</label>
-                    <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${platTotal.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
+                    <ValueBox label="Plat" value={platTotal > 0 ? `Rp ${Math.round(platTotal).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
                   </div>
                   <div>
                     <label className={labelClass}>Total Ongkos</label>
-                    <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${calculatedPrintingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
+                    <ValueBox label={t('ongkos_cetak_label')} value={calculatedPrintingCost > 0 ? `Rp ${Math.round(calculatedPrintingCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
                   </div>
                 </div>
               </div>
@@ -1604,11 +1604,11 @@ function HitungCetakanPage() {
                   </div>
                   <div>
                     <label className={labelClass}>{t('harga_plat')}</label>
-                    <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${platTotal2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
+                    <ValueBox label="Plat 2" value={platTotal2 > 0 ? `Rp ${Math.round(platTotal2).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200" />
                   </div>
                   <div>
                     <label className={labelClass}>Total Ongkos 2</label>
-                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${calculatedPrintingCost2.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
+                    <ValueBox label="Ongkos Cetak 2" value={calculatedPrintingCost2 > 0 ? `Rp ${Math.round(calculatedPrintingCost2).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-fuchsia-50 to-violet-50 border-fuchsia-200" />
                   </div>
                 </div>
               </div>
@@ -1646,14 +1646,14 @@ function HitungCetakanPage() {
                           <div className="flex-1 min-w-0">
                             <p className="text-[10px] font-medium text-slate-800 truncate">{fin.name}</p>
                           </div>
-                          <span className="text-[10px] font-bold text-rose-700 flex-shrink-0">Rp {cost.toLocaleString('id-ID')}</span>
+                          <span className="text-[10px] font-bold text-rose-700 flex-shrink-0">Rp {Math.round(cost).toLocaleString('id-ID')}</span>
                           <button onClick={() => handleRemoveFinishing(fin.id)} className="w-4 h-4 rounded bg-white border border-rose-200 hover:bg-rose-100 flex items-center justify-center flex-shrink-0"><X className="w-2.5 h-2.5 text-rose-500" /></button>
                         </div>
                       )
                     })}
                   </div>
                 )}
-                <ValueBox label={`Finishing (${selectedFinishingItems.length} item)`} value={calculatedFinishingCost > 0 ? `Rp ${calculatedFinishingCost.toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
+                <ValueBox label={`Finishing (${selectedFinishingItems.length} item)`} value={calculatedFinishingCost > 0 ? `Rp ${Math.round(calculatedFinishingCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
               </div>
 
               {/* Ongkos Lem */}
@@ -1743,19 +1743,19 @@ function HitungCetakanPage() {
                 <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-[12px] font-medium text-slate-600">Sub Total</span>
-                    <span className="text-sm font-bold text-slate-700">Rp {summarySubTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-sm font-bold text-slate-700">Rp {Math.round(summarySubTotal).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div className="p-1.5 bg-amber-50 border border-amber-200 rounded-lg">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-1"><Percent className="w-3 h-3 text-amber-600" /><span className="text-[10px] font-medium text-amber-800">Uang Capek ({profitPercent}%)</span></div>
-                    <span className="text-[11px] font-bold text-amber-700">Rp {summaryProfitAmount.toLocaleString('id-ID')}</span>
+                    <span className="text-[11px] font-bold text-amber-700">Rp {Math.round(summaryProfitAmount).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div className="p-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-semibold text-emerald-100">Total</span>
-                    <span className="text-[20px] font-semibold text-white">Rp {summaryGrandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-[20px] font-semibold text-white">Rp {Math.round(summaryGrandTotal).toLocaleString('id-ID')}</span>
                   </div>
                   {summaryQuantity > 0 && (
                     <div className="flex justify-between items-center mt-0.5 pt-0.5 border-t border-white/30">
@@ -1804,7 +1804,7 @@ function HitungCetakanPage() {
                           {calc.finishingName && <p className="text-[10px] text-rose-500 truncate">{calc.finishingName}</p>}
                         </div>
                         <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-                          <span className="text-[11px] font-bold text-emerald-600">Rp {calc.totalPrice.toLocaleString('id-ID')}</span>
+                          <span className="text-[11px] font-bold text-emerald-600">Rp {Math.round(calc.totalPrice).toLocaleString('id-ID')}</span>
                           <div className="flex gap-0.5">
                             <button onClick={() => { setPreviewCalc(calc); setPreviewOpen(true) }} className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-violet-600 hover:bg-violet-50"><Eye className="w-3 h-3" /></button>
                             <button onClick={() => handlePrintCalc(calc)} className="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Printer className="w-3 h-3" /></button>
@@ -1817,7 +1817,7 @@ function HitungCetakanPage() {
                 </div>
                 <div className="px-2.5 py-1.5 border-t border-slate-200 bg-emerald-50 flex justify-between items-center">
                   <span className="text-[10px] font-semibold text-emerald-800">Total</span>
-                  <span className="text-[11px] font-bold text-emerald-700">Rp {calculations.reduce((s, c) => s + c.totalPrice, 0).toLocaleString('id-ID')}</span>
+                  <span className="text-[11px] font-bold text-emerald-700">Rp {Math.round(calculations.reduce((s, c) => s + c.totalPrice, 0)).toLocaleString('id-ID')}</span>
                 </div>
               </div>
             )}
@@ -1849,7 +1849,7 @@ function HitungCetakanPage() {
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                          <span className="text-sm font-bold text-emerald-600">Rp {calc.totalPrice.toLocaleString('id-ID')}</span>
+                          <span className="text-sm font-bold text-emerald-600">Rp {Math.round(calc.totalPrice).toLocaleString('id-ID')}</span>
                           <div className="flex gap-1">
                             <Button onClick={() => { setPreviewCalc(calc); setPreviewOpen(true) }} variant="outline" size="sm" className="h-7 text-[11px] text-violet-600"><Eye className="w-3 h-3" /></Button>
                             <Button onClick={() => handlePrintCalc(calc)} variant="outline" size="sm" className="h-7 text-[11px]"><Printer className="w-3 h-3" /></Button>
@@ -1862,7 +1862,7 @@ function HitungCetakanPage() {
                 </div>
                 <div className="p-4 border-t border-slate-200 bg-emerald-50 flex justify-between items-center">
                   <span className="text-xs font-semibold text-emerald-800">Total ({calculations.length} item)</span>
-                  <span className="text-lg font-bold text-emerald-700">Rp {calculations.reduce((s, c) => s + c.totalPrice, 0).toLocaleString('id-ID')}</span>
+                  <span className="text-lg font-bold text-emerald-700">Rp {Math.round(calculations.reduce((s, c) => s + c.totalPrice, 0)).toLocaleString('id-ID')}</span>
                 </div>
               </div>
             )}
