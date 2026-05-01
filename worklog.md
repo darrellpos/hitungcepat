@@ -53,3 +53,28 @@ Stage Summary:
 - Each user now has completely isolated data: form state (localStorage) + riwayat (database)
 - Admin and new demo accounts no longer share any data
 - Deployed to: https://darrellpos-new.vercel.app
+
+---
+Task ID: 3
+Agent: Main
+Task: Delete Bahan Kertas, Finishing, and Ongkos Lem sections from hitung ongkos cetak page
+
+Work Log:
+- Removed Bahan Kertas section (paper selection, custom paper inputs, paper info display, harga kertas per lembar)
+- Removed Finishing section (finishing selection, add/remove, finishing list, total finishing)
+- Removed Ongkos Lem section (panjang lem, harga per cm, glue cost)
+- Cleaned up related state variables: papers, selectedPaperId, customGrammage, customWidth, customHeight, customPricePerRim, selectedFinishingIds, panjangLem, hargaLemPerCm, hargaKertasPerLembar
+- Removed Paper and Finishing interfaces
+- Removed related API fetches (papers, finishings) - only printing-costs remains
+- Removed finishing/glue/paper calculations from useMemo
+- Updated calculation: totalOngkosCetak now only includes ongkosCetak (mesin + warna + plat)
+- Updated print handler to only show ongkos cetak info
+- Updated results panel to only show Ongkos Cetak value box
+- Updated subtitle text
+- Removed unused imports (FileText, Scissors, Plus, X, Droplets)
+- Kept: Math.round() for price rounding
+
+Stage Summary:
+- Page now only has 3 sections: Informasi, Ongkos Cetak, Jumlah Lembar
+- Results panel shows only: Ongkos Cetak, Total Ongkos Cetak, Harga per Lembar
+- No lint errors on the modified file

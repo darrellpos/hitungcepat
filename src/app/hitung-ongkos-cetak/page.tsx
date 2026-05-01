@@ -1,6 +1,6 @@
 'use client'
 
-import { FileText, Printer, RotateCcw, Calculator, Info, Scissors, Palette, Plus, X, Droplets, Layers } from 'lucide-react'
+import { Printer, RotateCcw, Calculator, Info, Palette, Layers } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -10,15 +10,6 @@ import { toast } from 'sonner'
 import { useLanguage } from '@/contexts/language-context'
 
 // === Interfaces ===
-interface Paper {
-  id: string
-  name: string
-  grammage: number
-  width: number
-  height: number
-  pricePerRim: number
-}
-
 interface PrintingCost {
   id: string
   machineName: string
@@ -32,15 +23,6 @@ interface PrintingCost {
   platePricePerSheet: number
 }
 
-interface Finishing {
-  id: string
-  name: string
-  minimumSheets: number
-  minimumPrice: number
-  additionalPrice: number
-  pricePerCm: number
-}
-
 // === CSS Classes ===
 const inputClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors'
 const selectClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors bg-white appearance-none cursor-pointer'
@@ -50,44 +32,23 @@ export default function HitungOngkosCetakPage() {
   const { t } = useLanguage()
 
   // === Data states ===
-  const [papers, setPapers] = useState<Paper[]>([])
   const [printingCosts, setPrintingCosts] = useState<PrintingCost[]>([])
-  const [finishings, setFinishings] = useState<Finishing[]>([])
 
   // === Form states ===
   const [namaCetakan, setNamaCetakan] = useState('')
-  const [selectedPaperId, setSelectedPaperId] = useState('')
-  const [customGrammage, setCustomGrammage] = useState('')
-  const [customWidth, setCustomWidth] = useState('')
-  const [customHeight, setCustomHeight] = useState('')
-  const [customPricePerRim, setCustomPricePerRim] = useState('')
   const [selectedMachineId, setSelectedMachineId] = useState('')
   const [jumlahWarna, setJumlahWarna] = useState('')
   const [warnaKhusus, setWarnaKhusus] = useState('')
   const [hargaPlat, setHargaPlat] = useState('')
-  const [selectedFinishingIds, setSelectedFinishingIds] = useState<string[]>([])
-  const [panjangLem, setPanjangLem] = useState('')
-  const [hargaLemPerCm, setHargaLemPerCm] = useState('')
   const [jumlahLembar, setJumlahLembar] = useState('')
-  const [hargaKertasPerLembar, setHargaKertasPerLembar] = useState('')
 
   // === Fetch APIs ===
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [papersRes, printingRes, finishingsRes] = await Promise.all([
-          fetcher('/api/papers', { headers: getAuthHeaders() }),
-          fetcher('/api/printing-costs', { headers: getAuthHeaders() }),
-          fetcher('/api/finishings', { headers: getAuthHeaders() }),
-        ])
-        const [papersData, printingData, finishingsData] = await Promise.all([
-          papersRes.json(),
-          printingRes.json(),
-          finishingsRes.json(),
-        ])
-        if (Array.isArray(papersData)) setPapers(papersData)
+        const printingRes = await fetcher('/api/printing-costs', { headers: getAuthHeaders() })
+        const printingData = await printingRes.json()
         if (Array.isArray(printingData)) setPrintingCosts(printingData)
-        if (Array.isArray(finishingsData)) setFinishings(finishingsData)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -96,22 +57,12 @@ export default function HitungOngkosCetakPage() {
   }, [])
 
   // === Derived values ===
-  const selectedPaper = papers.find(p => p.id === selectedPaperId) || null
-  const isCustom = selectedPaperId === '__custom__'
   const selectedMachine = printingCosts.find(m => m.id === selectedMachineId) || null
 
-  const grammage = selectedPaper ? selectedPaper.grammage : (parseFloat(customGrammage) || 0)
-  const paperWidth = selectedPaper ? selectedPaper.width : (parseFloat(customWidth) || 0)
-  const paperHeight = selectedPaper ? selectedPaper.height : (parseFloat(customHeight) || 0)
-  const pricePerRim = selectedPaper ? selectedPaper.pricePerRim : (parseFloat(customPricePerRim) || 0)
   const qty = parseInt(jumlahLembar) || 0
   const warna = parseInt(jumlahWarna) || 0
   const warnaKhususVal = parseInt(warnaKhusus) || 0
   const plat = parseFloat(hargaPlat) || 0
-  const lemCm = parseFloat(panjangLem) || 0
-  const lemPricePerCm = parseFloat(hargaLemPerCm) || 0
-  const pricePerSheet = parseFloat(hargaKertasPerLembar) || 0
-  const selectedFinishingItems = selectedFinishingIds.map(id => finishings.find(f => f.id === id)).filter(Boolean) as Finishing[]
 
   // Auto-fill hargaPlat when machine changes
   useEffect(() => {
@@ -120,20 +71,8 @@ export default function HitungOngkosCetakPage() {
     }
   }, [selectedMachine])
 
-  // Auto-fill hargaKertasPerLembar when paper changes
-  useEffect(() => {
-    if (selectedPaper && !hargaKertasPerLembar) {
-      setHargaKertasPerLembar((selectedPaper.pricePerRim / 500).toFixed(2))
-    }
-  }, [selectedPaper])
-
   // === Calculations ===
   const calculations = useMemo(() => {
-    // Paper cost
-    const autoPricePerSheet = pricePerRim > 0 ? pricePerRim / 500 : 0
-    const effectivePricePerSheet = pricePerSheet > 0 ? pricePerSheet : autoPricePerSheet
-    const totalPaperCost = effectivePricePerSheet * qty
-
     // Printing cost
     let ongkosCetak = 0
     if (selectedMachine && qty > 0 && warna > 0) {
@@ -144,79 +83,24 @@ export default function HitungOngkosCetakPage() {
       ongkosCetak += plat * (warna + warnaKhususVal)
     }
 
-    // Finishing cost
-    let totalFinishing = 0
-    selectedFinishingItems.forEach(fin => {
-      const isPond = fin.name.toLowerCase().includes('pond')
-      if (isPond) {
-        if (qty <= fin.minimumSheets) {
-          totalFinishing += fin.minimumPrice
-        } else {
-          totalFinishing += fin.minimumPrice + (qty - fin.minimumSheets) * fin.additionalPrice
-        }
-      } else {
-        let part1 = 0
-        if (qty > fin.minimumSheets && fin.additionalPrice > 0) {
-          part1 = (qty - fin.minimumSheets) * fin.additionalPrice
-        }
-        let part2 = 0
-        if (paperWidth > 0 && paperHeight > 0 && fin.pricePerCm > 0) {
-          part2 = paperWidth * paperHeight * fin.pricePerCm * qty
-        }
-        const total = part1 + part2
-        totalFinishing += Math.max(total, fin.minimumPrice)
-      }
-    })
-
-    // Glue cost
-    const glueCost = (lemCm > 0 && lemPricePerCm > 0 && qty > 0) ? lemCm * lemPricePerCm * qty : 0
-
-    // Total
-    const totalOngkosCetak = totalPaperCost + ongkosCetak + totalFinishing + glueCost
-    const hargaPerLembar = qty > 0 ? totalOngkosCetak / qty : 0
+    const totalOngkosCetak = Math.round(ongkosCetak)
+    const hargaPerLembar = qty > 0 ? Math.round(totalOngkosCetak / qty) : 0
 
     return {
-      effectivePricePerSheet,
-      totalPaperCost,
-      ongkosCetak,
-      totalFinishing,
-      glueCost,
+      ongkosCetak: totalOngkosCetak,
       totalOngkosCetak,
       hargaPerLembar,
     }
-  }, [pricePerRim, pricePerSheet, qty, selectedMachine, warna, warnaKhususVal, plat, selectedFinishingItems, lemCm, lemPricePerCm, paperWidth, paperHeight])
+  }, [qty, selectedMachine, warna, warnaKhususVal, plat])
 
   // === Handlers ===
-  const handleAddFinishing = (finishingId: string) => {
-    if (finishingId && !selectedFinishingIds.includes(finishingId)) {
-      setSelectedFinishingIds([...selectedFinishingIds, finishingId])
-      toast.success('Finishing berhasil ditambahkan')
-    } else if (selectedFinishingIds.includes(finishingId)) {
-      toast.error('Finishing ini sudah ditambahkan')
-    }
-  }
-
-  const handleRemoveFinishing = (finishingId: string) => {
-    setSelectedFinishingIds(selectedFinishingIds.filter(id => id !== finishingId))
-    toast.success('Finishing berhasil dihapus')
-  }
-
   const handleReset = () => {
     setNamaCetakan('')
-    setSelectedPaperId('')
-    setCustomGrammage('')
-    setCustomWidth('')
-    setCustomHeight('')
-    setCustomPricePerRim('')
     setSelectedMachineId('')
     setJumlahWarna('')
     setWarnaKhusus('')
     setHargaPlat('')
-    setSelectedFinishingIds([])
-    setPanjangLem('')
-    setHargaLemPerCm('')
     setJumlahLembar('')
-    setHargaKertasPerLembar('')
     toast.success('Form berhasil direset')
   }
 
@@ -225,9 +109,7 @@ export default function HitungOngkosCetakPage() {
     const printWindow = window.open('', '', 'height=900,width=700')
     if (!printWindow) { toast.error('Gagal membuka jendela print'); return }
     const now = new Date().toLocaleString('id-ID')
-    const paperName = selectedPaper ? selectedPaper.name : (isCustom ? 'Custom' : '-')
     const machineName = selectedMachine?.machineName || '-'
-    const finishingNames = selectedFinishingItems.map(f => f.name).join(', ') || '-'
     const fmt = (n: number) => `Rp ${n.toLocaleString('id-ID')}`
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hitung Ongkos Cetak</title>
       <style>
@@ -273,41 +155,21 @@ export default function HitungOngkosCetakPage() {
         <div class="info-grid">
           <div class="info-item"><div class="label">Nama Cetakan</div><div class="value">${namaCetakan || '-'}</div></div>
           <div class="info-item"><div class="label">Jumlah Lembar</div><div class="value">${qty.toLocaleString('id-ID')} lbr</div></div>
-          <div class="info-item"><div class="label">Bahan Kertas</div><div class="value">${paperName}${grammage > 0 ? ` (${grammage} gsm)` : ''}</div></div>
           <div class="info-item"><div class="label">Mesin Cetak</div><div class="value">${machineName}</div></div>
+          <div class="info-item"><div class="label">Jumlah Warna</div><div class="value">${warna} warna${warnaKhususVal > 0 ? ` + ${warnaKhususVal} khusus` : ''}</div></div>
         </div>
 
         <div class="section-title">&#9432; Rincian Biaya</div>
         <table class="detail-table">
           <thead><tr><th>Keterangan</th><th class="text-right">Nilai</th></tr></thead>
           <tbody>
-            <tr><td>Harga Kertas / Lembar</td><td class="text-right">${fmt(calculations.effectivePricePerSheet)}</td></tr>
-            <tr><td>Total Harga Kertas (${qty.toLocaleString('id-ID')} lbr)</td><td class="text-right text-bold">${fmt(calculations.totalPaperCost)}</td></tr>
             <tr><td>Ongkos Cetak (${warna} warna${warnaKhususVal > 0 ? ` + ${warnaKhususVal} khusus` : ''})</td><td class="text-right text-bold">${fmt(calculations.ongkosCetak)}</td></tr>
-            <tr><td>Finishing (${finishingNames})</td><td class="text-right text-bold">${fmt(calculations.totalFinishing)}</td></tr>
-            <tr><td>Ongkos Lem${lemCm > 0 ? ` (${lemCm} cm × ${fmt(lemPricePerCm)}/cm × ${qty.toLocaleString('id-ID')})` : ''}</td><td class="text-right">${calculations.glueCost > 0 ? fmt(calculations.glueCost) : '-'}</td></tr>
           </tbody>
         </table>
 
-        <div class="value-box" style="background:#eff6ff;border-color:#bfdbfe;">
-          <span class="lbl">Harga Kertas / Lembar</span>
-          <span class="val">${fmt(calculations.effectivePricePerSheet)}</span>
-        </div>
-        <div class="value-box" style="background:#dcfce7;border-color:#bbf7d0;">
-          <span class="lbl">Total Harga Kertas</span>
-          <span class="val">${fmt(calculations.totalPaperCost)}</span>
-        </div>
         <div class="value-box" style="background:#f3e8ff;border-color:#e9d5ff;">
           <span class="lbl">Ongkos Cetak</span>
           <span class="val">${fmt(calculations.ongkosCetak)}</span>
-        </div>
-        <div class="value-box" style="background:#fef3c7;border-color:#fde68a;">
-          <span class="lbl">Total Finishing</span>
-          <span class="val">${fmt(calculations.totalFinishing)}</span>
-        </div>
-        <div class="value-box" style="background:#ecfeff;border-color:#a5f3fc;">
-          <span class="lbl">Ongkos Lem</span>
-          <span class="val">${calculations.glueCost > 0 ? fmt(calculations.glueCost) : 'Rp 0'}</span>
         </div>
 
         <div class="total-card">
@@ -345,7 +207,7 @@ export default function HitungOngkosCetakPage() {
 
   // === Render ===
   return (
-    <DashboardLayout title="Hitung Ongkos Cetak" subtitle="Kalkulator ongkos cetak lengkap termasuk bahan kertas, cetak, finishing, dan lem">
+    <DashboardLayout title="Hitung Ongkos Cetak" subtitle="Kalkulator ongkos cetak - mesin, warna, dan plat">
       <div className="max-w-[1100px] mx-auto">
         <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-4">
 
@@ -362,61 +224,7 @@ export default function HitungOngkosCetakPage() {
                 </div>
               </div>
 
-              {/* Section 2: Bahan Kertas */}
-              <SectionHeader icon={<FileText className="w-3.5 h-3.5 text-amber-600" />} label="Bahan Kertas" color="amber" />
-              <div className="px-4 py-3 space-y-3">
-                <div>
-                  <label className={labelClass}>Pilih Kertas</label>
-                  <select value={selectedPaperId} onChange={(e) => setSelectedPaperId(e.target.value)} className={selectClass}>
-                    <option value="">Pilih dari master</option>
-                    <option value="__custom__">Custom (Input Manual)</option>
-                    {papers.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name} — {p.grammage}gsm — {p.width}×{p.height}cm — {fmt(p.pricePerRim)}/rim</option>
-                    ))}
-                  </select>
-                </div>
-
-                {isCustom && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className={labelClass}>Gramatur (gsm)</label>
-                      <input type="number" min="0" placeholder="120" value={customGrammage} onChange={(e) => setCustomGrammage(e.target.value)} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Harga per Rim (Rp)</label>
-                      <input type="number" min="0" placeholder="1500000" value={customPricePerRim} onChange={(e) => setCustomPricePerRim(e.target.value)} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Lebar Kertas (cm)</label>
-                      <input type="number" step="0.1" min="0" placeholder="79" value={customWidth} onChange={(e) => setCustomWidth(e.target.value)} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Tinggi Kertas (cm)</label>
-                      <input type="number" step="0.1" min="0" placeholder="109" value={customHeight} onChange={(e) => setCustomHeight(e.target.value)} className={inputClass} />
-                    </div>
-                  </div>
-                )}
-
-                {selectedPaper && !isCustom && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                      <span className="text-[11px] text-amber-600">Kertas</span>
-                      <p className="text-sm font-bold text-amber-800">{selectedPaper.name} ({selectedPaper.grammage}gsm)</p>
-                    </div>
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                      <span className="text-[11px] text-amber-600">Ukuran</span>
-                      <p className="text-sm font-bold text-amber-800">{selectedPaper.width} × {selectedPaper.height} cm</p>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className={labelClass}>Harga Kertas per Lembar (Rp)</label>
-                  <input type="number" step="0.01" min="0" placeholder={selectedPaper ? (selectedPaper.pricePerRim / 500).toFixed(2) : '0'} value={hargaKertasPerLembar} onChange={(e) => setHargaKertasPerLembar(e.target.value)} className={inputClass} />
-                </div>
-              </div>
-
-              {/* Section 3: Ongkos Cetak */}
+              {/* Section 2: Ongkos Cetak */}
               <SectionHeader icon={<Calculator className="w-3.5 h-3.5 text-purple-600" />} label="Ongkos Cetak" color="purple" />
               <div className="px-4 py-3 space-y-3">
                 <div>
@@ -467,60 +275,7 @@ export default function HitungOngkosCetakPage() {
                 )}
               </div>
 
-              {/* Section 4: Finishing */}
-              <SectionHeader icon={<Scissors className="w-3.5 h-3.5 text-rose-600" />} label="Finishing" color="rose" badge={selectedFinishingIds.length > 0 ? `${selectedFinishingIds.length} item` : undefined} />
-              <div className="px-4 py-3 space-y-3">
-                <div>
-                  <label className={labelClass}>Tambah Finishing</label>
-                  <div className="flex gap-2">
-                    <select className={`${selectClass} flex-1`} value="" onChange={(e) => { if (e.target.value) handleAddFinishing(e.target.value) }}>
-                      <option value="">Pilih finishing...</option>
-                      {finishings.filter(f => !selectedFinishingIds.includes(f.id)).map((f) => (
-                        <option key={f.id} value={f.id}>{f.name} (min: {fmt(f.minimumPrice)})</option>
-                      ))}
-                    </select>
-                    <Button variant="outline" size="sm" className="px-3 flex-shrink-0" disabled>
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {selectedFinishingItems.length > 0 && (
-                  <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                    {selectedFinishingItems.map((fin) => (
-                      <div key={fin.id} className="flex items-center justify-between bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
-                        <div>
-                          <p className="text-sm font-semibold text-rose-800">{fin.name}</p>
-                          <p className="text-[11px] text-rose-600">Min: {fin.minimumSheets} lbr · {fmt(fin.minimumPrice)} · +{fmt(fin.additionalPrice)}/lbr · {fmt(fin.pricePerCm)}/cm²</p>
-                        </div>
-                        <button onClick={() => handleRemoveFinishing(fin.id)} className="w-7 h-7 rounded-md bg-rose-200 hover:bg-rose-300 flex items-center justify-center transition-colors">
-                          <X className="w-3.5 h-3.5 text-rose-700" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <ValueBox label="Total Finishing" value={calculations.totalFinishing > 0 ? fmt(calculations.totalFinishing) : 'Rp 0'} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
-              </div>
-
-              {/* Section 5: Ongkos Lem */}
-              <SectionHeader icon={<Droplets className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" color="cyan" />
-              <div className="px-4 py-3 space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelClass}>Panjang Lem (cm)</label>
-                    <input type="number" step="0.1" min="0" placeholder="0" value={panjangLem} onChange={(e) => setPanjangLem(e.target.value)} className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Harga per cm (Rp)</label>
-                    <input type="number" step="0.01" min="0" placeholder="0" value={hargaLemPerCm} onChange={(e) => setHargaLemPerCm(e.target.value)} className={inputClass} />
-                  </div>
-                </div>
-                <ValueBox label="Ongkos Lem" value={calculations.glueCost > 0 ? fmt(calculations.glueCost) : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-sky-50 border-cyan-200" />
-              </div>
-
-              {/* Section 6: Jumlah Lembar */}
+              {/* Section 3: Jumlah Lembar */}
               <SectionHeader icon={<Layers className="w-3.5 h-3.5 text-emerald-600" />} label="Jumlah Lembar" color="emerald" />
               <div className="px-4 py-3">
                 <div>
@@ -554,11 +309,7 @@ export default function HitungOngkosCetakPage() {
                 {qty > 0 ? (
                   <>
                     <div className="space-y-1.5">
-                      <ValueBox label="Harga Kertas / Lembar" value={fmt(calculations.effectivePricePerSheet)} gradient="bg-gradient-to-r from-teal-50 to-emerald-50 border-teal-200" />
-                      <ValueBox label="Total Harga Kertas" value={fmt(calculations.totalPaperCost)} gradient="bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200" />
                       <ValueBox label="Ongkos Cetak" value={fmt(calculations.ongkosCetak)} gradient="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200" />
-                      <ValueBox label="Total Finishing" value={fmt(calculations.totalFinishing)} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
-                      <ValueBox label="Ongkos Lem" value={calculations.glueCost > 0 ? fmt(calculations.glueCost) : 'Rp 0'} gradient="bg-gradient-to-r from-cyan-50 to-sky-50 border-cyan-200" />
                     </div>
 
                     <div className="space-y-1.5 pt-2 border-t border-slate-100">
