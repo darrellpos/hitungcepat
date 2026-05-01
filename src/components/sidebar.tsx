@@ -37,14 +37,14 @@ const menuItems = [
     href: '/potong-kertas',
     icon: Scissors,
     featureId: 'potong-kertas',
-    section: 'hitung_biaya_total',
+    section: 'hitung_biaya_produksi',
   },
   {
     titleKey: 'hitung_cetakan' as TranslationKey,
     href: '/hitung-cetakan',
     icon: Calculator,
     featureId: 'hitung-cetakan',
-    section: 'hitung_biaya_total',
+    section: 'hitung_biaya_produksi',
   },
   {
     titleKey: 'hitung_finishing' as TranslationKey,

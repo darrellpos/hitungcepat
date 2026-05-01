@@ -22,7 +22,7 @@ export const translations = {
     delete_selected: 'Hapus Terpilih',
 
     // Sidebar
-    hitung_biaya_total: 'Hitung Biaya Produksi',
+    hitung_biaya_produksi: 'Hitung Biaya Produksi',
     potong_kertas: 'Potong Kertas',
     hitung_cetakan: 'Hitung Cetakan',
     biaya_produksi: 'Biaya Produksi',
@@ -35,6 +35,7 @@ export const translations = {
     master_ongkos_cetak: 'Master Ongkos Cetak',
     master_finishing: 'Master Finishing',
     master_customer: 'Master Customer',
+    riwayat_hitung: 'Riwayat Hitung',
     riwayat: 'Riwayat',
     administrasi: 'Administrasi',
     hak_akses: 'Hak Akses',
@@ -303,8 +304,8 @@ export const translations = {
     delete_selected: 'Delete Selected',
 
     // Sidebar
-    hitung_biaya_total: 'Total Production Cost',
-    potong_kertas: 'Paper Cutting',
+    hitung_biaya_produksi: 'Hitung Biaya Produksi',
+    potong_kertas: 'Potong Kertas',
     hitung_cetakan: 'Print Calculator',
     biaya_produksi: 'Production Cost',
     hitung_finishing: 'Finishing Calculator',
@@ -316,6 +317,7 @@ export const translations = {
     master_ongkos_cetak: 'Print Cost Master',
     master_finishing: 'Finishing Master',
     master_customer: 'Customer Master',
+    riwayat_hitung: 'Calculation History',
     riwayat: 'History',
     administrasi: 'Administration',
     hak_akses: 'Access Rights',
