@@ -1,6 +1,6 @@
 'use client'
 
-import { FileText, Printer, RotateCcw, Calculator, Ruler, Info } from 'lucide-react'
+import { FileText, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -24,6 +24,7 @@ const labelClass = 'flex items-center gap-1.5 text-xs font-medium text-slate-700
 
 export default function HitungHargaKertasPage() {
   const { t } = useLanguage()
+  const STORAGE_KEY = 'darrellpos-hitung-harga-kertas'
   const [papers, setPapers] = useState<Paper[]>([])
   const [selectedPaperId, setSelectedPaperId] = useState('')
   const [namaCetakan, setNamaCetakan] = useState('')
@@ -32,6 +33,7 @@ export default function HitungHargaKertasPage() {
   const [customHeight, setCustomHeight] = useState('')
   const [customPricePerRim, setCustomPricePerRim] = useState('')
   const [quantity, setQuantity] = useState('')
+  const [mounted, setMounted] = useState(false)
 
   const fetchPapers = async () => {
     try {
@@ -42,6 +44,31 @@ export default function HitungHargaKertasPage() {
       console.error('Error fetching papers:', error)
     }
   }
+
+  // === localStorage ===
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const data = JSON.parse(saved)
+        if (data.selectedPaperId) setSelectedPaperId(data.selectedPaperId)
+        if (data.namaCetakan) setNamaCetakan(data.namaCetakan)
+        if (data.customGrammage) setCustomGrammage(data.customGrammage)
+        if (data.customWidth) setCustomWidth(data.customWidth)
+        if (data.customHeight) setCustomHeight(data.customHeight)
+        if (data.customPricePerRim) setCustomPricePerRim(data.customPricePerRim)
+        if (data.quantity) setQuantity(data.quantity)
+      }
+    } catch {}
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      selectedPaperId, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity
+    }))
+  }, [mounted, selectedPaperId, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity])
 
   useEffect(() => { fetchPapers() }, [])
 
@@ -57,14 +84,14 @@ export default function HitungHargaKertasPage() {
   const calculations = useMemo(() => {
     if (pricePerRim <= 0) return null
 
-    const pricePerSheet = pricePerRim / 500
+    const pricePerSheet = Math.round(pricePerRim / 500)
     const areaCm2 = paperWidth * paperHeight
     const areaM2 = areaCm2 / 10000
-    const pricePerM2 = areaM2 > 0 ? pricePerSheet / areaM2 : 0
+    const pricePerM2 = areaM2 > 0 ? Math.round(pricePerSheet / areaM2) : 0
     const weightPerSheetGram = areaM2 > 0 ? grammage * areaM2 : 0
     const weightPerRimKg = (weightPerSheetGram * 500) / 1000
-    const totalPrice = pricePerSheet * qty
-    const costPerPiece = qty > 0 ? totalPrice / qty : 0
+    const totalPrice = Math.round(pricePerSheet * qty)
+    const costPerPiece = qty > 0 ? Math.round(totalPrice / qty) : 0
     const totalWeightKg = (weightPerSheetGram * qty) / 1000
 
     return {
@@ -87,7 +114,46 @@ export default function HitungHargaKertasPage() {
     setCustomHeight('')
     setCustomPricePerRim('')
     setQuantity('')
+    localStorage.removeItem(STORAGE_KEY)
     toast.success('Form berhasil direset')
+  }
+
+  const handleWhatsApp = () => {
+    if (!calculations) { toast.error('Masukkan data kertas terlebih dahulu'); return }
+    const paperName = selectedPaper ? selectedPaper.name : 'Custom'
+    const message = `*Hitung Harga Kertas - DarrellPOS*
+
+` +
+      `Nama: ${namaCetakan || '-'}
+` +
+      `Kertas: ${paperName} (${grammage} gsm)
+` +
+      `Ukuran: ${paperWidth} × ${paperHeight} cm
+` +
+      `Harga/Rim: Rp ${pricePerRim.toLocaleString('id-ID')}
+
+` +
+      `*Hasil:*
+` +
+      `Harga/Lembar: Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}
+` +
+      `Harga/m²: Rp ${calculations.pricePerM2.toLocaleString('id-ID')}
+` +
+      `Berat/Lembar: ${calculations.weightPerSheetGram.toFixed(1)} gram
+` +
+      `Berat/Rim: ${calculations.weightPerRimKg.toFixed(2)} kg` +
+      (qty > 0 ? `
+
+Total Harga (${qty.toLocaleString('id-ID')} lbr): Rp ${calculations.totalPrice.toLocaleString('id-ID')}
+Harga/Lembar: Rp ${calculations.costPerPiece.toLocaleString('id-ID')}
+Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
+    const encoded = encodeURIComponent(message)
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    const url = isMobile
+      ? `https://wa.me/?text=${encoded}`
+      : `https://web.whatsapp.com/send?text=${encoded}`
+    window.open(url, '_blank')
+    toast.success('Membuka WhatsApp...')
   }
 
   const handlePrint = () => {
@@ -158,7 +224,7 @@ export default function HitungHargaKertasPage() {
 
   return (
     <DashboardLayout title="Hitung Harga Kertas" subtitle="Kalkulator harga kertas per lembar, per m², dan per rim">
-      <div className="max-w-[900px] mx-auto">
+      <div className="max-w-[1100px] mx-auto">
         <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-4">
 
           <div className="flex-1 lg:overflow-y-auto min-w-0 hide-scrollbar">
@@ -244,7 +310,7 @@ export default function HitungHargaKertasPage() {
             </div>
           </div>
 
-          <div className="w-full lg:w-[280px] flex-shrink-0 mt-4 lg:mt-0">
+          <div className="w-full lg:w-[380px] flex-shrink-0 mt-4 lg:mt-0">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:sticky lg:top-4">
               <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
                 <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">
@@ -289,14 +355,6 @@ export default function HitungHargaKertasPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2 pt-1">
-                      <Button onClick={handlePrint} className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white" size="sm">
-                        <Printer className="w-4 h-4" /> Cetak
-                      </Button>
-                      <Button onClick={handleReset} variant="outline" className="w-full gap-2" size="sm">
-                        <RotateCcw className="w-4 h-4" /> Reset
-                      </Button>
-                    </div>
                   </>
                 ) : (
                   <div className="py-6 text-center">
@@ -304,6 +362,35 @@ export default function HitungHargaKertasPage() {
                     <p className="text-xs text-slate-400">Masukkan harga per rim untuk melihat hasil</p>
                   </div>
                 )}
+
+                {/* Actions */}
+                <div className="space-y-2 pt-1">
+                  <Button
+                    onClick={handleWhatsApp}
+                    disabled={!calculations}
+                    className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                  >
+                    <MessageCircle className="w-4 h-4" /> Kirim ke WhatsApp
+                  </Button>
+                  <Button
+                    onClick={handlePrint}
+                    disabled={!calculations}
+                    className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    size="sm"
+                  >
+                    <Printer className="w-4 h-4" /> Cetak
+                  </Button>
+                  <Button
+                    onClick={handleReset}
+                    disabled={!calculations}
+                    variant="outline"
+                    className="w-full gap-2"
+                    size="sm"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Reset
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
