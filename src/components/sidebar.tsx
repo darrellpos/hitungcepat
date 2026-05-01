@@ -49,18 +49,21 @@ const menuItems = [
     href: '/hitung-finishing',
     icon: Paintbrush,
     featureId: 'hitung-finishing',
+    section: 'biaya_produksi',
   },
   {
     titleKey: 'hitung_ongkos_cetak' as TranslationKey,
     href: '/hitung-ongkos-cetak',
     icon: DollarSign,
     featureId: 'hitung-ongkos-cetak',
+    section: 'biaya_produksi',
   },
   {
     titleKey: 'hitung_harga_kertas' as TranslationKey,
     href: '/hitung-harga-kertas',
     icon: FileText,
     featureId: 'hitung-harga-kertas',
+    section: 'biaya_produksi',
   },
 
   {
@@ -199,8 +202,20 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
             </div>
           </div>
 
-          {filteredMenuItems.map((item, idx) => (
+          {filteredMenuItems.map((item, idx) => {
+            // Show section label if this item has a section and the previous item doesn't share the same section
+            const prevSection = idx > 0 ? (filteredMenuItems[idx - 1] as any).section : undefined
+            const showSection = item.section && item.section !== prevSection
+
+            return (
             <div key={item.href}>
+              {showSection && (
+                <div className="mt-4 mb-1 px-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--app-sidebar-text-muted)' }}>
+                    {t(item.section as TranslationKey)}
+                  </span>
+                </div>
+              )}
               {item.submenu ? (
                 <div>
                   <Link
@@ -257,7 +272,8 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                 </Link>
               )}
             </div>
-          ))}
+            )
+          })}
         </nav>
 
         {/* User Info & Logout */}

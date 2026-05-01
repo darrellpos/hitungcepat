@@ -24,6 +24,7 @@ export const translations = {
     // Sidebar
     potong_kertas: 'Potong Kertas',
     hitung_cetakan: 'Hitung Cetakan',
+    biaya_produksi: 'Biaya Produksi',
     hitung_finishing: 'Hitung Finishing',
     hitung_ongkos_kertas: 'Hitung Ongkos Cetak',
     hitung_ongkos_cetak: 'Hitung Ongkos Cetak',
@@ -302,6 +303,7 @@ export const translations = {
     // Sidebar
     potong_kertas: 'Paper Cutting',
     hitung_cetakan: 'Print Calculator',
+    biaya_produksi: 'Production Cost',
     hitung_finishing: 'Finishing Calculator',
     hitung_ongkos_kertas: 'Paper Cost Calculator',
     hitung_ongkos_cetak: 'Print Cost Calculator',
