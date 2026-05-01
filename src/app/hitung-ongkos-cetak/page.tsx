@@ -146,7 +146,14 @@ Jumlah Lembar: ${qty.toLocaleString('id-ID')}
 Ongkos Cetak: ${fmt(calculations.ongkosCetak)}
 Total Ongkos Cetak: ${fmt(calculations.totalOngkosCetak)}
 Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank')
+    const encoded = encodeURIComponent(message)
+    // On mobile: open WhatsApp app directly (works for both WhatsApp & WhatsApp Business)
+    // On desktop: open WhatsApp Web
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    const url = isMobile
+      ? `https://wa.me/?text=${encoded}`
+      : `https://web.whatsapp.com/send?text=${encoded}`
+    window.open(url, '_blank')
   }
 
   const handlePrint = () => {
