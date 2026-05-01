@@ -22,6 +22,7 @@ export const translations = {
     delete_selected: 'Hapus Terpilih',
 
     // Sidebar
+    hitung_biaya_total: 'Hitung Biaya Total Produksi',
     potong_kertas: 'Potong Kertas',
     hitung_cetakan: 'Hitung Cetakan',
     biaya_produksi: 'Biaya Produksi',
@@ -302,6 +303,7 @@ export const translations = {
     delete_selected: 'Delete Selected',
 
     // Sidebar
+    hitung_biaya_total: 'Total Production Cost',
     potong_kertas: 'Paper Cutting',
     hitung_cetakan: 'Print Calculator',
     biaya_produksi: 'Production Cost',
