@@ -56,6 +56,12 @@ const menuItems = [
     icon: DollarSign,
     featureId: 'hitung-ongkos-kertas',
   },
+  {
+    titleKey: 'hitung_harga_kertas' as TranslationKey,
+    href: '/hitung-harga-kertas',
+    icon: FileText,
+    featureId: 'hitung-harga-kertas',
+  },
 
   {
     titleKey: 'master_harga_kertas' as TranslationKey,
