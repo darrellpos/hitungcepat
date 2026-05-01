@@ -215,6 +215,7 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
             <div key={item.href}>
               {showSection && (
                 <div className="mt-4 mb-1 px-3">
+                  <div className="border-t mb-2" style={{ borderColor: 'var(--app-sidebar-border)' }}></div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--app-sidebar-text-muted)' }}>
                     {t(item.section as TranslationKey)}
                   </span>
