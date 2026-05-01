@@ -324,33 +324,43 @@ Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
                   <>
                     <div className="space-y-1.5">
                       <ValueBox label="Harga / Lembar" value={`Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}`} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
-                      <ValueBox label="Harga / m²" value={`Rp ${Math.round(calculations.pricePerM2).toLocaleString('id-ID')}`} gradient="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200" />
-                      <ValueBox label="Berat / Lembar" value={`${calculations.weightPerSheetGram.toFixed(1)} gram`} gradient="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200" />
-                      <ValueBox label="Berat / Rim" value={`${calculations.weightPerRimKg.toFixed(2)} kg`} gradient="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200" />
+                      <ValueBox label="Berat / Lembar" value={`${Math.round(calculations.weightPerSheetGram)} gram`} gradient="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200" />
+                      <ValueBox label="Berat / Rim" value={`${Math.round(calculations.weightPerRimKg)} kg`} gradient="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200" />
                     </div>
 
                     {qty > 0 && (
                       <div className="space-y-1.5 pt-2 border-t border-slate-100">
                         <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
+                          <span className="text-[11px] text-slate-600">Harga / Lembar</span>
+                          <span className="text-xs font-semibold text-slate-700">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
                           <span className="text-[11px] text-slate-600">Total Harga</span>
-                          <span className="text-xs font-semibold text-slate-700">Rp {calculations.totalPrice.toLocaleString('id-ID')}</span>
+                          <span className="text-xs font-semibold text-slate-700">Rp ${calculations.totalPrice.toLocaleString('id-ID')}</span>
                         </div>
                         <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
                           <span className="text-[11px] text-slate-600">Total Berat</span>
-                          <span className="text-xs font-semibold text-slate-700">{calculations.totalWeightKg.toFixed(2)} kg</span>
+                          <span className="text-xs font-semibold text-slate-700">${Math.round(calculations.totalWeightKg)} kg</span>
                         </div>
                       </div>
                     )}
 
                     <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl p-3.5 text-white">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold">Harga / Lembar</span>
-                        <span className="text-lg font-extrabold">Rp {calculations.pricePerSheet.toLocaleString('id-ID')}</span>
-                      </div>
+                      {qty > 0 ? (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold">Total Harga</span>
+                          <span className="text-lg font-extrabold">Rp ${calculations.totalPrice.toLocaleString('id-ID')}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold">Harga / Lembar</span>
+                          <span className="text-lg font-extrabold">Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}</span>
+                        </div>
+                      )}
                       {qty > 0 && (
                         <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/20">
-                          <span className="text-[11px] opacity-80">Total ({qty.toLocaleString('id-ID')} lbr)</span>
-                          <span className="text-xs font-bold">Rp {calculations.totalPrice.toLocaleString('id-ID')}</span>
+                          <span className="text-[11px] opacity-80">Harga / Lembar</span>
+                          <span className="text-xs font-bold">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</span>
                         </div>
                       )}
                     </div>
