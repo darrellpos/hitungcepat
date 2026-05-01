@@ -226,7 +226,12 @@ export default function HitungFinishingPage() {
       `\n\n━━━━━━━━━━━━━━━\n` +
       `💵 *Total:* ${fmt(totalCost)}\n` +
       `📊 *Per Lembar:* ${fmt(hargaPerLembar)}`
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+    const encoded = encodeURIComponent(text)
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    const url = isMobile
+      ? `https://wa.me/?text=${encoded}`
+      : `https://web.whatsapp.com/send?text=${encoded}`
+    window.open(url, '_blank')
     toast.success('Membuka WhatsApp...')
   }
 
