@@ -227,10 +227,18 @@ export default function HitungFinishingPage() {
       `💵 *Total:* ${fmt(totalCost)}\n` +
       `📊 *Per Lembar:* ${fmt(hargaPerLembar)}`
     const encoded = encodeURIComponent(text)
+    const isAndroid = /Android/i.test(navigator.userAgent)
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-    const url = isMobile
-      ? `https://wa.me/?text=${encoded}`
-      : `https://web.whatsapp.com/send?text=${encoded}`
+    let url: string
+    if (isAndroid) {
+      // Android: pakai intent untuk buka WhatsApp Business (com.whatsapp.w4b)
+      const fallback = `https://wa.me/?text=${encoded}`
+      url = `intent://send?text=${encoded}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=${encodeURIComponent(fallback)};end`
+    } else if (isMobile) {
+      url = `https://wa.me/?text=${encoded}`
+    } else {
+      url = `https://web.whatsapp.com/send?text=${encoded}`
+    }
     window.open(url, '_blank')
     toast.success('Membuka WhatsApp...')
   }
