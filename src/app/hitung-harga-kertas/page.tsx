@@ -403,3 +403,4 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
     </DashboardLayout>
   )
 }
+
