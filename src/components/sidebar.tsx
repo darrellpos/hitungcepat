@@ -71,24 +71,28 @@ const menuItems = [
     href: '/master-harga-kertas',
     icon: FileText,
     featureId: 'master-harga-kertas',
+    section: 'master_cetakan',
   },
   {
     titleKey: 'master_ongkos_cetak' as TranslationKey,
     href: '/master-ongkos-cetak',
     icon: DollarSign,
     featureId: 'master-ongkos-cetak',
+    section: 'master_cetakan',
   },
   {
     titleKey: 'master_finishing' as TranslationKey,
     href: '/master-finishing',
     icon: Layers,
     featureId: 'master-finishing',
+    section: 'master_cetakan',
   },
   {
     titleKey: 'master_customer' as TranslationKey,
     href: '/master-customer',
     icon: Users,
     featureId: 'master-customer',
+    section: 'master_cetakan',
   },
   {
     titleKey: 'riwayat' as TranslationKey,
