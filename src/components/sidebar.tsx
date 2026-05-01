@@ -209,7 +209,9 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
           {filteredMenuItems.map((item, idx) => {
             // Show section label if this item has a section and the previous item doesn't share the same section
             const prevSection = idx > 0 ? (filteredMenuItems[idx - 1] as any).section : undefined
+            const nextSection = idx < filteredMenuItems.length - 1 ? (filteredMenuItems[idx + 1] as any).section : undefined
             const showSection = item.section && item.section !== prevSection
+            const showSectionEnd = item.section && item.section !== nextSection
 
             return (
             <div key={item.href}>
@@ -275,6 +277,11 @@ export function Sidebar({ username, role, onLogout, isOpen = true, onToggle, per
                   <item.icon className="w-5 h-5 flex-shrink-0" />
                   <span className={cn("transition-opacity", !isOpen && "lg:opacity-100 opacity-0")}>{t(item.titleKey)}</span>
                 </Link>
+              )}
+              {showSectionEnd && (
+                <div className="mt-2 mb-1 px-3">
+                  <div className="border-b" style={{ borderColor: 'var(--app-sidebar-border)' }}></div>
+                </div>
               )}
             </div>
             )
