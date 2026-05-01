@@ -310,7 +310,7 @@ export default function HitungFinishingPage() {
 
   return (
     <DashboardLayout title="Hitung Finishing" subtitle="Kalkulator biaya finishing cetakan">
-      <div className="max-w-[900px] mx-auto">
+      <div className="max-w-[1100px] mx-auto">
         <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-4">
 
           {/* ========== LEFT: INPUT ========== */}
@@ -378,7 +378,7 @@ export default function HitungFinishingPage() {
                   <div className="px-4 py-2 bg-slate-50/60">
                     <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Daftar Finishing</h3>
                   </div>
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100 max-h-[240px] overflow-y-auto">
                     {selectedFinishings.map((sf) => (
                       <div key={sf.finishing.id} className="px-4 py-3">
                         <div className="flex items-start justify-between gap-3">
@@ -429,7 +429,7 @@ export default function HitungFinishingPage() {
           </div>
 
           {/* ========== RIGHT: SUMMARY ========== */}
-          <div className="w-full lg:w-[280px] flex-shrink-0 mt-4 lg:mt-0">
+          <div className="w-full lg:w-[380px] flex-shrink-0 mt-4 lg:mt-0">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:sticky lg:top-4">
               <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
                 <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">
@@ -458,7 +458,7 @@ export default function HitungFinishingPage() {
                   <div className="space-y-1.5 pt-2 border-t border-slate-100">
                     {selectedFinishings.map((sf) => (
                       <div key={sf.finishing.id} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
-                        <span className="text-[11px] text-slate-600 truncate max-w-[160px]">{sf.finishing.name}</span>
+                        <span className="text-[11px] text-slate-600 truncate max-w-[240px]">{sf.finishing.name}</span>
                         <span className="text-xs font-semibold text-slate-700 flex-shrink-0">Rp {sf.cost.toLocaleString('id-ID')}</span>
                       </div>
                     ))}
