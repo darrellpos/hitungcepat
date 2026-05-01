@@ -101,6 +101,7 @@ const menuItems = [
     href: '/riwayat',
     icon: History,
     featureId: 'riwayat',
+    section: 'riwayat_hitung',
   },
   {
     titleKey: 'pengaturan' as TranslationKey,

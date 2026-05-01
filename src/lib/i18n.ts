@@ -22,7 +22,7 @@ export const translations = {
     delete_selected: 'Hapus Terpilih',
 
     // Sidebar
-    hitung_biaya_total: 'Hitung Biaya Total Produksi',
+    hitung_biaya_total: 'Hitung Biaya Produksi',
     potong_kertas: 'Potong Kertas',
     hitung_cetakan: 'Hitung Cetakan',
     biaya_produksi: 'Biaya Produksi',
