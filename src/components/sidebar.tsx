@@ -50,6 +50,12 @@ const menuItems = [
     icon: Paintbrush,
     featureId: 'hitung-finishing',
   },
+  {
+    titleKey: 'hitung_ongkos_kertas' as TranslationKey,
+    href: '/hitung-ongkos-kertas',
+    icon: DollarSign,
+    featureId: 'hitung-ongkos-kertas',
+  },
 
   {
     titleKey: 'master_harga_kertas' as TranslationKey,
