@@ -134,7 +134,7 @@ export default function HitungOngkosCetakPage() {
 
   const handleWhatsApp = () => {
     const machineName = selectedMachine?.machineName || '-'
-    const message = `*Hitung Ongkos Cetak*
+    const message = `Hitung Ongkos Cetak
 
 Nama Cetakan: ${namaCetakan || '-'}
 Mesin: ${machineName}
@@ -142,7 +142,7 @@ Jumlah Warna: ${warna}${warnaKhususVal > 0 ? ` (+ ${warnaKhususVal} khusus)` : '
 Harga Plat/Warna: ${fmt(plat)}
 Jumlah Lembar: ${qty.toLocaleString('id-ID')}
 
-*Hasil:*
+Hasil:
 Ongkos Cetak: ${fmt(calculations.ongkosCetak)}
 Total Ongkos Cetak: ${fmt(calculations.totalOngkosCetak)}
 Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`

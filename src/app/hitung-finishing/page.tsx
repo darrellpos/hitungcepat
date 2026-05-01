@@ -217,15 +217,14 @@ export default function HitungFinishingPage() {
 
   const handleWhatsApp = () => {
     if (selectedFinishings.length === 0) { toast.error('Tambahkan finishing terlebih dahulu'); return }
-    const text = `*Hitung Finishing - DarrellPOS*\n\n` +
-      `📋 *Nama:* ${namaCetakan || '-'}\n` +
-      `📄 *Jumlah:* ${qty.toLocaleString('id-ID')} lembar\n` +
-      `📏 *Ukuran:* ${lebarCm || '0'} × ${tinggiCm || '0'} cm\n\n` +
-      `💰 *Daftar Finishing:*\n` +
+    const text = `Hitung Finishing - DarrellPOS\n\n` +
+      `Nama: ${namaCetakan || '-'}\n` +
+      `Jumlah: ${qty.toLocaleString('id-ID')} lembar\n` +
+      `Ukuran: ${lebarCm || '0'} × ${tinggiCm || '0'} cm\n\n` +
+      `Daftar Finishing:\n` +
       selectedFinishings.map((sf, i) => `${i + 1}. ${sf.finishing.name}: ${fmt(sf.cost)}`).join('\n') +
-      `\n\n━━━━━━━━━━━━━━━\n` +
-      `💵 *Total:* ${fmt(totalCost)}\n` +
-      `📊 *Per Lembar:* ${fmt(hargaPerLembar)}`
+      `\n\nTotal: ${fmt(totalCost)}\n` +
+      `Per Lembar: ${fmt(hargaPerLembar)}`
     const encoded = encodeURIComponent(text)
     const isAndroid = /Android/i.test(navigator.userAgent)
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
