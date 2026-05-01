@@ -41,6 +41,7 @@ export const translations = {
     hak_akses: 'Hak Akses',
     pengguna: 'Pengguna',
     pengaturan: 'Pengaturan',
+    setting: 'Setting',
     keluar: 'Keluar',
 
     // Login
@@ -323,6 +324,7 @@ export const translations = {
     hak_akses: 'Access Rights',
     pengguna: 'Users',
     pengaturan: 'Settings',
+    setting: 'Setting',
     keluar: 'Logout',
 
     // Login

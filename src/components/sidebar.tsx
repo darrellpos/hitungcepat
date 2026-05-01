@@ -104,21 +104,26 @@ const menuItems = [
     section: 'riwayat_hitung',
   },
   {
+    titleKey: 'hak_akses' as TranslationKey,
+    href: '/administrasi/hak-akses',
+    icon: Shield,
+    featureId: 'hak-akses',
+    section: 'administrasi',
+  },
+  {
+    titleKey: 'pengguna' as TranslationKey,
+    href: '/administrasi/pengguna',
+    icon: Users,
+    featureId: 'pengguna',
+    section: 'administrasi',
+  },
+  {
     titleKey: 'pengaturan' as TranslationKey,
     href: '/administrasi/pengaturan',
     icon: Settings,
     featureId: 'pengaturan',
+    section: 'setting',
   },
-  {
-    titleKey: 'administrasi' as TranslationKey,
-    href: '/administrasi',
-    icon: Shield,
-    featureId: 'administrasi',
-    submenu: [
-      { titleKey: 'hak_akses' as TranslationKey, href: '/administrasi/hak-akses', icon: Shield, featureId: 'hak-akses' },
-      { titleKey: 'pengguna' as TranslationKey, href: '/administrasi/pengguna', icon: Users, featureId: 'pengguna' }
-    ]
-  }
 ]
 
 interface SidebarProps {
