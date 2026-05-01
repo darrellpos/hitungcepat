@@ -324,17 +324,12 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
                 {calculations ? (
                   <>
                     <div className="space-y-1.5">
-                      <ValueBox label="Harga / Lembar" value={fmtRp(calculations.pricePerSheet)} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
                       <ValueBox label="Berat / Lembar" value={`${Math.round(calculations.weightPerSheetGram)} gram`} gradient="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200" />
                       <ValueBox label="Berat / Rim" value={`${Math.round(calculations.weightPerRimKg)} kg`} gradient="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200" />
                     </div>
 
                     {qty > 0 && (
                       <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
-                          <span className="text-[11px] text-slate-600">Harga / Lembar</span>
-                          <span className="text-xs font-semibold text-slate-700">{fmtRp(calculations.costPerPiece)}</span>
-                        </div>
                         <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
                           <span className="text-[11px] text-slate-600">Total Harga</span>
                           <span className="text-xs font-semibold text-slate-700">{fmtRp(calculations.totalPrice)}</span>
@@ -360,8 +355,8 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
                       )}
                       {qty > 0 && (
                         <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/20">
-                          <span className="text-[11px] opacity-80">Harga / Lembar</span>
-                          <span className="text-xs font-bold">{fmtRp(calculations.costPerPiece)}</span>
+                          <span className="text-sm font-bold opacity-80">Harga / Lembar</span>
+                          <span className="text-sm font-extrabold">{fmtRp(calculations.costPerPiece)}</span>
                         </div>
                       )}
                     </div>
