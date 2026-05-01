@@ -52,9 +52,9 @@ const menuItems = [
   },
   {
     titleKey: 'hitung_ongkos_cetak' as TranslationKey,
-    href: '/hitung-ongkos-kertas',
+    href: '/hitung-ongkos-cetak',
     icon: DollarSign,
-    featureId: 'hitung-ongkos-kertas',
+    featureId: 'hitung-ongkos-cetak',
   },
   {
     titleKey: 'hitung_harga_kertas' as TranslationKey,
