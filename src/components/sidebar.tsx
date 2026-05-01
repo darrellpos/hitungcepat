@@ -51,7 +51,7 @@ const menuItems = [
     featureId: 'hitung-finishing',
   },
   {
-    titleKey: 'hitung_ongkos_kertas' as TranslationKey,
+    titleKey: 'hitung_ongkos_cetak' as TranslationKey,
     href: '/hitung-ongkos-kertas',
     icon: DollarSign,
     featureId: 'hitung-ongkos-kertas',
