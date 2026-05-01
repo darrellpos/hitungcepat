@@ -1,6 +1,6 @@
 'use client'
 
-import { Printer, RotateCcw, Calculator, Info, Palette } from 'lucide-react'
+import { Printer, RotateCcw, Calculator, Info, Palette, MessageCircle } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -35,12 +35,15 @@ export default function HitungOngkosCetakPage() {
   const [printingCosts, setPrintingCosts] = useState<PrintingCost[]>([])
 
   // === Form states ===
+  const STORAGE_KEY = 'hitung-ongkos-cetak-form'
+
   const [namaCetakan, setNamaCetakan] = useState('')
   const [selectedMachineId, setSelectedMachineId] = useState('')
   const [jumlahWarna, setJumlahWarna] = useState('')
   const [warnaKhusus, setWarnaKhusus] = useState('')
   const [hargaPlat, setHargaPlat] = useState('')
   const [jumlahLembar, setJumlahLembar] = useState('')
+  const [isLoaded, setIsLoaded] = useState(false)
 
   // === Fetch APIs ===
   useEffect(() => {
@@ -93,6 +96,30 @@ export default function HitungOngkosCetakPage() {
     }
   }, [qty, selectedMachine, warna, warnaKhususVal, plat])
 
+  // === localStorage persistence ===
+  const formData = { namaCetakan, selectedMachineId, jumlahWarna, warnaKhusus, hargaPlat, jumlahLembar }
+
+  useEffect(() => {
+    if (!isLoaded) return
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
+  }, [formData, isLoaded])
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.namaCetakan) setNamaCetakan(parsed.namaCetakan)
+        if (parsed.selectedMachineId) setSelectedMachineId(parsed.selectedMachineId)
+        if (parsed.jumlahWarna) setJumlahWarna(parsed.jumlahWarna)
+        if (parsed.warnaKhusus) setWarnaKhusus(parsed.warnaKhusus)
+        if (parsed.hargaPlat) setHargaPlat(parsed.hargaPlat)
+        if (parsed.jumlahLembar) setJumlahLembar(parsed.jumlahLembar)
+      }
+    } catch {}
+    setIsLoaded(true)
+  }, [])
+
   // === Handlers ===
   const handleReset = () => {
     setNamaCetakan('')
@@ -101,7 +128,25 @@ export default function HitungOngkosCetakPage() {
     setWarnaKhusus('')
     setHargaPlat('')
     setJumlahLembar('')
+    localStorage.removeItem(STORAGE_KEY)
     toast.success('Form berhasil direset')
+  }
+
+  const handleWhatsApp = () => {
+    const machineName = selectedMachine?.machineName || '-'
+    const message = `*Hitung Ongkos Cetak*
+
+Nama Cetakan: ${namaCetakan || '-'}
+Mesin: ${machineName}
+Jumlah Warna: ${warna}${warnaKhususVal > 0 ? ` (+ ${warnaKhususVal} khusus)` : ''}
+Harga Plat/Warna: ${fmt(plat)}
+Jumlah Lembar: ${qty.toLocaleString('id-ID')}
+
+*Hasil:*
+Ongkos Cetak: ${fmt(calculations.ongkosCetak)}
+Total Ongkos Cetak: ${fmt(calculations.totalOngkosCetak)}
+Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank')
   }
 
   const handlePrint = () => {
@@ -330,15 +375,6 @@ export default function HitungOngkosCetakPage() {
                         <span className="text-xs font-bold">{fmt(calculations.hargaPerLembar)}/lbr</span>
                       </div>
                     </div>
-
-                    <div className="space-y-2 pt-1">
-                      <Button onClick={handlePrint} className="w-full gap-2 bg-amber-600 hover:bg-amber-700 text-white" size="sm">
-                        <Printer className="w-4 h-4" /> Cetak
-                      </Button>
-                      <Button onClick={handleReset} variant="outline" className="w-full gap-2" size="sm">
-                        <RotateCcw className="w-4 h-4" /> Reset
-                      </Button>
-                    </div>
                   </>
                 ) : (
                   <div className="py-6 text-center">
@@ -346,6 +382,20 @@ export default function HitungOngkosCetakPage() {
                     <p className="text-xs text-slate-400">Masukkan jumlah lembar untuk melihat hasil</p>
                   </div>
                 )}
+
+                <div className="space-y-2 pt-1">
+                  <Button onClick={handleWhatsApp} className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" size="sm">
+                    <MessageCircle className="w-4 h-4" /> Kirim ke WhatsApp
+                  </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button onClick={handlePrint} className="w-full gap-2 bg-amber-600 hover:bg-amber-700 text-white" size="sm">
+                      <Printer className="w-4 h-4" /> Cetak
+                    </Button>
+                    <Button onClick={handleReset} variant="outline" className="w-full gap-2" size="sm">
+                      <RotateCcw className="w-4 h-4" /> Reset
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
