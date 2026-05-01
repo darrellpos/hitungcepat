@@ -1,6 +1,6 @@
 'use client'
 
-import { Printer, RotateCcw, Calculator, Info, Palette, Layers } from 'lucide-react'
+import { Printer, RotateCcw, Calculator, Info, Palette } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -217,10 +217,14 @@ export default function HitungOngkosCetakPage() {
 
               {/* Section 1: Informasi */}
               <SectionHeader icon={<Info className="w-3.5 h-3.5 text-blue-600" />} label="Informasi" color="blue" />
-              <div className="px-4 py-3">
+              <div className="px-4 py-3 space-y-3">
                 <div>
                   <label className={labelClass}>Nama Cetakan</label>
                   <input type="text" placeholder="Contoh: Brosur Lipat 3" value={namaCetakan} onChange={(e) => setNamaCetakan(e.target.value)} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Jumlah Lembar</label>
+                  <input type="number" min="0" placeholder="Contoh: 1000" value={jumlahLembar} onChange={(e) => setJumlahLembar(e.target.value)} className={inputClass} />
                 </div>
               </div>
 
@@ -275,14 +279,7 @@ export default function HitungOngkosCetakPage() {
                 )}
               </div>
 
-              {/* Section 3: Jumlah Lembar */}
-              <SectionHeader icon={<Layers className="w-3.5 h-3.5 text-emerald-600" />} label="Jumlah Lembar" color="emerald" />
-              <div className="px-4 py-3">
-                <div>
-                  <label className={labelClass}>Jumlah Lembar</label>
-                  <input type="number" min="0" placeholder="Contoh: 1000" value={jumlahLembar} onChange={(e) => setJumlahLembar(e.target.value)} className={inputClass} />
-                </div>
-              </div>
+
 
               {/* Empty state when no data */}
               {qty <= 0 && (
