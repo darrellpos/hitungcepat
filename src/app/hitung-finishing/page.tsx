@@ -1,6 +1,6 @@
 'use client'
 
-import { Layers, Plus, Trash2, Printer, RotateCcw, Calculator, Ruler, Info } from 'lucide-react'
+import { Layers, Plus, Trash2, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -25,6 +25,7 @@ interface SelectedFinishing {
   breakdown: string
 }
 
+const STORAGE_KEY = 'darrellpos-hitung-finishing'
 const inputClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors'
 const selectClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors bg-white appearance-none cursor-pointer'
 const labelClass = 'flex items-center gap-1.5 text-xs font-medium text-slate-700 mb-1.5'
@@ -33,10 +34,52 @@ export default function HitungFinishingPage() {
   const { t } = useLanguage()
   const [finishings, setFinishings] = useState<Finishing[]>([])
   const [selectedFinishings, setSelectedFinishings] = useState<SelectedFinishing[]>([])
+  const [selectedFinishingIds, setSelectedFinishingIds] = useState<string[]>([])
   const [namaCetakan, setNamaCetakan] = useState('')
   const [jumlahLembar, setJumlahLembar] = useState('')
   const [lebarCm, setLebarCm] = useState('')
   const [tinggiCm, setTinggiCm] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  // === Load from localStorage ===
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const data = JSON.parse(saved)
+        if (data.namaCetakan) setNamaCetakan(data.namaCetakan)
+        if (data.jumlahLembar) setJumlahLembar(data.jumlahLembar)
+        if (data.lebarCm) setLebarCm(data.lebarCm)
+        if (data.tinggiCm) setTinggiCm(data.tinggiCm)
+        if (Array.isArray(data.selectedFinishingIds)) setSelectedFinishingIds(data.selectedFinishingIds)
+      }
+    } catch { /* ignore */ }
+    setMounted(true)
+  }, [])
+
+  // === Save to localStorage ===
+  useEffect(() => {
+    if (!mounted) return
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      namaCetakan, jumlahLembar, lebarCm, tinggiCm, selectedFinishingIds
+    }))
+  }, [mounted, namaCetakan, jumlahLembar, lebarCm, tinggiCm, selectedFinishingIds])
+
+  // Rebuild selected finishings from IDs when finishings are loaded
+  useEffect(() => {
+    if (finishings.length === 0 || selectedFinishingIds.length === 0) return
+    setSelectedFinishings(prev => {
+      if (prev.length > 0) return prev
+      const rebuilt = selectedFinishingIds
+        .map(id => finishings.find(f => f.id === id))
+        .filter(Boolean)
+        .map(f => {
+          const result = calculateFinishingCost(f)
+          return { finishing: f, ...result }
+        })
+      return rebuilt as SelectedFinishing[]
+    })
+  }, [finishings, selectedFinishingIds])
 
   const fetchFinishings = async () => {
     try {
@@ -144,18 +187,22 @@ export default function HitungFinishingPage() {
     }
     const result = calculateFinishingCost(finishing)
     setSelectedFinishings([...selectedFinishings, { finishing, ...result }])
+    setSelectedFinishingIds(prev => [...prev, finishingId])
     toast.success(`${finishing.name} ditambahkan`)
   }
 
   const handleRemoveFinishing = (finishingId: string) => {
     const removed = selectedFinishings.find(sf => sf.finishing.id === finishingId)
     setSelectedFinishings(selectedFinishings.filter(sf => sf.finishing.id !== finishingId))
+    setSelectedFinishingIds(prev => prev.filter(id => id !== finishingId))
     if (removed) toast.success(`${removed.finishing.name} dihapus`)
   }
 
-  const totalCost = selectedFinishings.reduce((sum, sf) => sum + sf.cost, 0)
+  const totalCost = Math.round(selectedFinishings.reduce((sum, sf) => sum + sf.cost, 0))
   const qty = parseInt(jumlahLembar) || 0
-  const hargaPerLembar = qty > 0 && selectedFinishings.length > 0 ? totalCost / qty : 0
+  const hargaPerLembar = qty > 0 && selectedFinishings.length > 0 ? Math.round(totalCost / qty) : 0
+
+  const fmt = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`
 
   const handleReset = () => {
     setNamaCetakan('')
@@ -163,7 +210,24 @@ export default function HitungFinishingPage() {
     setLebarCm('')
     setTinggiCm('')
     setSelectedFinishings([])
+    setSelectedFinishingIds([])
+    localStorage.removeItem(STORAGE_KEY)
     toast.success('Form berhasil direset')
+  }
+
+  const handleWhatsApp = () => {
+    if (selectedFinishings.length === 0) { toast.error('Tambahkan finishing terlebih dahulu'); return }
+    const text = `*Hitung Finishing - DarrellPOS*\n\n` +
+      `📋 *Nama:* ${namaCetakan || '-'}\n` +
+      `📄 *Jumlah:* ${qty.toLocaleString('id-ID')} lembar\n` +
+      `📏 *Ukuran:* ${lebarCm || '0'} × ${tinggiCm || '0'} cm\n\n` +
+      `💰 *Daftar Finishing:*\n` +
+      selectedFinishings.map((sf, i) => `${i + 1}. ${sf.finishing.name}: ${fmt(sf.cost)}`).join('\n') +
+      `\n\n━━━━━━━━━━━━━━━\n` +
+      `💵 *Total:* ${fmt(totalCost)}\n` +
+      `📊 *Per Lembar:* ${fmt(hargaPerLembar)}`
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+    toast.success('Membuka WhatsApp...')
   }
 
   const handlePrint = () => {
@@ -255,14 +319,7 @@ export default function HitungFinishingPage() {
                   <label className={labelClass}>Nama Cetakan</label>
                   <input type="text" placeholder="Contoh: Brosur Lipat 3" value={namaCetakan} onChange={(e) => setNamaCetakan(e.target.value)} className={inputClass} />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className={labelClass}>Jumlah Lembar</label>
-                    <div className="relative">
-                      <Layers className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                      <input type="number" min="0" placeholder="1000" value={jumlahLembar} onChange={(e) => setJumlahLembar(e.target.value)} className={`${inputClass} pl-9`} />
-                    </div>
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Lebar (cm)</label>
                     <div className="relative">
@@ -276,6 +333,13 @@ export default function HitungFinishingPage() {
                       <Ruler className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                       <input type="number" step="0.1" min="0" placeholder="29.7" value={tinggiCm} onChange={(e) => setTinggiCm(e.target.value)} className={`${inputClass} pl-9`} />
                     </div>
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Jumlah Lembar</label>
+                  <div className="relative">
+                    <Layers className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input type="number" min="0" placeholder="1000" value={jumlahLembar} onChange={(e) => setJumlahLembar(e.target.value)} className={`${inputClass} pl-9`} />
                   </div>
                 </div>
               </div>
@@ -412,6 +476,14 @@ export default function HitungFinishingPage() {
 
                 {/* Actions */}
                 <div className="space-y-2 pt-1">
+                  <Button
+                    onClick={handleWhatsApp}
+                    disabled={selectedFinishings.length === 0}
+                    className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                  >
+                    <MessageCircle className="w-4 h-4" /> Kirim ke WhatsApp
+                  </Button>
                   <Button
                     onClick={handlePrint}
                     disabled={selectedFinishings.length === 0}
