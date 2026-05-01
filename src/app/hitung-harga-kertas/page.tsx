@@ -21,6 +21,8 @@ interface Paper {
 const inputClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors'
 const selectClass = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors bg-white appearance-none cursor-pointer'
 const labelClass = 'flex items-center gap-1.5 text-xs font-medium text-slate-700 mb-1.5'
+const fmtNum = (n: number) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+const fmtRp = (n: number) => `Rp ${fmtNum(n)}`
 
 export default function HitungHargaKertasPage() {
   const { t } = useLanguage()
@@ -121,32 +123,23 @@ export default function HitungHargaKertasPage() {
   const handleWhatsApp = () => {
     if (!calculations) { toast.error('Masukkan data kertas terlebih dahulu'); return }
     const paperName = selectedPaper ? selectedPaper.name : 'Custom'
-    const message = `*Hitung Harga Kertas - DarrellPOS*
+    const message = `Hitung Harga Kertas - DarrellPOS
 
-` +
-      `Nama: ${namaCetakan || '-'}
-` +
-      `Kertas: ${paperName} (${grammage} gsm)
-` +
-      `Ukuran: ${paperWidth} × ${paperHeight} cm
-` +
-      `Harga/Rim: Rp ${pricePerRim.toLocaleString('id-ID')}
+Nama: ${namaCetakan || '-'}
+Kertas: ${paperName} (${grammage} gsm)
+Ukuran: ${paperWidth} x ${paperHeight} cm
+Harga/Rim: ${fmtRp(pricePerRim)}
 
-` +
-      `*Hasil:*
-` +
-      `Harga/Lembar: Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}
-` +
-      `Harga/m²: Rp ${calculations.pricePerM2.toLocaleString('id-ID')}
-` +
-      `Berat/Lembar: ${calculations.weightPerSheetGram.toFixed(1)} gram
-` +
-      `Berat/Rim: ${calculations.weightPerRimKg.toFixed(2)} kg` +
+Hasil:
+Harga/Lembar: ${fmtRp(calculations.pricePerSheet)}
+Harga/m2: ${fmtRp(calculations.pricePerM2)}
+Berat/Lembar: ${Math.round(calculations.weightPerSheetGram)} gram
+Berat/Rim: ${Math.round(calculations.weightPerRimKg)} kg` +
       (qty > 0 ? `
 
-Total Harga (${qty.toLocaleString('id-ID')} lbr): Rp ${calculations.totalPrice.toLocaleString('id-ID')}
-Harga/Lembar: Rp ${calculations.costPerPiece.toLocaleString('id-ID')}
-Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
+Total Harga (${fmtNum(qty)} lbr): ${fmtRp(calculations.totalPrice)}
+Harga/Lembar: ${fmtRp(calculations.costPerPiece)}
+Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
     const encoded = encodeURIComponent(message)
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
     const url = isMobile
@@ -183,20 +176,20 @@ Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
         <span>Kertas:</span> <strong>${paperName}</strong> &nbsp;|&nbsp;
         <span>Gramatur:</span> <strong>${grammage} gsm</strong> &nbsp;|&nbsp;
         <span>Ukuran:</span> <strong>${paperWidth} × ${paperHeight} cm</strong> &nbsp;|&nbsp;
-        <span>Harga/Rim:</span> <strong>Rp ${pricePerRim.toLocaleString('id-ID')}</strong>
+        <span>Harga/Rim:</span> <strong>${fmtRp(pricePerRim)}</strong>
       </div>
       <table>
         <thead><tr><th>Keterangan</th><th class="right">Nilai</th></tr></thead>
         <tbody>
-          <tr><td>Harga per Lembar (1 rim = 500 lbr)</td><td class="right">Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}</td></tr>
-          <tr><td>Harga per m²</td><td class="right">Rp ${calculations.pricePerM2.toLocaleString('id-ID')}</td></tr>
-          <tr><td>Berat per Lembar</td><td class="right">${calculations.weightPerSheetGram.toFixed(1)} gram</td></tr>
-          <tr><td>Berat per Rim</td><td class="right">${calculations.weightPerRimKg.toFixed(2)} kg</td></tr>
+          <tr><td>Harga per Lembar (1 rim = 500 lbr)</td><td class="right">${fmtRp(calculations.pricePerSheet)}</td></tr>
+          <tr><td>Harga per m²</td><td class="right">${fmtRp(calculations.pricePerM2)}</td></tr>
+          <tr><td>Berat per Lembar</td><td class="right">${Math.round(calculations.weightPerSheetGram)} gram</td></tr>
+          <tr><td>Berat per Rim</td><td class="right">${Math.round(calculations.weightPerRimKg)} kg</td></tr>
           ${qty > 0 ? `
-          <tr><td><strong>Jumlah</strong></td><td class="right"><strong>${qty.toLocaleString('id-ID')} lembar</strong></td></tr>
-          <tr><td><strong>Total Harga</strong></td><td class="right"><strong>Rp ${calculations.totalPrice.toLocaleString('id-ID')}</strong></td></tr>
-          <tr><td>Harga per Lembar (Cost/Piece)</td><td class="right">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</td></tr>
-          <tr><td>Total Berat</td><td class="right">${calculations.totalWeightKg.toFixed(2)} kg</td></tr>
+          <tr><td><strong>Jumlah</strong></td><td class="right"><strong>${fmtNum(qty)} lembar</strong></td></tr>
+          <tr><td><strong>Total Harga</strong></td><td class="right"><strong>${fmtRp(calculations.totalPrice)}</strong></td></tr>
+          <tr><td>Harga per Lembar (Cost/Piece)</td><td class="right">${fmtRp(calculations.costPerPiece)}</td></tr>
+          <tr><td>Total Berat</td><td class="right">${Math.round(calculations.totalWeightKg)} kg</td></tr>
           ` : ''}
         </tbody>
       </table>
@@ -277,7 +270,7 @@ Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                       <span className="text-[11px] text-amber-600">Harga per Rim</span>
-                      <p className="text-sm font-bold text-amber-800">Rp {selectedPaper.pricePerRim.toLocaleString('id-ID')}</p>
+                      <p className="text-sm font-bold text-amber-800">{fmtRp(selectedPaper.pricePerRim)}</p>
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                       <span className="text-[11px] text-amber-600">Ukuran</span>
@@ -323,7 +316,7 @@ Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
                 {calculations ? (
                   <>
                     <div className="space-y-1.5">
-                      <ValueBox label="Harga / Lembar" value={`Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}`} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
+                      <ValueBox label="Harga / Lembar" value={fmtRp(calculations.pricePerSheet)} gradient="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200" />
                       <ValueBox label="Berat / Lembar" value={`${Math.round(calculations.weightPerSheetGram)} gram`} gradient="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200" />
                       <ValueBox label="Berat / Rim" value={`${Math.round(calculations.weightPerRimKg)} kg`} gradient="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200" />
                     </div>
@@ -332,15 +325,15 @@ Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
                       <div className="space-y-1.5 pt-2 border-t border-slate-100">
                         <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
                           <span className="text-[11px] text-slate-600">Harga / Lembar</span>
-                          <span className="text-xs font-semibold text-slate-700">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</span>
+                          <span className="text-xs font-semibold text-slate-700">{fmtRp(calculations.costPerPiece)}</span>
                         </div>
                         <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
                           <span className="text-[11px] text-slate-600">Total Harga</span>
-                          <span className="text-xs font-semibold text-slate-700">Rp ${calculations.totalPrice.toLocaleString('id-ID')}</span>
+                          <span className="text-xs font-semibold text-slate-700">{fmtRp(calculations.totalPrice)}</span>
                         </div>
                         <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
                           <span className="text-[11px] text-slate-600">Total Berat</span>
-                          <span className="text-xs font-semibold text-slate-700">${Math.round(calculations.totalWeightKg)} kg</span>
+                          <span className="text-xs font-semibold text-slate-700">{Math.round(calculations.totalWeightKg)} kg</span>
                         </div>
                       </div>
                     )}
@@ -349,18 +342,18 @@ Total Berat: ${calculations.totalWeightKg.toFixed(2)} kg` : '')
                       {qty > 0 ? (
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold">Total Harga</span>
-                          <span className="text-lg font-extrabold">Rp ${calculations.totalPrice.toLocaleString('id-ID')}</span>
+                          <span className="text-lg font-extrabold">{fmtRp(calculations.totalPrice)}</span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold">Harga / Lembar</span>
-                          <span className="text-lg font-extrabold">Rp ${calculations.pricePerSheet.toLocaleString('id-ID')}</span>
+                          <span className="text-lg font-extrabold">{fmtRp(calculations.pricePerSheet)}</span>
                         </div>
                       )}
                       {qty > 0 && (
                         <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/20">
                           <span className="text-[11px] opacity-80">Harga / Lembar</span>
-                          <span className="text-xs font-bold">Rp ${calculations.costPerPiece.toLocaleString('id-ID')}</span>
+                          <span className="text-xs font-bold">{fmtRp(calculations.costPerPiece)}</span>
                         </div>
                       )}
                     </div>
