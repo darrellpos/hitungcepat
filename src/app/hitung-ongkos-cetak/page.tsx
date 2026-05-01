@@ -384,14 +384,14 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
                 )}
 
                 <div className="space-y-2 pt-1">
-                  <Button onClick={handleWhatsApp} className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white" size="sm">
+                  <Button onClick={handleWhatsApp} disabled={qty <= 0} className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white disabled:opacity-40 disabled:cursor-not-allowed" size="sm">
                     <MessageCircle className="w-4 h-4" /> Kirim ke WhatsApp
                   </Button>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button onClick={handlePrint} className="w-full gap-2 bg-amber-600 hover:bg-amber-700 text-white" size="sm">
+                    <Button onClick={handlePrint} disabled={qty <= 0} className="w-full gap-2 bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-40 disabled:cursor-not-allowed" size="sm">
                       <Printer className="w-4 h-4" /> Cetak
                     </Button>
-                    <Button onClick={handleReset} variant="outline" className="w-full gap-2" size="sm">
+                    <Button onClick={handleReset} disabled={qty <= 0} variant="outline" className="w-full gap-2 disabled:opacity-40 disabled:cursor-not-allowed" size="sm">
                       <RotateCcw className="w-4 h-4" /> Reset
                     </Button>
                   </div>
