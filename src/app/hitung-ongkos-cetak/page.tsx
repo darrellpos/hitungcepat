@@ -338,7 +338,7 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
           </div>
 
           {/* ========== RIGHT COLUMN: Results Panel ========== */}
-          <div className="w-full lg:w-[280px] flex-shrink-0 mt-4 lg:mt-0">
+          <div className="w-full lg:w-[380px] flex-shrink-0 mt-4 lg:mt-0">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:sticky lg:top-4">
               <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
                 <div className="w-6 h-6 rounded-md bg-emerald-100 flex items-center justify-center">
@@ -387,7 +387,7 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
                 <div className="space-y-2 pt-1">
                   <Button
                     onClick={handleWhatsApp}
-                    disabled={qty <= 0}
+                    disabled={calculations.totalOngkosCetak <= 0}
                     className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
                     size="sm"
                   >
@@ -395,7 +395,7 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
                   </Button>
                   <Button
                     onClick={handlePrint}
-                    disabled={qty <= 0}
+                    disabled={calculations.totalOngkosCetak <= 0}
                     className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                     size="sm"
                   >
@@ -403,7 +403,7 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
                   </Button>
                   <Button
                     onClick={handleReset}
-                    disabled={qty <= 0}
+                    disabled={calculations.totalOngkosCetak <= 0}
                     variant="outline"
                     className="w-full gap-2"
                     size="sm"
