@@ -1,23 +1,21 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Extract split tar archive and run Next.js application
+Task: Build Netflix-style Midtrans payment gateway for subscription packages
 
 Work Log:
-- Verified all 4 split tar parts exist (~169MB total)
-- Combined parts using cat into combined.tar
-- Extracted tar archive to /home/z/my-project/extracted/
-- Analyzed contents: Next.js 16 + Prisma (SQLite) + Tailwind CSS + shadcn/ui application
-- Application is a printing cost calculator (Indonesian: "Hitung Cetakan", "Hitung Harga Kertas", etc.)
-- Copied project files to /home/z/my-project/ (db, prisma, src, configs)
-- Installed 1115 npm packages successfully
-- Generated Prisma client (v6.19.2)
-- Database verified: SQLite at /home/z/my-project/db/custom.db (476KB)
-- Started dev server via daemon.cjs as persistent background process (PID 1536)
-- Server running at http://localhost:3000 - HTTP 200, 109KB response
+- Installed midtrans-client npm package
+- Added Midtrans sandbox env vars to .env (MIDTRANS_SERVER_KEY, MIDTRANS_CLIENT_KEY, NEXT_PUBLIC_MIDTRANS_CLIENT_KEY)
+- Added Payment model to prisma/schema.prisma and ran db push + generate
+- Created src/lib/midtrans.ts (Snap transaction, signature verification, save/update helpers)
+- Created API routes: /api/midtrans/create-transaction, /api/midtrans/notification, /api/midtrans/check-status
+- Built Netflix-style PaymentDialog component (src/components/payment-dialog.tsx) with 5-step flow
+- Integrated PaymentDialog into page.tsx via dynamic import with openPayment wiring
+- Fixed db import (prisma -> db) across all API routes
+- Build passed, dev server running with HTTP 200
 
 Stage Summary:
-- Project extracted and running successfully
-- Dev server accessible at http://localhost:3000
-- Database (SQLite) connected and operational
-- Daemon PID saved to /home/z/my-project/.zscripts/dev.pid
+- Netflix-style dark theme payment dialog with step-by-step flow (Confirm → Info → Method → Paying → Result)
+- Supports GoPay, ShopeePay, VA BCA/BNI/Mandiri/BRI, QRIS, Credit Card via Midtrans Snap
+- Midtrans webhook auto-extends user subscription on successful payment
+- All files saved, build clean, server running
