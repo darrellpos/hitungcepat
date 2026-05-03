@@ -21,7 +21,9 @@ import {
   X,
   Menu,
   Paintbrush,
-  Sheet
+  Sheet,
+  Receipt,
+  Truck,
 } from 'lucide-react'
 import { getAuthUser } from '@/lib/auth'
 import { hasFeatureAccess } from '@/lib/permissions'
@@ -102,6 +104,20 @@ const menuItems = [
     icon: History,
     featureId: 'riwayat',
     section: 'riwayat_hitung',
+  },
+  {
+    titleKey: 'invoice' as TranslationKey,
+    href: '/invoice',
+    icon: Receipt,
+    featureId: 'invoice',
+    section: 'dokumen',
+  },
+  {
+    titleKey: 'surat_jalan' as TranslationKey,
+    href: '/surat-jalan',
+    icon: Truck,
+    featureId: 'surat-jalan',
+    section: 'dokumen',
   },
   {
     titleKey: 'hak_akses' as TranslationKey,

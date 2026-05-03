@@ -191,3 +191,44 @@ model Payment {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+model Invoice {
+  id                String   @id @default(cuid())
+  invoiceNumber     String   @unique
+  customerName      String
+  customerAddress   String   @default("")
+  customerPhone     String   @default("")
+  customerEmail     String   @default("")
+  invoiceDate       String
+  dueDate           String   @default("")
+  items             String   // JSON array of invoice items
+  subTotal          Float    @default(0)
+  discount          Float    @default(0)
+  tax               Float    @default(0)
+  grandTotal        Float    @default(0)
+  notes             String   @default("")
+  status            String   @default("draft") // draft, sent, paid, cancelled
+  riwayatCetakanId  String?
+  userId            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model SuratJalan {
+  id                String   @id @default(cuid())
+  suratJalanNumber  String   @unique
+  customerName      String
+  customerAddress   String   @default("")
+  customerPhone     String   @default("")
+  driverName        String   @default("")
+  vehicleNumber     String   @default("")
+  deliveryDate      String
+  items             String   // JSON array of delivery items
+  notes             String   @default("")
+  status            String   @default("draft") // draft, delivered, cancelled
+  invoiceId         String?
+  riwayatCetakanId  String?
+  userId            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

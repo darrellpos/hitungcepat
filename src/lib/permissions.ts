@@ -3,7 +3,7 @@
 
 // ===== FEATURE DEFINITIONS =====
 const SIMPLE_FEATURES = [
-  'potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas', 'riwayat', 'hak-akses', 'pengguna', 'pengaturan',
+  'potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas', 'riwayat', 'hak-akses', 'pengguna', 'pengaturan', 'invoice', 'surat-jalan',
 ]
 
 const GROUP_FEATURES = [
@@ -21,7 +21,7 @@ function buildDefaultPermissions(roleId: string): Record<string, boolean> {
     let allowed = false
     if (roleId === 'superadmin') allowed = true
     else if (roleId === 'admin') allowed = true
-    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas', 'riwayat'].includes(f)
+    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas', 'riwayat', 'invoice', 'surat-jalan'].includes(f)
     else if (roleId === 'demo') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas'].includes(f)
     else if (roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas'].includes(f)
     perms[f] = allowed
@@ -183,6 +183,8 @@ export function getFeatureIdForPath(pathname: string): string | null {
   if (pathname === '/master-finishing') return 'master-finishing'
   if (pathname === '/master-customer') return 'master-customer'
   if (pathname === '/riwayat') return 'riwayat'
+  if (pathname === '/invoice') return 'invoice'
+  if (pathname === '/surat-jalan') return 'surat-jalan'
   if (pathname === '/administrasi/hak-akses') return 'hak-akses'
   if (pathname === '/administrasi/pengguna') return 'pengguna'
   if (pathname === '/administrasi/pengaturan') return 'pengaturan'
