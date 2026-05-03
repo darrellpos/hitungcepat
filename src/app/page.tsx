@@ -195,8 +195,8 @@ function PricingCard({
         onClick={onSelect}
         className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl ${
           popular
-            ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40'
-            : 'border border-gray-200 shadow-lg hover:shadow-xl'
+            ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40 bg-gray-900'
+            : 'border border-gray-800 shadow-lg hover:shadow-xl bg-gray-900'
         }`}
       >
         {popular && (
@@ -208,25 +208,25 @@ function PricingCard({
               <Star className="w-3 h-3 mr-1" /> Hemat Banget!
             </Badge>
           )}
-          <h3 className="text-base font-bold text-gray-900 mt-1">{title}</h3>
-          <p className="text-gray-500 text-xs mt-0.5">{description}{descriptionExtra && <><br />{descriptionExtra}</>}</p>
+          <h3 className="text-base font-bold text-white mt-1">{title}</h3>
+          <p className="text-gray-400 text-xs mt-0.5">{description}{descriptionExtra && <><br />{descriptionExtra}</>}</p>
           <div className="mt-3">
-            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
               {price}
             </span>
             {periodBelow ? (
-              <p className="text-gray-400 text-xs mt-1">{period}</p>
+              <p className="text-gray-500 text-xs mt-1">{period}</p>
             ) : (
               <span className="text-gray-500 text-xs ml-1">/{period}</span>
             )}
           </div>
         </CardHeader>
         <CardContent className="relative p-4 pt-0 flex-1">
-          <Separator className="mb-4" />
+          <Separator className="mb-4 bg-gray-800" />
           <ul className="space-y-2">
             {features.map((feature, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-gray-700">
-                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0 mt-0.5" />
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0 mt-0.5" />
                 <span>{feature}</span>
               </li>
             ))}
@@ -929,17 +929,17 @@ export default function Home() {
       </Section>
 
       {/* =================== HARGA =================== */}
-      <Section id="harga" className="bg-gradient-to-b from-orange-50/40 to-white">
+      <Section id="harga" className="bg-gray-950">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+            <Badge variant="secondary" className="bg-gray-800 text-orange-400 border-gray-700 mb-4">
               Pilihan Paket
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white">
               Paket Harga{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Tanpa Ribet</span>
+              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Tanpa Ribet</span>
             </h2>
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base md:text-lg">
+            <p className="text-gray-400 mt-4 max-w-2xl mx-auto text-base md:text-lg">
               Pilih paket yang sesuai dengan kebutuhan bisnismu. Bisa batal kapan saja!
             </p>
           </div>
@@ -1021,9 +1021,9 @@ export default function Home() {
         {/* Guarantee */}
         <FadeIn delay={0.3}>
           <div className="mt-10 text-center">
-            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-6 py-3">
-              <Shield className="w-5 h-5 text-green-600" />
-              <span className="text-sm font-semibold text-green-700">
+            <div className="inline-flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-full px-6 py-3">
+              <Shield className="w-5 h-5 text-green-400" />
+              <span className="text-sm font-semibold text-green-400">
                 Tanpa Ikatan Apapun! Bisa batal kapan saja tanpa denda.
               </span>
             </div>
