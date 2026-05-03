@@ -73,3 +73,6 @@ push-to-github.sh
 watchdog.sh
 daemon.cjs
 .vercel
+upload/
+extracted/
+.next/
