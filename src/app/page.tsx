@@ -52,9 +52,6 @@ function FadeIn({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
 
   const dirMap = {
     up: { y: 40, x: 0 },
@@ -64,17 +61,12 @@ function FadeIn({
   };
   const { x, y } = dirMap[direction];
 
-  // Before JS hydrates, render as plain visible div (no opacity:0)
-  if (!mounted) {
-    return <div ref={ref} className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       ref={ref}
       className={className}
-      initial={false}
-      animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x, y }}
+      initial={isInView ? { opacity: 0, x, y } : false}
+      animate={{ opacity: 1, x: 0, y: 0 }}
       transition={{ duration: 0.6, delay, ease: 'easeOut' }}
     >
       {children}
@@ -85,26 +77,18 @@ function FadeIn({
 function CountUp({ end, suffix = '', prefix = '', duration = 2000 }: { end: number; suffix?: string; prefix?: string; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
-
-  // Before JS hydrates, show the final value directly
-  if (!mounted) {
-    return <span ref={ref}>{prefix}{end.toLocaleString('id-ID')}{suffix}</span>;
-  }
 
   return (
     <motion.span
       ref={ref}
       initial={false}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
       {isInView ? (
         <Counter end={end} suffix={suffix} prefix={prefix} duration={duration} />
       ) : (
-        `${prefix}0${suffix}`
+        <span>{prefix}{end.toLocaleString('id-ID')}{suffix}</span>
       )}
     </motion.span>
   );
