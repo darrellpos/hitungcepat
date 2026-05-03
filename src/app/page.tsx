@@ -3,6 +3,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import {
   Printer,
   Calculator,
@@ -507,6 +508,8 @@ function LoginPage({ onBack }: { onBack: () => void }) {
 /*  Main Page                                                          */
 /* ------------------------------------------------------------------ */
 const WHATSAPP_URL = 'https://wa.me/6285888082208?text=Halo%20Darrell%20POS%2C%20saya%20tertarik%20untuk%20berlangganan!';
+
+const PaymentDialog = dynamic(() => import('@/components/payment-dialog'), { ssr: false });
 
 interface PackageInfo {
   type: string;
@@ -1246,6 +1249,10 @@ export default function Home() {
 
       </motion.div>
 
+      {/* Payment Dialog — outside motion.div so fixed positioning works correctly */}
+      {selectedPkg && (
+        <PaymentDialog open={paymentOpen} onClose={() => setPaymentOpen(false)} pkg={selectedPkg} />
+      )}
       </div>
   );
 }
