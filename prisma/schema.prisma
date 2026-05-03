@@ -172,26 +172,6 @@ model RiwayatCetakan {
   updatedAt           DateTime @updatedAt
 }
 
-model Payment {
-  id              String   @id @default(cuid())
-  orderId         String   @unique
-  packageName     String
-  packageType     String   // bulanan, tahunan, lifetime
-  grossAmount     Float
-  customerName    String   @default("")
-  customerEmail   String   @default("")
-  customerPhone   String   @default("")
-  paymentType     String?
-  transactionId   String?
-  transactionTime DateTime?
-  transactionStatus String   @default("pending")
-  fraudStatus     String?
-  userId          String?
-  metadata        String   @default("{}")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
 model Invoice {
   id                String   @id @default(cuid())
   invoiceNumber     String   @unique
@@ -214,84 +194,6 @@ model Invoice {
   updatedAt         DateTime @updatedAt
 }
 
-model SubscriptionPlan {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  currency    String   @default("IDR")
-  interval    String   @default("monthly") // monthly, yearly, lifetime
-  features    String   @default("[]") // JSON array
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  subscriptions UserSubscription[]
-}
-
-model UserSubscription {
-  id              String   @id @default(cuid())
-  userId          String
-  planId          String
-  plan            SubscriptionPlan @relation(fields: [planId], references: [id])
-  status          String   @default("active") // active, cancelled, expired, past_due
-  startDate       DateTime @default(now())
-  endDate         DateTime?
-  autoRenew       Boolean  @default(true)
-  paymentMethodId String?
-  cancelledAt     DateTime?
-  cancelReason    String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-model PaymentMethod {
-  id            String   @id @default(cuid())
-  userId        String
-  type          String   @default("bank_transfer") // bank_transfer, ewallet, credit_card
-  label         String
-  provider      String   @default("")
-  accountNumber String   @default("")
-  isDefault     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  payments      PaymentRecord[]
-}
-
-model PaymentRecord {
-  id                String   @id @default(cuid())
-  userId            String
-  subscriptionId    String?
-  paymentMethodId   String?
-  paymentMethod     PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
-  amount            Float
-  currency          String   @default("IDR")
-  status            String   @default("pending") // pending, success, failed, refunded
-  paymentType       String   @default("subscription") // subscription, topup
-  provider          String   @default("")
-  transactionId     String   @unique
-  vaNumber          String   @default("")
-  ewalletUrl        String   @default("")
-  retryCount        Int      @default(0)
-  maxRetry          Int      @default(3)
-  nextRetryAt       DateTime?
-  paidAt            DateTime?
-  expiredAt         DateTime?
-  metadata          String   @default("{}")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String
-  message   String
-  type      String   @default("info") // info, warning, error, success
-  isRead    Boolean  @default(false)
-  link      String   @default("")
-  createdAt DateTime @default(now())
-}
 
 model SuratJalan {
   id                String   @id @default(cuid())
