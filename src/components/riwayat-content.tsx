@@ -104,7 +104,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
     if (isHitungCetak) {
       router.push(`/hitung-cetakan?${params.toString()}`)
     } else {
-      router.push(`/?${params.toString()}`)
+      router.push(`/potong-kertas?${params.toString()}`)
     }
   }
 

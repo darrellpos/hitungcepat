@@ -19,3 +19,22 @@ Stage Summary:
 - Supports GoPay, ShopeePay, VA BCA/BNI/Mandiri/BRI, QRIS, Credit Card via Midtrans Snap
 - Midtrans webhook auto-extends user subscription on successful payment
 - All files saved, build clean, server running
+---
+Task ID: 1
+Agent: main
+Task: Fix restore button on riwayat page - potong kertas records redirecting to wrong page
+
+Work Log:
+- Found bug in riwayat-content.tsx line 107: `router.push(/?${params})` was redirecting to homepage instead of /potong-kertas
+- Fixed redirect from / to /potong-kertas for non-hitung-cetakan items
+- Added useSearchParams import and restore useEffect to potong-kertas page to handle URL params from riwayat restore
+- Restore params: printName, paperLength→paperWidth, paperWidth→paperHeight, cutWidth, cutHeight, quantity
+- Sets custom paper mode when restoring dimensions
+- Shows toast "Data berhasil di-restore dari riwayat!"
+- Build verified successfully
+
+Stage Summary:
+- Fixed riwayat-content.tsx: changed / to /potong-kertas in handleRestore else branch
+- Enhanced potong-kertas/page.tsx: added useSearchParams and restore useEffect with param mapping
+- Build passes, ready for deploy
+

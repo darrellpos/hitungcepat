@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight, Share2 } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { useLanguage } from '@/contexts/language-context'
@@ -80,6 +80,7 @@ const lbl = "text-base lg:text-xs font-medium text-slate-600 mb-0.5 block"
 function CalculatorPage() {
   const { t } = useLanguage()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const initialForm = useRef<FormData>(getInitialFormState())
   const [paperWidth, setPaperWidth] = useState(initialForm.current.paperWidth)
   const [paperHeight, setPaperHeight] = useState(initialForm.current.paperHeight)
@@ -133,6 +134,34 @@ function CalculatorPage() {
       .then(data => { if (Array.isArray(data)) setPapers(data); else setPapers([]) })
       .catch(() => setPapers([]))
   }, [])
+
+  // Restore from riwayat URL params
+  useEffect(() => {
+    const restored = searchParams.get('restoredFromRiwayat')
+    if (!restored) return
+
+    const printNameParam = searchParams.get('printName')
+    const paperLengthParam = searchParams.get('paperLength')
+    const paperWidthParam = searchParams.get('paperWidth')
+    const cutWidthParam = searchParams.get('cutWidth')
+    const cutHeightParam = searchParams.get('cutHeight')
+    const quantityParam = searchParams.get('quantity')
+
+    if (printNameParam) setPrintName(printNameParam)
+    if (paperLengthParam) setPaperWidth(paperLengthParam)
+    if (paperWidthParam) setPaperHeight(paperWidthParam)
+    if (cutWidthParam) setCutWidth(cutWidthParam)
+    if (cutHeightParam) setCutHeight(cutHeightParam)
+    if (quantityParam) setQuantity(quantityParam)
+
+    // Set custom paper mode since we're restoring specific dimensions
+    if (paperLengthParam || paperWidthParam) {
+      setSelectedPaperId('custom')
+      setIsCustomPaper(true)
+    }
+
+    toast.success('Data berhasil di-restore dari riwayat!')
+  }, [searchParams])
 
   const selectedPaper = papers.find(p => p.id === selectedPaperId)
   const selectedCustomer = customers.find(c => c.id === selectedCustomerId)
