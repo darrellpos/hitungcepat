@@ -56,3 +56,24 @@ Stage Summary:
 - Popup shows 6 payment method categories with expandable details
 - checkout page no longer calls /api/midtrans/create-transaction when Bayar Sekarang is clicked
 - Build passes successfully
+
+---
+Task ID: 2
+Agent: main
+Task: Setup fake Midtrans Sandbox for testing
+
+Work Log:
+- Added fake Midtrans Sandbox keys to .env (SB-Mid-server-FAKE_TEST_KEY_12345)
+- Modified create-transaction API to detect fake key and return mock data (mock: true, fake token)
+- Modified PaymentDialog handlePay to detect mock mode and simulate payment with 3-second countdown
+- Added isMockMode state and countdown timer to payment dialog
+- Updated paying step UI: mock mode shows countdown + "MODE TESTING" badge; real mode shows Snap loading
+- Mock mode auto-resolves to success after 3 seconds
+- check-status API already reads from database so works with mock mode
+- Build verified successfully
+
+Stage Summary:
+- Fake Sandbox mode is active - payment flow can be tested without real Midtrans API
+- API returns { mock: true } when fake key detected
+- PaymentDialog shows 3-2-1 countdown then auto-success
+- When ready to go live, just replace the 3 env vars with real Midtrans keys

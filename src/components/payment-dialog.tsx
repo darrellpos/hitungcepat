@@ -80,6 +80,8 @@ export default function PaymentDialog({ open, onClose, pkg, customerData }: Paym
   const [resultMessage, setResultMessage] = useState('');
   const [orderId, setOrderId] = useState('');
   const [snapToken, setSnapToken] = useState('');
+  const [isMockMode, setIsMockMode] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   // Reset saat popup dibuka
   useEffect(() => {
@@ -91,8 +93,17 @@ export default function PaymentDialog({ open, onClose, pkg, customerData }: Paym
       setResultMessage('');
       setOrderId('');
       setSnapToken('');
+      setIsMockMode(false);
+      setCountdown(0);
     }
   }, [open]);
+
+  // Countdown timer untuk mock mode
+  useEffect(() => {
+    if (!isMockMode || countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [isMockMode, countdown]);
 
   // Handle callback dari Midtrans Snap setelah redirect kembali
   useEffect(() => {
@@ -144,6 +155,23 @@ export default function PaymentDialog({ open, onClose, pkg, customerData }: Paym
       setOrderId(data.orderId);
       setSnapToken(data.token);
       sessionStorage.setItem('lastPaymentOrderId', data.orderId);
+
+      // ─── MOCK MODE: simulasi pembayaran ───
+      if (data.mock) {
+        setIsMockMode(true);
+        setStep('paying');
+        setCountdown(3);
+        // Simulasi delay 3 detik lalu auto success
+        setTimeout(() => {
+          setStep('result');
+          setResult('success');
+          setResultMessage('Pembayaran berhasil! Langganan Anda telah aktif. (Mode Testing/Sandbox)');
+          setLoading(false);
+        }, 3000);
+        return;
+      }
+
+      // ─── REAL MODE: panggil Midtrans Snap ───
       setStep('paying');
 
       // Load Midtrans Snap script dinamis
@@ -298,19 +326,36 @@ export default function PaymentDialog({ open, onClose, pkg, customerData }: Paym
                     </motion.div>
                   )}
 
-                  {/* STEP: Paying — Midtrans Snap Loading */}
+                  {/* STEP: Paying */}
                   {step === 'paying' && (
                     <motion.div key="paying" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.25 }}
                       className="flex flex-col items-center justify-center py-12"
                     >
-                      <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-4 animate-pulse">
-                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-                      </div>
-                      <h3 className="text-white text-xl font-bold mb-2">Memproses Pembayaran</h3>
-                      <p className="text-gray-400 text-sm text-center max-w-xs">
-                        Jendela pembayaran Midtrans sedang terbuka. Silakan selesaikan pembayaran Anda di popup yang muncul.
-                      </p>
-                      <p className="text-gray-500 text-xs mt-4">Menutup popup akan kembali ke pilihan metode</p>
+                      {isMockMode ? (
+                        <>
+                          <div className="w-20 h-20 rounded-full bg-orange-500/10 border-2 border-orange-500/30 flex items-center justify-center mb-4">
+                            <span className="text-3xl font-black text-orange-500">{countdown > 0 ? countdown : ''}</span>
+                          </div>
+                          <h3 className="text-white text-xl font-bold mb-2">Memproses Pembayaran</h3>
+                          <p className="text-gray-400 text-sm text-center max-w-xs mb-3">
+                            Simulasi pembayaran sedang berjalan...
+                          </p>
+                          <div className="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+                            <span className="text-[11px] text-amber-400 font-semibold">MODE TESTING</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-4 animate-pulse">
+                            <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                          </div>
+                          <h3 className="text-white text-xl font-bold mb-2">Memproses Pembayaran</h3>
+                          <p className="text-gray-400 text-sm text-center max-w-xs">
+                            Jendela pembayaran Midtrans sedang terbuka. Silakan selesaikan pembayaran Anda di popup yang muncul.
+                          </p>
+                          <p className="text-gray-500 text-xs mt-4">Menutup popup akan kembali ke pilihan metode</p>
+                        </>
+                      )}
                     </motion.div>
                   )}
 
