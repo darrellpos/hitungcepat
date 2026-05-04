@@ -3,7 +3,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import {
   Printer,
   Calculator,
@@ -193,10 +192,10 @@ function PricingCard({
       >
       <Card
         onClick={onSelect}
-        className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl ${
+        className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl bg-[#1a1a1a] ${
           popular
-            ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40 bg-gray-900'
-            : 'border border-gray-800 shadow-lg hover:shadow-xl bg-gray-900'
+            ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40'
+            : 'border border-white/10 shadow-lg hover:shadow-xl hover:border-white/20'
         }`}
       >
         {popular && (
@@ -211,18 +210,18 @@ function PricingCard({
           <h3 className="text-base font-bold text-white mt-1">{title}</h3>
           <p className="text-gray-400 text-xs mt-0.5">{description}{descriptionExtra && <><br />{descriptionExtra}</>}</p>
           <div className="mt-3">
-            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               {price}
             </span>
             {periodBelow ? (
-              <p className="text-gray-500 text-xs mt-1">{period}</p>
+              <p className="text-gray-400 text-xs mt-1">{period}</p>
             ) : (
               <span className="text-gray-500 text-xs ml-1">/{period}</span>
             )}
           </div>
         </CardHeader>
         <CardContent className="relative p-4 pt-0 flex-1">
-          <Separator className="mb-4 bg-gray-800" />
+          <Separator className="mb-4 bg-white/10" />
           <ul className="space-y-2">
             {features.map((feature, i) => (
               <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
@@ -237,7 +236,7 @@ function PricingCard({
             className={`ripple-btn w-full py-2 text-xs font-semibold transition-all duration-300 ${
               popular
                 ? 'cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30'
-                : 'bg-gray-900 hover:bg-gray-800 text-white'
+                : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
             }`}
           >
             Pilih Paket <ArrowRight className="ml-1.5 w-3 h-3" />
@@ -325,7 +324,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
             </div>
             <span className="text-xl font-extrabold tracking-tight">
               <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Darrell</span>
-              <span className="text-gray-900"> POS</span>
+              <span className="text-gray-900"> Soft</span>
             </span>
           </button>
           <Button
@@ -507,9 +506,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
 /* ------------------------------------------------------------------ */
 /*  Main Page                                                          */
 /* ------------------------------------------------------------------ */
-const WHATSAPP_URL = 'https://wa.me/6285888082208?text=Halo%20Darrell%20POS%2C%20saya%20tertarik%20untuk%20berlangganan!';
-
-const PaymentDialog = dynamic(() => import('@/components/payment-dialog'), { ssr: false });
+const WHATSAPP_URL = 'https://wa.me/6285888082208?text=Halo%20Darrell%20Soft%2C%20saya%20tertarik%20untuk%20berlangganan!';
 
 interface PackageInfo {
   type: string;
@@ -541,11 +538,7 @@ export default function Home() {
   };
 
   const openPayment = (pkgType: string) => {
-    const pkg = PACKAGES[pkgType];
-    if (pkg) {
-      setSelectedPkg(pkg);
-      setPaymentOpen(true);
-    }
+    router.push(`/checkout?plan=${pkgType}`);
   };
 
   return (
@@ -574,7 +567,7 @@ export default function Home() {
             </div>
             <span className="text-xl font-extrabold tracking-tight">
               <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Darrell</span>
-              <span className="text-gray-900"> POS</span>
+              <span className="text-gray-900"> Soft</span>
             </span>
           </div>
 
@@ -929,15 +922,15 @@ export default function Home() {
       </Section>
 
       {/* =================== HARGA =================== */}
-      <Section id="harga" className="bg-gray-950">
+      <Section id="harga" className="bg-black">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-gray-800 text-orange-400 border-gray-700 mb-4">
+            <Badge variant="secondary" className="bg-orange-500/20 text-orange-400 border-orange-500/30 mb-4">
               Pilihan Paket
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
               Paket Harga{' '}
-              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Tanpa Ribet</span>
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Tanpa Ribet</span>
             </h2>
             <p className="text-gray-400 mt-4 max-w-2xl mx-auto text-base md:text-lg">
               Pilih paket yang sesuai dengan kebutuhan bisnismu. Bisa batal kapan saja!
@@ -1021,7 +1014,7 @@ export default function Home() {
         {/* Guarantee */}
         <FadeIn delay={0.3}>
           <div className="mt-10 text-center">
-            <div className="inline-flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-full px-6 py-3">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-6 py-3">
               <Shield className="w-5 h-5 text-green-400" />
               <span className="text-sm font-semibold text-green-400">
                 Tanpa Ikatan Apapun! Bisa batal kapan saja tanpa denda.
@@ -1177,7 +1170,7 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-extrabold tracking-tight">
                   <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Darrell</span>
-                  <span className="text-white"> POS</span>
+                  <span className="text-white"> Soft</span>
                 </span>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">
@@ -1249,10 +1242,6 @@ export default function Home() {
 
       </motion.div>
 
-      {/* Payment Dialog — outside motion.div so fixed positioning works correctly */}
-      {selectedPkg && (
-        <PaymentDialog open={paymentOpen} onClose={() => setPaymentOpen(false)} pkg={selectedPkg} />
-      )}
       </div>
   );
 }
