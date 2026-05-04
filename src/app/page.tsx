@@ -192,7 +192,7 @@ function PricingCard({
       >
       <Card
         onClick={onSelect}
-        className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl bg-[#1a1a1a] ${
+        className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl ${
           popular
             ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40'
             : 'border border-white/10 shadow-lg hover:shadow-xl hover:border-white/20'
