@@ -138,8 +138,6 @@ function CheckoutContent() {
       if (password.length < 6) { setError('Password minimal 6 karakter'); return; }
       if (password !== confirmPassword) { setError('Konfirmasi password tidak cocok'); return; }
 
-      setLoading(true);
-
       // Simpan data ke localStorage untuk resume nanti
       const checkoutData = {
         plan: selectedPlan,
@@ -150,20 +148,6 @@ function CheckoutContent() {
         password: password,
       };
       localStorage.setItem('checkout_pending', JSON.stringify(checkoutData));
-
-      // Buat link pembayaran
-      const baseUrl = window.location.origin;
-      const paymentLink = `${baseUrl}/checkout?plan=${selectedPlan}&resume=1`;
-
-      // Buat pesan WhatsApp
-      const selectedPlanData = PLANS[selectedPlan];
-      const pesan = `Selesaikan pembayaran paket anda ${selectedPlanData.name} — ${selectedPlanData.subtitle} dengan menekan link yang tertera.\n\n${paymentLink}`;
-
-      const waUrl = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(pesan)}`;
-      window.open(waUrl, 'darrell_wa');
-
-      setLoading(false);
-      return;
     }
     setStep(s => Math.min(s + 1, 2));
   };
