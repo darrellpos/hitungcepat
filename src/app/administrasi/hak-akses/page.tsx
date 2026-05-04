@@ -41,10 +41,15 @@ interface Role {
 const SIMPLE_FEATURES = [
   { id: 'potong-kertas', name: 'Potong Kertas' },
   { id: 'hitung-cetakan', name: 'Hitung Cetakan' },
+  { id: 'hitung-finishing', name: 'Hitung Finishing' },
+  { id: 'hitung-ongkos-cetak', name: 'Hitung Ongkos Cetak' },
+  { id: 'hitung-harga-kertas', name: 'Hitung Harga Kertas' },
   { id: 'riwayat', name: 'Riwayat' },
   { id: 'hak-akses', name: 'Hak Akses' },
   { id: 'pengguna', name: 'Pengguna & Pembeli' },
   { id: 'pengaturan', name: 'Pengaturan' },
+  { id: 'invoice', name: 'Invoice' },
+  { id: 'surat-jalan', name: 'Surat Jalan' },
 ]
 
 // Group features
@@ -119,9 +124,9 @@ function buildDefaultFeatures(roleId: string): FeaturePermission[] {
     let allowed = false
     if (roleId === 'superadmin') allowed = true
     else if (roleId === 'admin') allowed = true
-    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'riwayat'].includes(f.id)
-    else if (roleId === 'demo') allowed = ['potong-kertas', 'hitung-cetakan'].includes(f.id)
-    else if (roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan'].includes(f.id)
+    else if (roleId === 'manager') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas', 'riwayat', 'invoice', 'surat-jalan'].includes(f.id)
+    else if (roleId === 'demo') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas'].includes(f.id)
+    else if (roleId === 'user') allowed = ['potong-kertas', 'hitung-cetakan', 'hitung-finishing', 'hitung-ongkos-cetak', 'hitung-harga-kertas'].includes(f.id)
     features.push({ featureId: f.id, featureName: f.name, allowed })
   }
 
