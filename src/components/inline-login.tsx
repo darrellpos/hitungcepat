@@ -412,7 +412,7 @@ export function InlineLogin({ onSuccess }: { onSuccess: (user: any) => void }) {
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-6">
-          &copy; Copyright by DarrellPOS 2026 All rights reserved
+          &copy; Copyright by Darrell Soft 2026 All rights reserved
         </p>
       </div>
 

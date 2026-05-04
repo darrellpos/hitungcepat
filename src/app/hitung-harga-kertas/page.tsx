@@ -123,7 +123,7 @@ export default function HitungHargaKertasPage() {
   const handleWhatsApp = () => {
     if (!calculations) { toast.error('Masukkan data kertas terlebih dahulu'); return }
     const paperName = selectedPaper ? selectedPaper.name : 'Custom'
-    const message = `Hitung Harga Kertas - DarrellPOS
+    const message = `Hitung Harga Kertas - Darrell Soft
 
 Nama: ${namaCetakan || '-'}
 Kertas: ${paperName} (${grammage} gsm)
@@ -201,7 +201,7 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
           ` : ''}
         </tbody>
       </table>
-      <div class="footer">DarrellPOS · Kalkulator Hitung Cetakan</div>
+      <div class="footer">Darrell Soft · Kalkulator Hitung Cetakan</div>
       </body></html>`
     printWindow.document.write(html)
     printWindow.document.close()

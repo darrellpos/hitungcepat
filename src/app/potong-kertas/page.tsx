@@ -555,7 +555,7 @@ function CalculatorPage() {
         ``,
         `_${r.blocks.map((b: any) => `• ${b.name}: ${b.horizontal}×${b.vertical}${b.rotated ? ' (90°)' : ''}`).join('\\n')}_`,
         ``,
-        `—— DarrellPOS ——`,
+        `—— Darrell Soft ——`,
       ].join('\\n')
 
       const encoded = encodeURIComponent(message)

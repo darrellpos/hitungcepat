@@ -359,7 +359,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
                 <Printer className="w-9 h-9 text-white" />
               </motion.div>
               <h1 className="text-2xl font-extrabold text-white">Selamat Datang!</h1>
-              <p className="text-white/80 text-sm mt-1">Masuk ke akun Darrell POS kamu</p>
+              <p className="text-white/80 text-sm mt-1">Masuk ke akun Darrell Soft kamu</p>
             </div>
 
             <CardContent className="p-8">
@@ -497,7 +497,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
       {/* Footer */}
       <footer className="w-full py-4 text-center">
         <p className="text-xs text-gray-400">
-          &copy; {new Date().getFullYear()} Darrell POS. All rights reserved.
+          &copy; {new Date().getFullYear()} Darrell Soft. All rights reserved.
         </p>
       </footer>
     </motion.div>
@@ -649,12 +649,12 @@ export default function Home() {
                 </h1>
 
                 <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                  Pakai <span className="font-bold text-gray-900">Darrell POS</span>! Dulu cuma yang ahli yang bisa hitung modal cetak.
+                  Pakai <span className="font-bold text-gray-900">Darrell Soft</span>! Dulu cuma yang ahli yang bisa hitung modal cetak.
                   Sekarang, <span className="font-semibold text-orange-600">siapapun bisa</span> jadi pengusaha percetakan sukses!
                 </p>
 
                 <p className="text-base text-gray-500 leading-relaxed">
-                  Lupakan kalkulator manual yang bikin pusing. Dengan Darrell POS, hitung modal jadi semudah mengetik.
+                  Lupakan kalkulator manual yang bikin pusing. Dengan Darrell Soft, hitung modal jadi semudah mengetik.
                 </p>
 
 
@@ -683,7 +683,7 @@ export default function Home() {
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-orange-500/10 border border-orange-100">
                   <img
                     src="/hero-printing.png"
-                    alt="Darrell POS - Sistem Kasir Percetakan"
+                    alt="Darrell Soft - Sistem Kasir Percetakan"
                     className="w-full h-auto object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-orange-900/10 to-transparent" />
@@ -773,8 +773,8 @@ export default function Home() {
         <FadeIn delay={0.05}>
           <div className="flex justify-center gap-3 sm:gap-5 mb-10 md:mb-12">
             {[
-              { src: '/fitur-small-1.jpeg', alt: 'Tampilan aplikasi Darrell POS' },
-              { src: '/fitur-small-2.jpeg', alt: 'Fitur kalkulasi Darrell POS' },
+              { src: '/fitur-small-1.jpeg', alt: 'Tampilan aplikasi Darrell Soft' },
+              { src: '/fitur-small-2.jpeg', alt: 'Fitur kalkulasi Darrell Soft' },
             ].map((img, i) => (
               <motion.div
                 key={i}
@@ -819,7 +819,7 @@ export default function Home() {
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
             <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
-              Kenapa Darrell POS?
+              Kenapa Darrell Soft?
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
               <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Cepat, Akurat,</span> dan Fleksibel!
@@ -1049,7 +1049,7 @@ export default function Home() {
           <TestimonialCard
             name="Budi Santoso"
             role="Pemilik CV Cetak Jaya"
-            quote="Dulu hitung modal cetak pakai kalkulator, sering salah dan rugi. Sekarang pakai Darrell POS, semua otomatis dan akurat. Profit naik 40%!"
+            quote="Dulu hitung modal cetak pakai kalkulator, sering salah dan rugi. Sekarang pakai Darrell Soft, semua otomatis dan akurat. Profit naik 40%!"
             avatar="BS"
             delay={0}
           />
@@ -1063,7 +1063,7 @@ export default function Home() {
           <TestimonialCard
             name="Ahmad Fauzi"
             role="Owner Print House Express"
-            quote="Support-nya responsif banget! Setiap ada pertanyaan langsung dijawab. Darrell POS memang solusi tepat untuk percetakan."
+            quote="Support-nya responsif banget! Setiap ada pertanyaan langsung dijawab. Darrell Soft memang solusi tepat untuk percetakan."
             avatar="AF"
             delay={0.3}
           />
@@ -1093,7 +1093,7 @@ export default function Home() {
               <span className="underline decoration-white/50 decoration-4 underline-offset-4">Cuan</span> Hari Ini?
             </h2>
             <p className="text-white/90 mt-6 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              Bergabung dengan ratusan pengusaha percetakan yang sudah merasakan kemudahan Darrell POS.
+              Bergabung dengan ratusan pengusaha percetakan yang sudah merasakan kemudahan Darrell Soft.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Button
@@ -1135,7 +1135,7 @@ export default function Home() {
           {[
             {
               q: 'Apakah bisa dicoba dulu sebelum berlangganan?',
-              a: 'Tentu! Kami menyediakan masa trial gratis agar kamu bisa merasakan semua fitur Darrell POS sebelum memutuskan berlangganan.',
+              a: 'Tentu! Kami menyediakan masa trial gratis agar kamu bisa merasakan semua fitur Darrell Soft sebelum memutuskan berlangganan.',
             },
             {
               q: 'Bagaimana cara berlangganan?',
@@ -1229,7 +1229,7 @@ export default function Home() {
           <div className="mt-10 pt-8 border-t border-gray-800">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-xs text-gray-600 text-center md:text-left">
-                &copy; {new Date().getFullYear()} Darrell POS. All rights reserved.
+                &copy; {new Date().getFullYear()} Darrell Soft. All rights reserved.
               </p>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 text-xs text-gray-600">

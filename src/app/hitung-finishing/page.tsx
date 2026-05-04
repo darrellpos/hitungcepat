@@ -217,7 +217,7 @@ export default function HitungFinishingPage() {
 
   const handleWhatsApp = () => {
     if (selectedFinishings.length === 0) { toast.error('Tambahkan finishing terlebih dahulu'); return }
-    const text = `Hitung Finishing - DarrellPOS\n\n` +
+    const text = `Hitung Finishing - Darrell Soft\n\n` +
       `Nama: ${namaCetakan || '-'}\n` +
       `Jumlah: ${qty.toLocaleString('id-ID')} lembar\n` +
       `Ukuran: ${lebarCm || '0'} × ${tinggiCm || '0'} cm\n\n` +
@@ -288,7 +288,7 @@ export default function HitungFinishingPage() {
       </table>
       <div class="total"><span class="label">Total Finishing</span><span class="value">Rp ${totalCost.toLocaleString('id-ID')}</span></div>
       ${hargaPerLembar > 0 ? `<div style="text-align:right;margin-top:8px;font-size:11px;color:#64748b">Harga per lembar: <strong>Rp ${hargaPerLembar.toLocaleString('id-ID')}</strong></div>` : ''}
-      <div class="footer">DarrellPOS · Kalkulator Hitung Cetakan</div>
+      <div class="footer">Darrell Soft · Kalkulator Hitung Cetakan</div>
       </body></html>`
 
     printWindow.document.write(html)

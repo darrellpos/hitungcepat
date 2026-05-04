@@ -238,7 +238,7 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
           <div class="row2"><span class="label">Harga per Lembar (${qty.toLocaleString('id-ID')} lbr)</span><span class="value">${fmt(calculations.hargaPerLembar)}/lbr</span></div>
         </div>
 
-        <div class="footer"><p>DarrellPOS · Kalkulator Hitung Cetakan</p></div>
+        <div class="footer"><p>Darrell Soft · Kalkulator Hitung Cetakan</p></div>
       </div>
       </body></html>`
     printWindow.document.write(html)
