@@ -11,24 +11,24 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Pengguna {
-  id            String          @id @default(cuid())
-  namaLengkap   String
-  nomorHP       String
-  email         String
-  username      String          @unique
-  password      String
-  role          String          @default("user")
-  createdAt     DateTime        @default(now())
-  validUntil    DateTime?
-  calonPembeli  CalonPembeli[]
+  id           String         @id @default(cuid())
+  namaLengkap  String
+  nomorHP      String
+  email        String
+  username     String         @unique
+  password     String
+  role         String         @default("user")
+  createdAt    DateTime       @default(now())
+  validUntil   DateTime?
+  calonPembeli CalonPembeli[]
 }
 
 model Post {
@@ -66,19 +66,19 @@ model Paper {
 }
 
 model PrintingCost {
-  id                          String   @id @default(cuid())
-  machineName                 String
-  grammage                    Int
-  printAreaWidth              Float
-  printAreaHeight             Float
-  pricePerColor               Float
-  specialColorPrice           Float
-  minimumPrintQuantity        Int
-  priceAboveMinimumPerSheet   Float
-  platePricePerSheet          Float
-  userId                      String?
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  id                        String   @id @default(cuid())
+  machineName               String
+  grammage                  Int
+  printAreaWidth            Float
+  printAreaHeight           Float
+  pricePerColor             Float
+  specialColorPrice         Float
+  minimumPrintQuantity      Int
+  priceAboveMinimumPerSheet Float
+  platePricePerSheet        Float
+  userId                    String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 model Finishing {
@@ -135,101 +135,101 @@ model Setting {
 }
 
 model RiwayatCetakan {
-  id                  String   @id @default(cuid())
-  type                String   @default("hitung_cetakan")
-  printName           String
-  customerName         String   @default("")
-  paperName           String
-  paperGrammage       String
-  paperLength         String
-  paperWidth          String
-  cutWidth            String
-  cutHeight           String
-  quantity            String
-  warna               String
-  warnaKhusus         String
-  machineName         String
-  hargaPlat           Float
-  ongkosCetak         Float
-  ongkosCetakDetail   String
-  machineName2        String    @default("")
-  ongkosCetak2        Float     @default(0)
-  ongkosCetak2Detail  String    @default("")
-  totalPaperPrice     Float
-  finishingNames      String
-  finishingBreakdown  String
-  finishingCost       Float
-  packingCost         Float
-  shippingCost        Float
-  otherCost           Float    @default(0)
-  glueCost            Float    @default(0)
-  glueBorongan        Float    @default(0)
-  subTotal            Float
-  profitPercent       Float
-  profitAmount        Float
-  grandTotal          Float
-  userId              String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  type               String   @default("hitung_cetakan")
+  printName          String
+  customerName       String   @default("")
+  paperName          String
+  paperGrammage      String
+  paperLength        String
+  paperWidth         String
+  cutWidth           String
+  cutHeight          String
+  quantity           String
+  warna              String
+  warnaKhusus        String
+  machineName        String
+  hargaPlat          Float
+  ongkosCetak        Float
+  ongkosCetakDetail  String
+  machineName2       String   @default("")
+  ongkosCetak2       Float    @default(0)
+  ongkosCetak2Detail String   @default("")
+  totalPaperPrice    Float
+  finishingNames     String
+  finishingBreakdown String
+  finishingCost      Float
+  packingCost        Float
+  shippingCost       Float
+  otherCost          Float    @default(0)
+  glueCost           Float    @default(0)
+  glueBorongan       Float    @default(0)
+  subTotal           Float
+  profitPercent      Float
+  profitAmount       Float
+  grandTotal         Float
+  userId             String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Invoice {
-  id                String   @id @default(cuid())
-  invoiceNumber     String   @unique
-  customerName      String
-  customerAddress   String   @default("")
-  customerPhone     String   @default("")
-  customerEmail     String   @default("")
-  invoiceDate       String
-  dueDate           String   @default("")
-  items             String   // JSON array of invoice items
-  subTotal          Float    @default(0)
-  discount          Float    @default(0)
-  tax               Float    @default(0)
-  grandTotal        Float    @default(0)
-  notes             String   @default("")
-  status            String   @default("draft") // draft, sent, paid, cancelled
-  riwayatCetakanId  String?
-  userId            String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String   @id @default(cuid())
+  invoiceNumber    String   @unique
+  customerName     String
+  customerAddress  String   @default("")
+  customerPhone    String   @default("")
+  customerEmail    String   @default("")
+  invoiceDate      String
+  dueDate          String   @default("")
+  items            String // JSON array of invoice items
+  subTotal         Float    @default(0)
+  discount         Float    @default(0)
+  tax              Float    @default(0)
+  grandTotal       Float    @default(0)
+  notes            String   @default("")
+  status           String   @default("draft") // draft, sent, paid, cancelled
+  riwayatCetakanId String?
+  userId           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Payment {
-  id                String   @id @default(cuid())
-  orderId           String   @unique
+  id                String    @id @default(cuid())
+  orderId           String    @unique
   packageName       String
   packageType       String
   grossAmount       Float
-  customerName      String   @default("")
-  customerEmail     String   @default("")
-  customerPhone     String   @default("")
+  customerName      String    @default("")
+  customerEmail     String    @default("")
+  customerPhone     String    @default("")
   paymentType       String?
   transactionId     String?
   transactionTime   DateTime?
-  transactionStatus String   @default("pending")
+  transactionStatus String    @default("pending")
   fraudStatus       String?
   userId            String?
-  metadata          String   @default("{}")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  metadata          String    @default("{}")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model SuratJalan {
-  id                String   @id @default(cuid())
-  suratJalanNumber  String   @unique
-  customerName      String
-  customerAddress   String   @default("")
-  customerPhone     String   @default("")
-  driverName        String   @default("")
-  vehicleNumber     String   @default("")
-  deliveryDate      String
-  items             String   // JSON array of delivery items
-  notes             String   @default("")
-  status            String   @default("draft") // draft, delivered, cancelled
-  invoiceId         String?
-  riwayatCetakanId  String?
-  userId            String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String   @id @default(cuid())
+  suratJalanNumber String   @unique
+  customerName     String
+  customerAddress  String   @default("")
+  customerPhone    String   @default("")
+  driverName       String   @default("")
+  vehicleNumber    String   @default("")
+  deliveryDate     String
+  items            String // JSON array of delivery items
+  notes            String   @default("")
+  status           String   @default("draft") // draft, delivered, cancelled
+  invoiceId        String?
+  riwayatCetakanId String?
+  userId           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

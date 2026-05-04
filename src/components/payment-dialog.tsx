@@ -1,19 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
-  ChevronDown,
-  Copy,
+  ChevronRight,
   Check,
   CreditCard,
   Building2,
   Wallet,
   Shield,
+  Sparkles,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Lock,
   Smartphone,
-  Landmark,
-  QrCode,
 } from 'lucide-react';
 
 interface PackageInfo {
@@ -28,74 +31,188 @@ interface PaymentDialogProps {
   open: boolean;
   onClose: () => void;
   pkg: PackageInfo;
+  customerData?: { name: string; email: string; phone: string };
 }
 
-/* ─── data rekening per bank ─── */
-interface BankAccount {
-  bank: string;
-  number: string;
-  holder: string;
-  code?: string;
+function formatRupiah(n: number) {
+  return 'Rp ' + n.toLocaleString('id-ID');
 }
 
-const TRANSFER_ACCOUNTS: BankAccount[] = [
-  { bank: 'Bank BCA', number: '1234 5678 9012', holder: 'PT Darrell Soft Indonesia', code: '014' },
-  { bank: 'Bank BNI', number: '0123 4567 8901', holder: 'PT Darrell Soft Indonesia', code: '009' },
-  { bank: 'Bank Mandiri', number: '1300 0123 4567', holder: 'PT Darrell Soft Indonesia', code: '008' },
-  { bank: 'Bank BRI', number: '0012 3456 7890', holder: 'PT Darrell Soft Indonesia', code: '002' },
+type DialogStep = 'method' | 'paying' | 'result';
+type PaymentResult = 'success' | 'pending' | 'error' | null;
+
+const PAYMENT_METHODS = [
+  // Transfer Bank
+  { id: 'bca_va', label: 'Transfer BCA', sublabel: 'Transfer via ATM / M-Banking BCA', icon: '🏦', category: 'transfer', popular: true },
+  { id: 'bni_va', label: 'Transfer BNI', sublabel: 'Transfer via ATM / M-Banking BNI', icon: '🏦', category: 'transfer', popular: false },
+  { id: 'mandiri_va', label: 'Transfer Mandiri', sublabel: 'Transfer via ATM / M-Banking Mandiri', icon: '🏦', category: 'transfer', popular: false },
+  { id: 'bri_va', label: 'Transfer BRI', sublabel: 'Transfer via ATM / M-Banking BRI', icon: '🏦', category: 'transfer', popular: false },
+  // Virtual Account
+  { id: 'permata_va', label: 'Virtual Account Permata', sublabel: 'Bayar via VA Bank Permata', icon: '🏦', category: 'va', popular: false },
+  { id: 'bsi_va', label: 'Virtual Account BSI', sublabel: 'Bayar via VA Bank BSI', icon: '🏦', category: 'va', popular: false },
+  // E-Money
+  { id: 'gopay', label: 'GoPay', sublabel: 'Bayar via aplikasi Gojek', icon: '💳', category: 'emoney', popular: true },
+  { id: 'shopeepay', label: 'ShopeePay', sublabel: 'Bayar via aplikasi Shopee', icon: '🛒', category: 'emoney', popular: false },
+  { id: 'dana', label: 'DANA', sublabel: 'Bayar via aplikasi Dana', icon: '💳', category: 'emoney', popular: false },
+  // Debit
+  { id: 'debit', label: 'Kartu Debit', sublabel: 'Visa, Mastercard debit online', icon: '💳', category: 'debit', popular: false },
+  // Kredit
+  { id: 'cc', label: 'Kartu Kredit', sublabel: 'Visa, Mastercard, JCB, AMEX', icon: '💳', category: 'kredit', popular: true },
+  // QRIS
+  { id: 'qris', label: 'QRIS', sublabel: 'Scan QR dari aplikasi bank manapun', icon: '📱', category: 'qris', popular: true },
 ];
 
-const VA_ACCOUNTS: BankAccount[] = [
-  { bank: 'Virtual Account BCA', number: '8800 1234 5678 9012', holder: 'PT Darrell Soft Indonesia' },
-  { bank: 'Virtual Account Permata', number: '7210 1234 5678 9012', holder: 'PT Darrell Soft Indonesia' },
-  { bank: 'Virtual Account BSI', number: '9170 0123 4567 8901', holder: 'PT Darrell Soft Indonesia' },
-];
-
-const EMONEY_LIST = [
-  { id: 'gopay', label: 'GoPay', desc: 'Bayar melalui aplikasi Gojek → GoPay → Transfer → ke nomor 0812-3456-7890 a.n. Darrell Soft', color: '#00AED6' },
-  { id: 'shopeepay', label: 'ShopeePay', desc: 'Bayar melalui aplikasi Shopee → ShopeePay → Transfer → ke nomor 0812-3456-7890 a.n. Darrell Soft', color: '#EE4D2D' },
-  { id: 'dana', label: 'DANA', desc: 'Bayar melalui aplikasi DANA → Transfer → ke nomor 0812-3456-7890 a.n. Darrell Soft', color: '#108EE9' },
-  { id: 'ovo', label: 'OVO', desc: 'Bayar melalui aplikasi OVO → Transfer → ke nomor 0812-3456-7890 a.n. Darrell Soft', color: '#4C3494' },
-];
-
-/* ─── kategori metode bayar ─── */
-interface PaymentCategory {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const CATEGORIES: PaymentCategory[] = [
-  { id: 'transfer', label: 'Transfer Bank', icon: <Landmark className="w-4 h-4" />, color: '#3b82f6' },
-  { id: 'va', label: 'Virtual Account', icon: <Building2 className="w-4 h-4" />, color: '#8b5cf6' },
-  { id: 'emoney', label: 'E-Money', icon: <Wallet className="w-4 h-4" />, color: '#f59e0b' },
-  { id: 'debit', label: 'Debit', icon: <CreditCard className="w-4 h-4" />, color: '#10b981' },
-  { id: 'kredit', label: 'Kredit', icon: <CreditCard className="w-4 h-4" />, color: '#ef4444' },
-  { id: 'qris', label: 'QRIS', icon: <QrCode className="w-4 h-4" />, color: '#06b6d4' },
+const CATEGORIES = [
+  { id: 'transfer', label: 'Transfer Bank', icon: <Building2 className="w-3.5 h-3.5" /> },
+  { id: 'va', label: 'Virtual Account', icon: <Building2 className="w-3.5 h-3.5" /> },
+  { id: 'emoney', label: 'E-Money', icon: <Wallet className="w-3.5 h-3.5" /> },
+  { id: 'debit', label: 'Debit', icon: <CreditCard className="w-3.5 h-3.5" /> },
+  { id: 'kredit', label: 'Kredit', icon: <CreditCard className="w-3.5 h-3.5" /> },
+  { id: 'qris', label: 'QRIS', icon: <Smartphone className="w-3.5 h-3.5" /> },
 ];
 
 /* ─── komponen utama ─── */
-export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps) {
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+export default function PaymentDialog({ open, onClose, pkg, customerData }: PaymentDialogProps) {
+  const [step, setStep] = useState<DialogStep>('method');
+  const [selectedMethod, setSelectedMethod] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<PaymentResult>(null);
+  const [resultMessage, setResultMessage] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [snapToken, setSnapToken] = useState('');
 
+  // Reset saat popup dibuka
   useEffect(() => {
     if (open) {
-      setExpanded(null);
-      setCopiedId(null);
+      setStep('method');
+      setSelectedMethod('');
+      setLoading(false);
+      setResult(null);
+      setResultMessage('');
+      setOrderId('');
+      setSnapToken('');
     }
   }, [open]);
 
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text.replace(/\s/g, '')).then(() => {
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    });
-  };
+  // Handle callback dari Midtrans Snap setelah redirect kembali
+  useEffect(() => {
+    if (!open) return;
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('payment');
+    const savedOrderId = sessionStorage.getItem('lastPaymentOrderId');
+    if (paymentStatus && savedOrderId) {
+      if (paymentStatus === 'finish') {
+        checkPaymentResult(savedOrderId);
+      } else if (paymentStatus === 'pending') {
+        setStep('result'); setResult('pending');
+        setResultMessage('Menunggu pembayaran Anda. Silakan selesaikan pembayaran untuk mengaktifkan langganan.');
+      } else if (paymentStatus === 'error') {
+        setStep('result'); setResult('error');
+        setResultMessage('Pembayaran dibatalkan atau gagal. Silakan coba lagi.');
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+      sessionStorage.removeItem('lastPaymentOrderId');
+    }
+  }, [open]);
 
-  const toggle = (id: string) => {
-    setExpanded(prev => (prev === id ? null : id));
+  const handlePay = useCallback(async () => {
+    if (!selectedMethod) return;
+
+    const name = customerData?.name || '';
+    const email = customerData?.email || '';
+    const phone = customerData?.phone || '';
+
+    setLoading(true);
+    setResultMessage('');
+    try {
+      // Buat transaksi ke Midtrans via API kita
+      const res = await fetch('/api/midtrans/create-transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageName: pkg.name,
+          packageType: pkg.type,
+          price: pkg.price,
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Gagal membuat transaksi');
+
+      setOrderId(data.orderId);
+      setSnapToken(data.token);
+      sessionStorage.setItem('lastPaymentOrderId', data.orderId);
+      setStep('paying');
+
+      // Load Midtrans Snap script dinamis
+      await new Promise<void>((resolve, reject) => {
+        const win = window as unknown as Record<string, unknown>;
+        if (win.snap) { resolve(); return; }
+        const script = document.createElement('script');
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.setAttribute('data-client-key', process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '');
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Gagal memuat payment gateway'));
+        document.body.appendChild(script);
+      });
+
+      // Buka Midtrans Snap popup
+      const snap = (window as unknown as Record<string, Record<string, (token: string, callbacks?: Record<string, () => void>) => void>>).snap;
+      if (snap && snap.pay) {
+        snap.pay(data.token, {
+          onSuccess: () => {
+            setStep('result'); setResult('success');
+            setResultMessage('Pembayaran berhasil! Langganan Anda telah aktif.');
+            setLoading(false);
+          },
+          onPending: () => {
+            setStep('result'); setResult('pending');
+            setResultMessage('Menunggu pembayaran Anda. Silakan selesaikan pembayaran untuk mengaktifkan langganan.');
+            setLoading(false);
+          },
+          onError: () => {
+            setStep('result'); setResult('error');
+            setResultMessage('Pembayaran gagal. Silakan coba lagi dengan metode pembayaran lain.');
+            setLoading(false);
+          },
+          onClose: () => {
+            setStep('method');
+            setLoading(false);
+          },
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan';
+      setResultMessage(message);
+      setStep('result');
+      setResult('error');
+      setLoading(false);
+    }
+  }, [selectedMethod, pkg, customerData]);
+
+  const checkPaymentResult = async (oid: string) => {
+    try {
+      const res = await fetch(`/api/midtrans/check-status?order_id=${oid}`);
+      const data = await res.json();
+      if (data.success) {
+        const s = data.data.transactionStatus;
+        if (s === 'success') {
+          setStep('result'); setResult('success');
+          setResultMessage('Pembayaran berhasil! Langganan Anda telah aktif.');
+        } else if (s === 'pending') {
+          setStep('result'); setResult('pending');
+          setResultMessage('Menunggu pembayaran Anda.');
+        } else {
+          setStep('result'); setResult('error');
+          setResultMessage('Pembayaran gagal atau expired.');
+        }
+      }
+    } catch {
+      setStep('result'); setResult('error');
+      setResultMessage('Gagal mengecek status pembayaran.');
+    }
   };
 
   return (
@@ -108,7 +225,7 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]"
-            onClick={onClose}
+            onClick={step === 'result' ? onClose : undefined}
           />
 
           {/* Dialog */}
@@ -117,217 +234,177 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-x-4 top-[5%] sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg z-[101]"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-4 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg z-[101]"
           >
-            <div className="bg-[#141414] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 max-h-[85vh] flex flex-col">
+            <div className="bg-[#141414] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 max-h-[90vh] flex flex-col">
 
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                    <CreditCard className="w-4 h-4 text-white" />
+                    <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                  <div>
-                    <h2 className="text-white text-base font-bold">Cara Pembayaran</h2>
-                    <p className="text-gray-500 text-[11px]">Pilih metode dan ikuti petunjuk pembayaran</p>
-                  </div>
+                  <h2 className="text-white text-lg font-bold">Metode Pembayaran</h2>
                 </div>
-                <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10">
-                  <X className="w-5 h-5" />
-                </button>
+                {step !== 'paying' && (
+                  <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10">
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
               </div>
 
-              {/* Total */}
-              <div className="px-6 py-3 bg-gradient-to-r from-orange-500/10 to-red-500/5 border-b border-white/5 shrink-0">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Total Pembayaran</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{pkg.name} — {pkg.period}</p>
-                  </div>
-                  <span className="text-xl font-black text-white">{pkg.priceFormatted}</span>
-                </div>
-              </div>
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-6 py-4">
+                <AnimatePresence mode="wait">
 
-              {/* Content — scrollable */}
-              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+                  {/* STEP: Pilih Metode Pembayaran */}
+                  {step === 'method' && (
+                    <motion.div key="method" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }}>
+                      <p className="text-gray-400 text-sm mb-5">Pilih metode pembayaran yang Anda inginkan</p>
 
-                {/* ── Transfer Bank ── */}
-                <CategoryBlock
-                  cat={CATEGORIES[0]}
-                  expanded={expanded === 'transfer'}
-                  onClick={() => toggle('transfer')}
-                >
-                  <div className="space-y-2 pt-1">
-                    {TRANSFER_ACCOUNTS.map((acc, i) => (
-                      <AccountCard key={i} acc={acc} copiedId={copiedId} onCopy={copyToClipboard} prefix="trf" index={i} />
-                    ))}
-                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-                      Transfer melalui ATM, Mobile Banking, atau Internet Banking ke rekening di atas. Pastikan nominal transfer sesuai dengan total pembayaran.
-                    </p>
-                  </div>
-                </CategoryBlock>
-
-                {/* ── Virtual Account ── */}
-                <CategoryBlock
-                  cat={CATEGORIES[1]}
-                  expanded={expanded === 'va'}
-                  onClick={() => toggle('va')}
-                >
-                  <div className="space-y-2 pt-1">
-                    {VA_ACCOUNTS.map((acc, i) => (
-                      <AccountCard key={i} acc={acc} copiedId={copiedId} onCopy={copyToClipboard} prefix="va" index={i} />
-                    ))}
-                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-                      Bayar melalui ATM, Mobile Banking, atau Internet Banking menggunakan nomor Virtual Account di atas. Nominal harus exact match.
-                    </p>
-                  </div>
-                </CategoryBlock>
-
-                {/* ── E-Money ── */}
-                <CategoryBlock
-                  cat={CATEGORIES[2]}
-                  expanded={expanded === 'emoney'}
-                  onClick={() => toggle('emoney')}
-                >
-                  <div className="space-y-2 pt-1">
-                    {EMONEY_LIST.map((em, i) => (
-                      <div key={em.id} className="bg-white/5 rounded-lg p-3 border border-white/5">
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: em.color }}>
-                            {em.label.charAt(0)}
+                      {/* Total */}
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-orange-500/10 to-red-500/5 border border-orange-500/20 mb-5">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Total Pembayaran</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{pkg.name} — {pkg.period}</p>
                           </div>
-                          <span className="text-sm font-semibold text-white">{em.label}</span>
+                          <span className="text-xl font-black text-white">{pkg.priceFormatted}</span>
                         </div>
-                        <p className="text-[11px] text-gray-400 leading-relaxed">{em.desc}</p>
                       </div>
-                    ))}
-                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-                      Transfer e-money dari aplikasi masing-masing ke nomor yang tertera. Pastikan nominal sesuai.
-                    </p>
-                  </div>
-                </CategoryBlock>
 
-                {/* ── Debit ── */}
-                <CategoryBlock
-                  cat={CATEGORIES[3]}
-                  expanded={expanded === 'debit'}
-                  onClick={() => toggle('debit')}
-                >
-                  <div className="pt-1">
-                    <div className="space-y-3">
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <Shield className="w-4 h-4 text-emerald-400" />
-                          <span className="text-sm font-semibold text-white">Kartu Debit Online</span>
-                        </div>
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          Gunakan kartu debit Visa atau Mastercard yang sudah aktif fitur transaksi online (debit online / 3DS). Hubungi bank penerbit kartu untuk mengaktifkan fitur ini.
-                        </p>
-                      </div>
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          <span className="text-gray-300 font-medium">Langkah:</span>
-                          <ol className="list-decimal list-inside mt-1 space-y-0.5">
-                            <li>Pilih menu &quot;Bayar dengan Kartu Debit&quot;</li>
-                            <li>Masukkan nomor kartu debit 16 digit</li>
-                            <li>Masukkan expiry date dan CVV</li>
-                            <li>Verifikasi OTP dari bank Anda</li>
-                            <li>Pembayaran selesai</li>
-                          </ol>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CategoryBlock>
+                      {/* Transfer Bank */}
+                      {CATEGORIES.map(cat => {
+                        const methods = PAYMENT_METHODS.filter(m => m.category === cat.id);
+                        if (methods.length === 0) return null;
+                        return (
+                          <div key={cat.id} className="mb-4">
+                            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                              {cat.icon} {cat.label}
+                            </h4>
+                            <div className="space-y-2">
+                              {methods.map(m => (
+                                <PaymentMethodCard
+                                  key={m.id}
+                                  method={m}
+                                  selected={selectedMethod === m.id}
+                                  onClick={() => setSelectedMethod(m.id)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </motion.div>
+                  )}
 
-                {/* ── Kredit ── */}
-                <CategoryBlock
-                  cat={CATEGORIES[4]}
-                  expanded={expanded === 'kredit'}
-                  onClick={() => toggle('kredit')}
-                >
-                  <div className="pt-1">
-                    <div className="space-y-3">
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <CreditCard className="w-4 h-4 text-red-400" />
-                          <span className="text-sm font-semibold text-white">Kartu Kredit</span>
-                        </div>
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          Diterima: Visa, Mastercard, JCB, dan AMEX. Proses verifikasi instan. Pastikan limit kartu mencukupi.
-                        </p>
+                  {/* STEP: Paying — Midtrans Snap Loading */}
+                  {step === 'paying' && (
+                    <motion.div key="paying" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.25 }}
+                      className="flex flex-col items-center justify-center py-12"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-4 animate-pulse">
+                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
                       </div>
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <CreditCard className="w-4 h-4 text-red-400" />
-                          <span className="text-sm font-semibold text-white">Cicilan 0%</span>
-                        </div>
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          Tersedia opsi cicilan 3, 6, dan 12 bulan bunga 0% untuk paket Tahunan dan Lifetime. Pada langkah pembayaran, pilih tenor cicilan yang diinginkan.
-                        </p>
-                      </div>
-                      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          <span className="text-gray-300 font-medium">Langkah:</span>
-                          <ol className="list-decimal list-inside mt-1 space-y-0.5">
-                            <li>Pilih menu &quot;Bayar dengan Kartu Kredit&quot;</li>
-                            <li>Masukkan nomor kartu kredit 16 digit</li>
-                            <li>Masukkan expiry date dan CVV</li>
-                            <li>Pilih tenor cicilan (lumpsum / 3 / 6 / 12 bulan)</li>
-                            <li>Verifikasi OTP dari bank Anda</li>
-                            <li>Pembayaran selesai</li>
-                          </ol>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CategoryBlock>
-
-                {/* ── QRIS ── */}
-                <CategoryBlock
-                  cat={CATEGORIES[5]}
-                  expanded={expanded === 'qris'}
-                  onClick={() => toggle('qris')}
-                >
-                  <div className="pt-1">
-                    <div className="bg-white/5 rounded-lg p-4 border border-white/5 text-center">
-                      {/* QR code placeholder */}
-                      <div className="w-40 h-40 mx-auto bg-white rounded-xl flex items-center justify-center mb-3">
-                        <div className="text-center">
-                          <QrCode className="w-16 h-16 text-gray-800 mx-auto" />
-                          <p className="text-[10px] text-gray-500 mt-1 font-medium">Scan QRIS</p>
-                        </div>
-                      </div>
-                      <p className="text-sm font-semibold text-white mb-1">Scan QR Code</p>
-                      <p className="text-[11px] text-gray-400 leading-relaxed">
-                        Buka aplikasi mobile banking, e-wallet, atau aplikasi pembayaran lainnya. Scan QR code di atas untuk membayar. QRIS diterima oleh semua bank dan e-wallet di Indonesia.
+                      <h3 className="text-white text-xl font-bold mb-2">Memproses Pembayaran</h3>
+                      <p className="text-gray-400 text-sm text-center max-w-xs">
+                        Jendela pembayaran Midtrans sedang terbuka. Silakan selesaikan pembayaran Anda di popup yang muncul.
                       </p>
-                    </div>
-                    <div className="mt-2 bg-white/5 rounded-lg p-3 border border-white/5">
-                      <p className="text-[11px] text-gray-400 leading-relaxed">
-                        <span className="text-gray-300 font-medium">Aplikasi yang mendukung QRIS:</span> GoPay, ShopeePay, Dana, OVO, LinkAja, M-Banking BCA, BNI, Mandiri, BRI, BSI, dan lainnya.
-                      </p>
-                    </div>
-                  </div>
-                </CategoryBlock>
+                      <p className="text-gray-500 text-xs mt-4">Menutup popup akan kembali ke pilihan metode</p>
+                    </motion.div>
+                  )}
 
+                  {/* STEP: Result */}
+                  {step === 'result' && (
+                    <motion.div key="result" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.25 }}
+                      className="flex flex-col items-center justify-center py-8"
+                    >
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.2 }}
+                        className={`w-20 h-20 rounded-full flex items-center justify-center mb-5 ${
+                          result === 'success' ? 'bg-emerald-500/20' : result === 'pending' ? 'bg-amber-500/20' : 'bg-red-500/20'
+                        }`}
+                      >
+                        {result === 'success' && <CheckCircle2 className="w-10 h-10 text-emerald-500" />}
+                        {result === 'pending' && <Clock className="w-10 h-10 text-amber-500" />}
+                        {result === 'error' && <XCircle className="w-10 h-10 text-red-500" />}
+                      </motion.div>
+                      <h3 className="text-white text-xl font-bold mb-2">
+                        {result === 'success' && 'Pembayaran Berhasil!'}
+                        {result === 'pending' && 'Menunggu Pembayaran'}
+                        {result === 'error' && 'Pembayaran Gagal'}
+                      </h3>
+                      <p className="text-gray-400 text-sm text-center max-w-xs mb-2">{resultMessage}</p>
+                      {result === 'pending' && (
+                        <p className="text-gray-500 text-xs text-center max-w-xs mb-4">
+                          Anda akan menerima konfirmasi setelah pembayaran berhasil diverifikasi. Ini mungkin memakan waktu beberapa menit.
+                        </p>
+                      )}
+                      {orderId && (
+                        <div className="w-full p-3 rounded-lg bg-white/5 border border-white/10 mb-4">
+                          <span className="text-[10px] text-gray-500 uppercase tracking-wider">ID Pesanan</span>
+                          <p className="text-sm text-gray-300 font-mono mt-0.5">{orderId}</p>
+                        </div>
+                      )}
+                      <div className="w-full p-3 rounded-lg bg-white/5 border border-white/10 mb-6">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-xs text-gray-500">Paket</p>
+                            <p className="text-sm text-white font-medium">{pkg.name}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">Jumlah</p>
+                            <p className="text-sm text-white font-bold">{pkg.priceFormatted}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                </AnimatePresence>
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-3 border-t border-white/10 shrink-0">
-                <div className="flex items-center justify-center gap-2 text-gray-500 text-[11px]">
-                  <Shield className="w-3 h-3" />
-                  <span>Setelah membayar, konfirmasi ke admin via WhatsApp</span>
+              {step !== 'paying' && (
+                <div className="px-6 py-4 border-t border-white/10">
+                  {step === 'result' ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center gap-2 text-gray-500 text-xs">
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Pembayaran aman & terenkripsi via Midtrans</span>
+                      </div>
+                      <button onClick={onClose} className="w-full py-3 rounded-xl bg-white text-[#141414] font-bold text-sm hover:bg-gray-200 transition-colors">
+                        {result === 'success' ? 'Mulai Gunakan' : 'Tutup'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <button
+                        onClick={handlePay}
+                        disabled={!selectedMethod || loading}
+                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
+                          selectedMethod && !loading
+                            ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 shadow-lg shadow-orange-500/20'
+                            : 'bg-white/5 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4" />
+                            Bayar dengan {selectedMethod ? PAYMENT_METHODS.find(m => m.id === selectedMethod)?.label : 'Pilih Metode'}
+                            <ChevronRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                      <div className="flex items-center justify-center gap-2 text-gray-500 text-[11px]">
+                        <Shield className="w-3 h-3" />
+                        <span>Diproses secara aman melalui Midtrans</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={onClose}
-                  className="w-full mt-3 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-sm hover:from-orange-600 hover:to-red-700 transition-all duration-200 shadow-lg shadow-orange-500/20"
-                >
-                  Tutup
-                </button>
-              </div>
-
+              )}
             </div>
           </motion.div>
         </>
@@ -336,99 +413,38 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
   );
 }
 
-/* ─── sub-components ─── */
+/* ─── Sub-components ─── */
 
-function CategoryBlock({
-  cat,
-  expanded,
-  onClick,
-  children,
-}: {
-  cat: PaymentCategory;
-  expanded: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-white/10 overflow-hidden transition-all duration-200">
-      <button
-        onClick={onClick}
-        className={`w-full flex items-center justify-between px-4 py-3 transition-all duration-200 ${
-          expanded ? 'bg-white/5' : 'hover:bg-white/[0.03]'
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            style={{ backgroundColor: expanded ? cat.color : `${cat.color}20`, color: expanded ? 'white' : cat.color }}
-          >
-            {cat.icon}
-          </div>
-          <span className={`text-sm font-semibold transition-colors ${expanded ? 'text-white' : 'text-gray-200'}`}>
-            {cat.label}
-          </span>
-        </div>
-        <motion.div
-          animate={{ rotate: expanded ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronDown className={`w-4 h-4 transition-colors ${expanded ? 'text-white' : 'text-gray-500'}`} />
-        </motion.div>
-      </button>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+interface PaymentMethodItem {
+  id: string; label: string; sublabel: string; icon: string; category: string; popular: boolean;
 }
 
-function AccountCard({
-  acc,
-  copiedId,
-  onCopy,
-  prefix,
-  index,
-}: {
-  acc: BankAccount;
-  copiedId: string | null;
-  onCopy: (text: string, id: string) => void;
-  prefix: string;
-  index: number;
-}) {
-  const id = `${prefix}-${index}`;
+function PaymentMethodCard({ method, selected, onClick }: { method: PaymentMethodItem; selected: boolean; onClick: () => void }) {
   return (
-    <div className="bg-white/5 rounded-lg p-3 border border-white/5">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-semibold text-white">{acc.bank}</span>
-        {copiedId === id ? (
-          <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-medium">
-            <Check className="w-3 h-3" /> Tersalin
-          </span>
-        ) : (
-          <button
-            onClick={() => onCopy(acc.number, id)}
-            className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-white transition-colors font-medium"
-          >
-            <Copy className="w-3 h-3" /> Salin
-          </button>
-        )}
+    <motion.button
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200 text-left ${
+        selected
+          ? 'border-orange-500 bg-orange-500/10 shadow-lg shadow-orange-500/10'
+          : 'border-white/10 bg-white/[0.02] hover:bg-white/5 hover:border-white/20'
+      }`}
+    >
+      <span className="text-2xl">{method.icon}</span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-semibold ${selected ? 'text-white' : 'text-gray-200'}`}>{method.label}</span>
+          {method.popular && (
+            <span className="bg-orange-500/20 text-orange-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase">Populer</span>
+          )}
+        </div>
+        <span className="text-xs text-gray-500">{method.sublabel}</span>
       </div>
-      <div className="flex items-center gap-2">
-        <code className="text-sm font-mono text-gray-200 tracking-wide">{acc.number}</code>
+      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+        selected ? 'border-orange-500 bg-orange-500' : 'border-gray-600'
+      }`}>
+        {selected && <Check className="w-3 h-3 text-white" />}
       </div>
-      <p className="text-[11px] text-gray-500 mt-1">a.n. <span className="text-gray-400">{acc.holder}</span></p>
-    </div>
+    </motion.button>
   );
 }

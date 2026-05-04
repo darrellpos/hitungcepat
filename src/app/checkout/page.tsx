@@ -157,10 +157,41 @@ function CheckoutContent() {
     setStep(s => Math.max(s - 1, 0));
   };
 
-  const handlePay = useCallback(() => {
+  const handlePay = useCallback(async () => {
     if (!plan) return;
-    setShowPaymentPopup(true);
-  }, [plan]);
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/midtrans/create-transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageType: plan.id,
+          packageName: plan.name,
+          price: plan.price,
+          customerName: customerName.trim(),
+          customerEmail: customerEmail.trim(),
+          customerPhone: customerPhone.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || data.message || 'Gagal membuat transaksi');
+        setLoading(false);
+        return;
+      }
+
+      // Tutup loading, buka popup pembayaran
+      setLoading(false);
+      setShowPaymentPopup(true);
+    } catch (err) {
+      setError('Terjadi kesalahan koneksi');
+      setLoading(false);
+    }
+  }, [plan, customerName, customerEmail, customerPhone]);
 
   return (
     <div className="min-h-screen bg-[#141414] text-white flex flex-col">
@@ -581,6 +612,11 @@ function CheckoutContent() {
             price: plan.price,
             priceFormatted: plan.priceFormatted,
             period: plan.period,
+          }}
+          customerData={{
+            name: customerName.trim(),
+            email: customerEmail.trim(),
+            phone: customerPhone.trim(),
           }}
         />
       )}
