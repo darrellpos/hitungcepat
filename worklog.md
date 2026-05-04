@@ -38,3 +38,21 @@ Stage Summary:
 - Enhanced potong-kertas/page.tsx: added useSearchParams and restore useEffect with param mapping
 - Build passes, ready for deploy
 
+---
+Task ID: 1
+Agent: main
+Task: Remove Midtrans integration from payment popup, show direct payment methods
+
+Work Log:
+- Rewrote payment-dialog.tsx completely - removed all Midtrans API calls, Snap script loading, and transaction processing
+- Created expandable category-based payment info popup with 6 categories: Transfer Bank, Virtual Account, E-Money, Debit, Kredit, QRIS
+- Each category shows detailed payment instructions with bank account numbers, e-money transfer details, card payment steps, QRIS code placeholder
+- Added copy-to-clipboard functionality for bank account numbers
+- Updated checkout page handlePay to directly open popup without calling Midtrans API
+- Build verified successfully
+
+Stage Summary:
+- PaymentDialog is now a pure informational popup without any Midtrans dependency
+- Popup shows 6 payment method categories with expandable details
+- checkout page no longer calls /api/midtrans/create-transaction when Bayar Sekarang is clicked
+- Build passes successfully
