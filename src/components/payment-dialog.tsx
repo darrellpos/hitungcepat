@@ -32,6 +32,7 @@ interface PaymentDialogProps {
   onClose: () => void;
   pkg: PackageInfo;
   customerData?: { name: string; email: string; phone: string };
+  onSuccess?: () => void;
 }
 
 function formatRupiah(n: number) {
@@ -72,7 +73,7 @@ const CATEGORIES = [
 ];
 
 /* ─── komponen utama ─── */
-export default function PaymentDialog({ open, onClose, pkg, customerData }: PaymentDialogProps) {
+export default function PaymentDialog({ open, onClose, pkg, customerData, onSuccess }: PaymentDialogProps) {
   const [step, setStep] = useState<DialogStep>('method');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [loading, setLoading] = useState(false);
@@ -417,7 +418,7 @@ export default function PaymentDialog({ open, onClose, pkg, customerData }: Paym
                         <Shield className="w-3.5 h-3.5" />
                         <span>Pembayaran aman & terenkripsi via Midtrans</span>
                       </div>
-                      <button onClick={onClose} className="w-full py-3 rounded-xl bg-white text-[#141414] font-bold text-sm hover:bg-gray-200 transition-colors">
+                      <button onClick={() => onSuccess ? onSuccess() : onClose()} className="w-full py-3 rounded-xl bg-white text-[#141414] font-bold text-sm hover:bg-gray-200 transition-colors">
                         {result === 'success' ? 'Mulai Gunakan' : 'Tutup'}
                       </button>
                     </div>
