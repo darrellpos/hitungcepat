@@ -20,6 +20,7 @@ const CuttingDiagram = dynamic(
 
 interface RiwayatItem {
   id: string
+  type: string
   printName: string
   paperName: string
   paperGrammage: string
@@ -83,6 +84,7 @@ export default function RiwayatPage() {
   }
 
   const handleRestore = (item: RiwayatItem) => {
+    const isHitungCetak = item.type === 'hitung_cetakan'
     const params = new URLSearchParams()
     if (item.printName) params.set('printName', item.printName)
     if (item.paperLength) params.set('paperLength', item.paperLength)
@@ -95,7 +97,12 @@ export default function RiwayatPage() {
     if (item.shippingCost) params.set('shippingCost', item.shippingCost.toString())
     if (item.profitPercent) params.set('profitPercent', item.profitPercent.toString())
     params.set('restoredFromRiwayat', '1')
-    router.push(`/hitung-cetakan?${params.toString()}`)
+
+    if (isHitungCetak) {
+      router.push(`/hitung-cetakan?${params.toString()}`)
+    } else {
+      router.push(`/potong-kertas?${params.toString()}`)
+    }
   }
 
   const handlePreview = async (item: RiwayatItem) => {
