@@ -276,6 +276,31 @@ export async function ensureSeedData(userId?: string | null): Promise<void> {
   // First, ensure database tables exist (only runs once per instance)
   await ensureTablesExist()
 
+  // One-time migration: force default branding (runs once, then never again)
+  try {
+    const migrated = await db.setting.findUnique({ where: { key: 'branding_default_v2' } })
+    if (!migrated) {
+      await db.setting.upsert({
+        where: { key: 'company_name' },
+        update: { value: 'Darrell Soft' },
+        create: { key: 'company_name', value: 'Darrell Soft' },
+      })
+      await db.setting.upsert({
+        where: { key: 'company_logo' },
+        update: { value: '' },
+        create: { key: 'company_logo', value: '' },
+      })
+      await db.setting.upsert({
+        where: { key: 'branding_default_v2' },
+        update: { value: 'done' },
+        create: { key: 'branding_default_v2', value: 'done' },
+      })
+      console.log('✅ Default branding v2 applied: Darrell Soft')
+    }
+  } catch (err) {
+    console.warn('⚠️ Branding migration error:', err)
+  }
+
   if (!globalSeedChecked) {
     globalSeedChecked = true
     try {
