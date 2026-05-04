@@ -1131,6 +1131,7 @@ function HitungCetakanPage() {
     const profitAmount = subTotal * (profitPercent / 100)
     const grandTotal = subTotal + profitAmount
     const payload = {
+      type: 'hitung_cetakan',
       printName: formData.printName, customerName: formData.customerName, paperName: selectedPaper?.name || '',
       paperGrammage: selectedPaper?.grammage?.toString() || '0',
       paperLength: formData.paperLength, paperWidth: formData.paperWidth,

@@ -262,6 +262,7 @@ function CalculatorPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          type: 'potong_kertas',
           printName: printName || selectedCustomer?.name || '-',
           customerName: selectedCustomer?.name || '',
           paperName: selectedPaper?.name || 'Custom',

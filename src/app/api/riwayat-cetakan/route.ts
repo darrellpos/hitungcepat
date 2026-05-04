@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
 
     const riwayat = await db.riwayatCetakan.create({
       data: {
+        type: body.type || 'hitung_cetakan',
         printName: body.printName || '',
         customerName: body.customerName || '',
         paperName: body.paperName || '',

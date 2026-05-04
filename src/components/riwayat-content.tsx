@@ -12,6 +12,7 @@ import { authFetch } from '@/lib/auth-fetch'
 
 interface RiwayatItem {
   id: string
+  type: string
   printName: string
   customerName: string
   paperName: string
@@ -87,7 +88,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
   }
 
   const handleRestore = (item: RiwayatItem) => {
-    const isHitungCetak = item.ongkosCetak > 0 || item.machineName !== '-'
+    const isHitungCetak = item.type === 'hitung_cetakan'
     const params = new URLSearchParams()
     if (item.printName) params.set('printName', item.printName)
     if (item.paperLength) params.set('paperLength', item.paperLength)
@@ -191,7 +192,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
   const filteredHistories = histories.filter(h => {
     const term = searchTerm.toLowerCase()
     const matchesSearch = h.printName.toLowerCase().includes(term) || h.customerName.toLowerCase().includes(term) || h.paperName.toLowerCase().includes(term) || h.machineName.toLowerCase().includes(term)
-    const isHitungCetak = h.ongkosCetak > 0 || h.machineName !== '-'
+    const isHitungCetak = h.type === 'hitung_cetakan'
     const matchesFilter = filterType === 'all' || (filterType === 'Hitung Cetakan' && isHitungCetak) || (filterType === 'Potong Kertas' && !isHitungCetak)
     return matchesSearch && matchesFilter
   })
@@ -204,7 +205,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
 
   const formatRp = (n: number) => `Rp ${n.toLocaleString('id-ID')}`
 
-  const isItemHitungCetak = (h: RiwayatItem) => h.ongkosCetak > 0 || h.machineName !== '-'
+  const isItemHitungCetak = (h: RiwayatItem) => h.type === 'hitung_cetakan'
 
   const columns = [
     {

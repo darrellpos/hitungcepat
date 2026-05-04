@@ -135,6 +135,7 @@ model Setting {
 
 model RiwayatCetakan {
   id                  String   @id @default(cuid())
+  type                String   @default("hitung_cetakan")
   printName           String
   paperName           String
   paperGrammage       String
