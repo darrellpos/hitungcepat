@@ -613,6 +613,12 @@ function CheckoutContent() {
             priceFormatted: plan.priceFormatted,
             period: plan.period,
           }}
+          customerData={{
+            name: customerName.trim(),
+            email: customerEmail.trim(),
+            phone: customerPhone.trim(),
+          }}
+          skipToMethod={true}
         />
       )}
     </div>

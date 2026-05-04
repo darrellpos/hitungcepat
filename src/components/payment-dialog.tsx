@@ -35,6 +35,8 @@ interface PaymentDialogProps {
   open: boolean;
   onClose: () => void;
   pkg: PackageInfo;
+  customerData?: { name: string; email: string; phone: string };
+  skipToMethod?: boolean;
 }
 
 type Step = 'confirm' | 'info' | 'method' | 'paying' | 'result';
@@ -45,13 +47,23 @@ function formatRupiah(n: number) {
 }
 
 const PAYMENT_METHODS = [
-  { id: 'gopay', label: 'GoPay', sublabel: 'Bayar via aplikasi Gojek', icon: '💳', category: 'e-wallet', popular: true },
-  { id: 'shopeepay', label: 'ShopeePay', sublabel: 'Bayar via aplikasi Shopee', icon: '🛒', category: 'e-wallet', popular: false },
-  { id: 'bca_va', label: 'Virtual Account BCA', sublabel: 'Transfer via ATM / M-Banking BCA', icon: '🏦', category: 'bank_transfer', popular: true },
-  { id: 'bni_va', label: 'Virtual Account BNI', sublabel: 'Transfer via ATM / M-Banking BNI', icon: '🏦', category: 'bank_transfer', popular: false },
-  { id: 'mandiri_va', label: 'Virtual Account Mandiri', sublabel: 'Transfer via ATM / M-Banking Mandiri', icon: '🏦', category: 'bank_transfer', popular: false },
-  { id: 'bri_va', label: 'Virtual Account BRI', sublabel: 'Transfer via ATM / M-Banking BRI', icon: '🏦', category: 'bank_transfer', popular: false },
-  { id: 'cc', label: 'Kartu Kredit / Debit', sublabel: 'Visa, Mastercard, JCB, AMEX', icon: '💳', category: 'credit_card', popular: true },
+  // Transfer Bank
+  { id: 'bca_va', label: 'Transfer BCA', sublabel: 'Transfer via ATM / M-Banking BCA', icon: '🏦', category: 'transfer', popular: true },
+  { id: 'bni_va', label: 'Transfer BNI', sublabel: 'Transfer via ATM / M-Banking BNI', icon: '🏦', category: 'transfer', popular: false },
+  { id: 'mandiri_va', label: 'Transfer Mandiri', sublabel: 'Transfer via ATM / M-Banking Mandiri', icon: '🏦', category: 'transfer', popular: false },
+  { id: 'bri_va', label: 'Transfer BRI', sublabel: 'Transfer via ATM / M-Banking BRI', icon: '🏦', category: 'transfer', popular: false },
+  // Virtual Account
+  { id: 'permata_va', label: 'Virtual Account Permata', sublabel: 'Bayar via VA Bank Permata', icon: '🏦', category: 'va', popular: false },
+  { id: 'bsi_va', label: 'Virtual Account BSI', sublabel: 'Bayar via VA Bank BSI', icon: '🏦', category: 'va', popular: false },
+  // E-Money
+  { id: 'gopay', label: 'GoPay', sublabel: 'Bayar via aplikasi Gojek', icon: '💳', category: 'emoney', popular: true },
+  { id: 'shopeepay', label: 'ShopeePay', sublabel: 'Bayar via aplikasi Shopee', icon: '🛒', category: 'emoney', popular: false },
+  { id: 'dana', label: 'Dana', sublabel: 'Bayar via aplikasi Dana', icon: '💳', category: 'emoney', popular: false },
+  // Debit
+  { id: 'debit', label: 'Kartu Debit', sublabel: 'Visa, Mastercard debit online', icon: '💳', category: 'debit', popular: false },
+  // Kredit
+  { id: 'cc', label: 'Kartu Kredit', sublabel: 'Visa, Mastercard, JCB, AMEX', icon: '💳', category: 'kredit', popular: true },
+  // QRIS
   { id: 'qris', label: 'QRIS', sublabel: 'Scan QR dari aplikasi bank manapun', icon: '📱', category: 'qris', popular: true },
 ];
 
@@ -65,7 +77,7 @@ const STEP_LABELS: Record<Step, string> = {
 
 const STEP_ORDER: Step[] = ['confirm', 'info', 'method'];
 
-export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps) {
+export default function PaymentDialog({ open, onClose, pkg, customerData, skipToMethod }: PaymentDialogProps) {
   const [step, setStep] = useState<Step>('confirm');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [loading, setLoading] = useState(false);
@@ -79,18 +91,25 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
 
   useEffect(() => {
     if (open) {
-      setStep('confirm');
+      if (skipToMethod && customerData) {
+        setStep('method');
+        setName(customerData.name || '');
+        setEmail(customerData.email || '');
+        setPhone(customerData.phone || '');
+      } else {
+        setStep('confirm');
+        setName('');
+        setEmail('');
+        setPhone('');
+      }
       setSelectedMethod('');
       setLoading(false);
       setResult(null);
       setResultMessage('');
       setOrderId('');
-      setName('');
-      setEmail('');
-      setPhone('');
       setFormErrors({});
     }
-  }, [open]);
+  }, [open, skipToMethod, customerData]);
 
   useEffect(() => {
     if (!open) return;
@@ -246,6 +265,7 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
               </div>
 
               {/* Step Indicator */}
+              {!skipToMethod && (
               <div className="px-6 pt-4 pb-2">
                 <div className="flex items-center gap-2">
                   {STEP_ORDER.map((s, i) => (
@@ -265,6 +285,17 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
                   <span className="ml-2 text-xs text-gray-400">{STEP_LABELS[step]}</span>
                 </div>
               </div>
+              )}
+              {skipToMethod && step === 'method' && (
+              <div className="px-6 pt-4 pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-orange-500 text-white shadow-lg shadow-orange-500/30">
+                    1
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">Pilih Metode Pembayaran</span>
+                </div>
+              </div>
+              )}
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -382,13 +413,13 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
                       <h3 className="text-white text-xl font-bold mb-1">Metode Pembayaran</h3>
                       <p className="text-gray-400 text-sm mb-5">Pilih metode pembayaran yang Anda inginkan</p>
 
-                      {/* E-Wallet */}
+                      {/* Transfer Bank */}
                       <div className="mb-4">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                          <Wallet className="w-3.5 h-3.5" /> E-Wallet
+                          <Building2 className="w-3.5 h-3.5" /> Transfer Bank
                         </h4>
                         <div className="space-y-2">
-                          {PAYMENT_METHODS.filter(m => m.category === 'e-wallet').map(m => (
+                          {PAYMENT_METHODS.filter(m => m.category === 'transfer').map(m => (
                             <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
                           ))}
                         </div>
@@ -400,7 +431,43 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
                           <Building2 className="w-3.5 h-3.5" /> Virtual Account
                         </h4>
                         <div className="space-y-2">
-                          {PAYMENT_METHODS.filter(m => m.category === 'bank_transfer').map(m => (
+                          {PAYMENT_METHODS.filter(m => m.category === 'va').map(m => (
+                            <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* E-Money / E-Wallet */}
+                      <div className="mb-4">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                          <Wallet className="w-3.5 h-3.5" /> E-Money
+                        </h4>
+                        <div className="space-y-2">
+                          {PAYMENT_METHODS.filter(m => m.category === 'emoney').map(m => (
+                            <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Kartu Debit */}
+                      <div className="mb-4">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                          <CreditCard className="w-3.5 h-3.5" /> Debit
+                        </h4>
+                        <div className="space-y-2">
+                          {PAYMENT_METHODS.filter(m => m.category === 'debit').map(m => (
+                            <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Kartu Kredit */}
+                      <div className="mb-4">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                          <CreditCard className="w-3.5 h-3.5" /> Kredit
+                        </h4>
+                        <div className="space-y-2">
+                          {PAYMENT_METHODS.filter(m => m.category === 'kredit').map(m => (
                             <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
                           ))}
                         </div>
@@ -413,18 +480,6 @@ export default function PaymentDialog({ open, onClose, pkg }: PaymentDialogProps
                         </h4>
                         <div className="space-y-2">
                           {PAYMENT_METHODS.filter(m => m.category === 'qris').map(m => (
-                            <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Credit Card */}
-                      <div className="mb-4">
-                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                          <CreditCard className="w-3.5 h-3.5" /> Kartu Kredit / Debit
-                        </h4>
-                        <div className="space-y-2">
-                          {PAYMENT_METHODS.filter(m => m.category === 'credit_card').map(m => (
                             <PaymentMethodCard key={m.id} method={m} selected={selectedMethod === m.id} onClick={() => setSelectedMethod(m.id)} />
                           ))}
                         </div>
