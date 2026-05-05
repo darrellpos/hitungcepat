@@ -49,6 +49,13 @@ const menuItems = [
     section: 'hitung_biaya_produksi',
   },
   {
+    titleKey: 'riwayat' as TranslationKey,
+    href: '/riwayat',
+    icon: History,
+    featureId: 'riwayat',
+    section: 'hitung_biaya_produksi',
+  },
+  {
     titleKey: 'hitung_finishing' as TranslationKey,
     href: '/hitung-finishing',
     icon: Paintbrush,
@@ -97,13 +104,6 @@ const menuItems = [
     icon: Users,
     featureId: 'master-customer',
     section: 'master_cetakan',
-  },
-  {
-    titleKey: 'riwayat' as TranslationKey,
-    href: '/riwayat',
-    icon: History,
-    featureId: 'riwayat',
-    section: 'riwayat_hitung',
   },
   {
     titleKey: 'invoice' as TranslationKey,
