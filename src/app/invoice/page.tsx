@@ -67,6 +67,34 @@ export default function InvoicePage() {
     dueDate: '', discount: 0, tax: 0, notes: '',
   })
   const [formItems, setFormItems] = useState<InvoiceItem[]>([emptyItem()])
+  const [customers, setCustomers] = useState<{ id: string; name: string; companyName: string | null; address: string; phone: string; email: string }[]>([])
+  const [selectedCustomerId, setSelectedCustomerId] = useState('')
+
+  const fetchCustomers = useCallback(async () => {
+    try {
+      const res = await fetch('/api/customers')
+      const data = await res.json()
+      setCustomers(Array.isArray(data) ? data : [])
+    } catch { setCustomers([]) }
+  }, [])
+
+  useEffect(() => { fetchCustomers() }, [fetchCustomers])
+
+  const handleCustomerSelect = (customerId: string) => {
+    setSelectedCustomerId(customerId)
+    if (customerId) {
+      const c = customers.find(c => c.id === customerId)
+      if (c) {
+        setForm(prev => ({
+          ...prev,
+          customerName: c.name,
+          customerAddress: c.address,
+          customerPhone: c.phone,
+          customerEmail: c.email,
+        }))
+      }
+    }
+  }
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true)
@@ -87,6 +115,7 @@ export default function InvoicePage() {
   const openCreate = () => {
     setIsEditing(false)
     setEditId('')
+    setSelectedCustomerId('')
     setForm({
       customerName: '', customerAddress: '', customerPhone: '', customerEmail: '',
       invoiceDate: new Date().toISOString().split('T')[0],
@@ -321,8 +350,23 @@ export default function InvoicePage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
+                <Label>Pilih dari Master Customer</Label>
+                <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="-- Pilih Customer --" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}{c.companyName ? ` (${c.companyName})` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2">
                 <Label>{t('nama_customer')}</Label>
-                <Input value={form.customerName} onChange={e => setForm({ ...form, customerName: e.target.value })} placeholder="Nama pelanggan" />
+                <Input value={form.customerName} onChange={e => { setForm({ ...form, customerName: e.target.value }); setSelectedCustomerId('') }} placeholder="Nama pelanggan" />
               </div>
               <div className="col-span-2">
                 <Label>Alamat</Label>
