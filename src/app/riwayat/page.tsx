@@ -180,7 +180,7 @@ export default function RiwayatPage() {
         </div>
         <div class="info-grid">
           <div class="info-card blue">
-            <div class="info-label">Customer</div>
+            <div class="info-label">Nama Cetakan</div>
             <div class="info-value">${item.printName || '-'}</div>
           </div>
           <div class="info-card teal">
@@ -264,7 +264,7 @@ export default function RiwayatPage() {
         </div>
         <div class="info-grid">
           <div class="info-card blue">
-            <div class="info-label">Customer</div>
+            <div class="info-label">Nama Cetakan</div>
             <div class="info-value">${item.printName || '-'}</div>
           </div>
           <div class="info-card purple">
@@ -572,7 +572,7 @@ export default function RiwayatPage() {
     },
     {
       key: 'printName',
-      title: 'Customer',
+      title: 'Nama Cetakan',
       render: (h: RiwayatItem) => (
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-blue-600 flex-shrink-0" />
