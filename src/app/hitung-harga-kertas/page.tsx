@@ -257,13 +257,11 @@ export default function HitungHargaKertasPage() {
     const paperName = selectedPaper ? selectedPaper.name : 'Custom'
     const message = `Hitung Harga Kertas - Darrell Soft
 
-Nama: ${namaCetakan || '-'}
 Customer: ${namaCustomer || '-'}
+Nama Cetakan: ${namaCetakan || '-'}
 Kertas: ${paperName} (${grammage} gsm)
 Ukuran: ${paperWidth} x ${paperHeight} cm
 Harga/Rim: ${fmtRp(pricePerRim)}
-
-Hasil:
 Harga/Lembar: ${fmtRp(calculations.pricePerSheet)}
 Harga/m2: ${fmtRp(calculations.pricePerM2)}
 Berat/Lembar: ${Math.round(calculations.weightPerSheetGram)} gram
