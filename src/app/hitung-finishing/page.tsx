@@ -415,126 +415,71 @@ export default function HitungFinishingPage() {
     </div>
   )
 
-  // Riwayat table component
+  // Riwayat table component (full width, responsive)
   const RiwayatTable = ({ items }: { items: any[] }) => (
-    <div className="px-2 py-2 max-h-[300px] overflow-y-auto">
-      <div className="overflow-x-auto">
-        <table className="w-full text-[11px]">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="text-left py-1.5 px-2 text-slate-500 font-semibold">#</th>
-              <th className="text-left py-1.5 px-2 text-slate-500 font-semibold">Finishing</th>
-              <th className="text-left py-1.5 px-2 text-slate-500 font-semibold">Nama Cetakan</th>
-              <th className="text-right py-1.5 px-2 text-slate-500 font-semibold">Qty</th>
-              <th className="text-left py-1.5 px-2 text-slate-500 font-semibold">Ukuran</th>
-              <th className="text-right py-1.5 px-2 text-slate-500 font-semibold">Total</th>
-              <th className="text-right py-1.5 px-2 text-slate-500 font-semibold">Per Lbr</th>
-              <th className="text-center py-1.5 px-2 text-slate-500 font-semibold">Aksi</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50/80">
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Finishing</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Nama Cetakan</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Ukuran</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Total</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Per Lbr</th>
+            <th className="text-center py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((r, idx) => (
+            <tr key={r.id} className="border-b border-slate-50 hover:bg-amber-50/40 transition-colors">
+              <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
+              <td className="py-2.5 px-3 text-slate-700 font-medium max-w-[200px]">
+                {r.finishingNames}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 max-w-[160px]">
+                {r.namaCetakan || '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 text-right whitespace-nowrap">
+                {parseInt(r.jumlahLembar || 0).toLocaleString('id-ID')}
+              </td>
+              <td className="py-2.5 px-3 text-slate-500 hidden sm:table-cell whitespace-nowrap">
+                {r.lebarCm && r.lebarCm !== '0' ? `${r.lebarCm} × ${r.tinggiCm} cm` : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-rose-700 font-bold text-right whitespace-nowrap">
+                Rp {Math.round(r.totalCost || 0).toLocaleString('id-ID')}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 text-right hidden md:table-cell whitespace-nowrap">
+                {r.hargaPerLembar > 0 ? `Rp ${Math.round(r.hargaPerLembar).toLocaleString('id-ID')}` : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <button
+                    onClick={() => handleRestore(r)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-[11px] font-medium border border-emerald-200 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Restore
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRiwayat(r.id)}
+                    className="inline-flex items-center justify-center w-7 h-7 bg-red-50 hover:bg-red-100 text-red-600 rounded-md border border-red-200 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {items.map((r, idx) => (
-              <tr key={r.id} className="border-b border-slate-50 hover:bg-rose-50/50">
-                <td className="py-1.5 px-2 text-slate-400">{idx + 1}</td>
-                <td className="py-1.5 px-2 text-slate-700 font-medium max-w-[100px] truncate">
-                  {r.finishingNames}
-                </td>
-                <td className="py-1.5 px-2 text-slate-600 max-w-[100px] truncate">
-                  {r.namaCetakan || '-'}
-                </td>
-                <td className="py-1.5 px-2 text-slate-600 text-right">
-                  {parseInt(r.jumlahLembar || 0).toLocaleString('id-ID')}
-                </td>
-                <td className="py-1.5 px-2 text-slate-500">
-                  {r.lebarCm && r.lebarCm !== '0' ? `${r.lebarCm}×${r.tinggiCm}` : '-'}
-                </td>
-                <td className="py-1.5 px-2 text-rose-700 font-bold text-right">
-                  Rp {Math.round(r.totalCost || 0).toLocaleString('id-ID')}
-                </td>
-                <td className="py-1.5 px-2 text-slate-600 text-right">
-                  {r.hargaPerLembar > 0 ? `Rp ${Math.round(r.hargaPerLembar).toLocaleString('id-ID')}` : '-'}
-                </td>
-                <td className="py-1.5 px-2 text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <button
-                      onClick={() => handleRestore(r)}
-                      className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded text-[10px] font-medium border border-emerald-200 transition-colors"
-                    >
-                      <RotateCcw className="w-2.5 h-2.5" /> Restore
-                    </button>
-                    <button
-                      onClick={() => handleDeleteRiwayat(r.id)}
-                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[10px] font-medium border border-red-200 transition-colors"
-                    >
-                      <Trash2 className="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-
-  // Mobile riwayat table
-  const RiwayatTableMobile = ({ items }: { items: any[] }) => (
-    <div className="px-2 py-2 max-h-[300px] overflow-y-auto">
-      <div className="overflow-x-auto">
-        <table className="w-full text-[10px]">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="text-left py-1.5 px-1.5 text-slate-500 font-semibold">Finishing</th>
-              <th className="text-left py-1.5 px-1.5 text-slate-500 font-semibold">Cetakan</th>
-              <th className="text-right py-1.5 px-1.5 text-slate-500 font-semibold">Qty</th>
-              <th className="text-right py-1.5 px-1.5 text-slate-500 font-semibold">Total</th>
-              <th className="text-center py-1.5 px-1.5 text-slate-500 font-semibold">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((r) => (
-              <tr key={r.id} className="border-b border-slate-50 hover:bg-rose-50/50">
-                <td className="py-1.5 px-1.5 text-slate-700 font-medium max-w-[80px] truncate">
-                  {r.finishingNames}
-                </td>
-                <td className="py-1.5 px-1.5 text-slate-600 max-w-[60px] truncate">
-                  {r.namaCetakan || '-'}
-                </td>
-                <td className="py-1.5 px-1.5 text-slate-600 text-right">
-                  {parseInt(r.jumlahLembar || 0).toLocaleString('id-ID')}
-                </td>
-                <td className="py-1.5 px-1.5 text-rose-700 font-bold text-right">
-                  Rp {Math.round(r.totalCost || 0).toLocaleString('id-ID')}
-                </td>
-                <td className="py-1.5 px-1.5 text-center">
-                  <div className="flex items-center justify-center gap-0.5">
-                    <button
-                      onClick={() => handleRestore(r)}
-                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded text-[9px] font-medium border border-emerald-200 transition-colors"
-                    >
-                      <RotateCcw className="w-2.5 h-2.5" /> Restore
-                    </button>
-                    <button
-                      onClick={() => handleDeleteRiwayat(r.id)}
-                      className="inline-flex items-center px-1 py-0.5 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[9px] border border-red-200 transition-colors"
-                    >
-                      <Trash2 className="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 
   return (
     <DashboardLayout title="Hitung Finishing" subtitle="Kalkulator biaya finishing cetakan">
-      <div className="max-w-[1100px] mx-auto">
-        <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-4">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="lg:flex lg:gap-4">
 
           {/* ========== LEFT: INPUT ========== */}
           <div className="flex-1 lg:overflow-y-auto min-w-0 hide-scrollbar">
@@ -638,26 +583,6 @@ export default function HitungFinishingPage() {
 
             </div>
 
-            {/* ========== RIWAYAT FINISHING (Mobile) ========== */}
-            <div className="lg:hidden mt-4">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
-                  <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
-                    <History className="w-3.5 h-3.5 text-amber-600" />
-                  </div>
-                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Riwayat Finishing</h2>
-                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{riwayatList.length}</span>
-                </div>
-                {riwayatList.length > 0 ? (
-                  <RiwayatTableMobile items={riwayatList.slice(0, 20)} />
-                ) : (
-                  <div className="px-4 py-6 text-center">
-                    <History className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-                    <p className="text-xs text-slate-400">Belum ada riwayat finishing</p>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* ========== RIGHT: SUMMARY ========== */}
@@ -749,28 +674,29 @@ export default function HitungFinishingPage() {
               </div>
             </div>
 
-            {/* ========== RIWAYAT FINISHING (Desktop) ========== */}
-            <div className="hidden lg:block mt-4">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
-                  <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
-                    <History className="w-3.5 h-3.5 text-amber-600" />
-                  </div>
-                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Riwayat Finishing</h2>
-                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{riwayatList.length}</span>
-                </div>
-                {riwayatList.length > 0 ? (
-                  <RiwayatTable items={riwayatList.slice(0, 15)} />
-                ) : (
-                  <div className="px-4 py-6 text-center">
-                    <History className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-                    <p className="text-xs text-slate-400">Belum ada riwayat finishing</p>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
+        </div>
+
+        {/* ========== RIWAYAT FINISHING (Full Width) ========== */}
+        <div className="mt-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
+              <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+                <History className="w-3.5 h-3.5 text-amber-600" />
+              </div>
+              <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Riwayat Finishing</h2>
+              <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{riwayatList.length}</span>
+            </div>
+            {riwayatList.length > 0 ? (
+              <RiwayatTable items={riwayatList} />
+            ) : (
+              <div className="px-4 py-6 text-center">
+                <History className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                <p className="text-xs text-slate-400">Belum ada riwayat finishing</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </DashboardLayout>
