@@ -222,6 +222,19 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
 
   const columns = [
     {
+      key: 'jenis',
+      title: 'Jenis',
+      render: (h: RiwayatItem) => {
+        const jenis = isItemHitungCetak(h) ? 'Hitung Cetakan' : 'Potong Kertas'
+        const isPotong = jenis === 'Potong Kertas'
+        return (
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${isPotong ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}`}>
+            {isPotong ? '✂️' : '🖨️'} {jenis}
+          </span>
+        )
+      }
+    },
+    {
       key: 'customerName',
       title: 'Nama Customer',
       render: (h: RiwayatItem) => (
