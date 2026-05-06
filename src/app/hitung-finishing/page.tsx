@@ -81,6 +81,15 @@ export default function HitungFinishingPage() {
       if (res.ok) {
         toast.success('Riwayat berhasil disimpan!')
         fetchRiwayat()
+        // Auto reset form setelah simpan berhasil
+        setNamaCustomer('')
+        setNamaCetakan('')
+        setJumlahLembar('')
+        setLebarCm('')
+        setTinggiCm('')
+        setSelectedFinishings([])
+        setSelectedFinishingIds([])
+        localStorage.removeItem(STORAGE_KEY)
       } else {
         toast.error('Gagal menyimpan riwayat')
       }
