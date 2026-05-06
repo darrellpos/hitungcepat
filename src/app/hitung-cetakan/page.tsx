@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors, History } from 'lucide-react'
+import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors, History, UserSearch } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard-layout'
@@ -1353,10 +1353,29 @@ function HitungCetakanPage() {
                 <div className="space-y-2">
                   <div>
                     <label className={labelClass}>{t('nama_customer')} <span className="text-red-500">*</span></label>
-                    <select value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} className={selectClass}>
-                      <option value="">{t('pilih_customer')}</option>
-                      {customers.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
-                    </select>
+                    <div className="relative">
+                      <UserSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        list="customer-list"
+                        placeholder={t('pilih_customer') + ' / ketik manual'}
+                        value={formData.customerName}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setFormData({ ...formData, customerName: val })
+                          const match = customers.find((c) => c.name.toLowerCase() === val.toLowerCase())
+                          if (match) {
+                            setFormData(prev => ({ ...prev, customerName: match.name }))
+                          }
+                        }}
+                        className={`${inputClass} pl-9`}
+                      />
+                      <datalist id="customer-list">
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.name} />
+                        ))}
+                      </datalist>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
