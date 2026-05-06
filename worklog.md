@@ -95,3 +95,22 @@ Stage Summary:
 - Fix payload save riwayat: `otherCost` dan `glueBorongan` sekarang tersimpan dengan nilai yang benar
 - Fix restore: tambahkan `paperGrammage` ke params, toast restore berhasil
 - Data restore dari riwayat sekarang match dengan data asli
+
+---
+Task ID: 2
+Agent: main
+Task: Hilangkan rumus finishing, tambah riwayat finishing + restore di hitung cetakan
+
+Work Log:
+- Sederhanakan finishing card (mobile + desktop): hapus harga per-item, hanya tampilkan nama finishing + tombol hapus + total harga
+- Tambah state `finishingRiwayat` + `fetchFinishingRiwayat()` untuk fetch data riwayat yang punya finishing
+- Tambah tabel riwayat finishing di bawah section finishing (mobile dan desktop):
+  - Kolom: Finishing, Nama Cetakan, Qty, Harga, Aksi
+  - Tombol Restore per baris yang redirect ke halaman hitung cetakan dengan semua URL params
+- Import `History` icon dari lucide-react
+- Max 20 row mobile, 15 row desktop dengan scrollable
+
+Stage Summary:
+- Finishing card lebih bersih tanpa harga per-item (rumus dihilangkan)
+- Tabel riwayat finishing ditampilkan di bawah finishing section
+- Tombol restore di setiap baris riwayat finishing untuk restore data lengkap
