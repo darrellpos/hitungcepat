@@ -717,12 +717,15 @@ function CalculatorPage() {
                 if (paperWidth) params.set('paperLength', paperWidth)
                 if (paperHeight) params.set('paperWidth', paperHeight)
                 if (quantity) params.set('quantity', quantity)
-                if (selectedPaperId) params.set('paperId', selectedPaperId)
+                if (selectedPaperId && selectedPaperId !== 'custom') params.set('paperId', selectedPaperId)
+                if (selectedPaper?.name) params.set('paperName', selectedPaper.name)
+                if (grammage) params.set('grammage', grammage)
                 if (pricePerSheet) params.set('pricePerSheet', pricePerSheet)
                 if (cutWidth) params.set('cutWidth', cutWidth)
                 if (cutHeight) params.set('cutHeight', cutHeight)
                 if (results?.totalPrice) params.set('totalPaperPrice', results.totalPrice.toString())
-                router.push(`/hitung-cetakan?${params.toString()}`)
+                params.set('fromPotongKertas', '1')
+                window.location.href = `/hitung-cetakan?${params.toString()}`
               }, 350)
             }}
             style={{

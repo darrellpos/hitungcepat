@@ -302,23 +302,30 @@ function HitungCetakanPage() {
     return { cost: total, isMin: false, breakdown }
   }
 
-  // Flag untuk restore dari riwayat
+  // Flag untuk restore dari riwayat atau potong kertas
   const [isRestoring, setIsRestoring] = useState(false)
 
-  // Restore dari riwayat URL params
+  // Restore dari URL params (riwayat / potong kertas)
   useEffect(() => {
     const restored = searchParams.get('restoredFromRiwayat')
-    if (!restored) return
+    const fromPotong = searchParams.get('fromPotongKertas')
+    if (!restored && !fromPotong) return
     setIsRestoring(true)
+
+    // Clear localStorage agar data lama tidak override
+    clearStorage()
 
     const printName = searchParams.get('printName')
     const customerNameParam = searchParams.get('customerName')
     const paperNameParam = searchParams.get('paperName')
+    const paperIdParam = searchParams.get('paperId')
+    const grammageParam = searchParams.get('grammage')
     const paperLength = searchParams.get('paperLength')
     const paperWidthParam = searchParams.get('paperWidth')
     const cutWidthParam = searchParams.get('cutWidth')
     const cutHeightParam = searchParams.get('cutHeight')
     const quantityParam = searchParams.get('quantity')
+    const pricePerSheetParam = searchParams.get('pricePerSheet')
     const totalPaperPriceParam = searchParams.get('totalPaperPrice')
     const warnaParam = searchParams.get('warna')
     const warnaKhususParam = searchParams.get('warnaKhusus')
@@ -338,35 +345,28 @@ function HitungCetakanPage() {
 
     setFormData(prev => ({
       ...prev,
-      customerName: customerNameParam || prev.customerName,
-      printName: printName || prev.printName,
-      paperLength: paperLength || prev.paperLength,
-      paperWidth: paperWidthParam || prev.paperWidth,
-      cutWidth: cutWidthParam || prev.cutWidth,
-      cutHeight: cutHeightParam || prev.cutHeight,
-      quantity: quantityParam || prev.quantity,
-      warna: warnaParam || prev.warna,
-      warnaKhusus: warnaKhususParam || prev.warnaKhusus,
-      hargaPlat: hargaPlatParam || prev.hargaPlat,
-      packingCost: packingCostParam || prev.packingCost,
-      shippingCost: shippingCostParam || prev.shippingCost,
-      biayaLain1: otherCostParam ? (parseFloat(otherCostParam) > 0 ? otherCostParam : prev.biayaLain1) : prev.biayaLain1,
+      customerName: customerNameParam || '',
+      printName: printName || '',
+      paperLength: paperLength || '',
+      paperWidth: paperWidthParam || '',
+      cutWidth: cutWidthParam || '',
+      cutHeight: cutHeightParam || '',
+      quantity: quantityParam || '',
+      warna: warnaParam || '',
+      warnaKhusus: warnaKhususParam || '',
+      hargaPlat: hargaPlatParam || '',
+      paperId: paperIdParam || '',
+      pricePerSheet: pricePerSheetParam || '',
+      packingCost: packingCostParam || '',
+      shippingCost: shippingCostParam || '',
+      biayaLain1: otherCostParam ? (parseFloat(otherCostParam) > 0 ? otherCostParam : '') : '',
       biayaLain2: '',
-      glueCostPerCm: glueCostParam ? (parseFloat(glueCostParam) > 0 ? '1' : prev.glueCostPerCm) : prev.glueCostPerCm,
-      glueBoronganPerSheet: glueBoronganParam || prev.glueBoronganPerSheet,
+      glueCostPerCm: glueCostParam ? (parseFloat(glueCostParam) > 0 ? '1' : '') : '',
+      glueBoronganPerSheet: glueBoronganParam || '',
     }))
 
-    // Matching mesin, kertas, finishing by name setelah data fetch selesai
-    if (paperNameParam) {
-      const matchPaper = (papersList: Paper[]) => {
-        const paper = papersList.find(p => p.name === paperNameParam)
-        if (paper) {
-          setFormData(prev => ({ ...prev, paperId: paper.id, pricePerSheet: Math.round(paper.pricePerRim / 500).toString() }))
-        }
-      }
-      // Simpan nama untuk matching setelah fetch
-      window.__restorePaperName = paperNameParam
-    }
+    // Simpan nama untuk matching setelah data fetch selesai
+    if (paperNameParam) window.__restorePaperName = paperNameParam
     if (machineNameParam) window.__restoreMachineName = machineNameParam
     if (machineName2Param) window.__restoreMachineName2 = machineName2Param
     if (finishingNamesParam && finishingNamesParam !== '-') window.__restoreFinishingNames = finishingNamesParam
