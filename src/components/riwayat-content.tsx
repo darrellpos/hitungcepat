@@ -223,7 +223,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
   const columns = [
     {
       key: 'printName',
-      title: 'Customer',
+      title: 'Nama Cetakan',
       render: (h: RiwayatItem) => (
         <div className="flex items-center gap-2">
           {isItemHitungCetak(h) ? (
