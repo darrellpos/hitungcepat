@@ -388,26 +388,14 @@ export default function HitungFinishingPage() {
                   <div className="divide-y divide-slate-100 max-h-[240px] overflow-y-auto">
                     {selectedFinishings.map((sf) => (
                       <div key={sf.finishing.id} className="px-4 py-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="w-6 h-6 rounded-md bg-purple-50 flex items-center justify-center flex-shrink-0">
-                                <Layers className="w-3.5 h-3.5 text-purple-600" />
-                              </div>
-                              <span className="text-sm font-semibold text-slate-800">{sf.finishing.name}</span>
-                              {sf.isMin && (
-                                <span className="text-[10px] font-medium bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">Min. Price</span>
-                              )}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="w-6 h-6 rounded-md bg-purple-50 flex items-center justify-center flex-shrink-0">
+                              <Layers className="w-3.5 h-3.5 text-purple-600" />
                             </div>
-                            <p className="text-[11px] text-slate-500 ml-8 break-all">{sf.breakdown}</p>
-                            <div className="ml-8 mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
-                              <span>Min: {sf.finishing.minimumSheets > 0 ? `${sf.finishing.minimumSheets} lbr` : '-'}</span>
-                              <span>Hrg Min: {sf.finishing.minimumPrice > 0 ? `Rp ${sf.finishing.minimumPrice.toLocaleString('id-ID')}` : '-'}</span>
-                              <span>+Lbr: {sf.finishing.additionalPrice > 0 ? `Rp ${sf.finishing.additionalPrice.toLocaleString('id-ID')}` : '-'}</span>
-                              <span>/cm: {sf.finishing.pricePerCm > 0 ? `Rp ${sf.finishing.pricePerCm.toLocaleString('id-ID')}` : '-'}</span>
-                            </div>
+                            <span className="text-sm font-semibold text-slate-800 truncate">{sf.finishing.name}</span>
                           </div>
-                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-sm font-bold text-emerald-600">Rp {sf.cost.toLocaleString('id-ID')}</span>
                             <button
                               onClick={() => handleRemoveFinishing(sf.finishing.id)}
