@@ -376,6 +376,7 @@ function HitungCetakanPage() {
     setPrefilled(true)
     // Bersihkan URL params setelah dibaca
     window.history.replaceState({}, '', '/hitung-cetakan')
+    toast.success('Data berhasil di-restore dari riwayat!')
   }, [searchParams])
 
   const fetchCustomers = async () => {
@@ -1255,8 +1256,8 @@ function HitungCetakanPage() {
       finishingNames: selectedFinishingItems.map(f => f.name).join(', '),
       finishingBreakdown: selectedFinishingItems.map(f => { const r = getFinishingCost(f); return `${f.name}: ${r.breakdown} = Rp ${Math.round(r.cost).toLocaleString('id-ID')}` }).join(' | '),
       finishingCost: calculatedFinishingCost, packingCost: packing, shippingCost: shipping,
-      biayaLain1: biayaLain1Val, biayaLain2: biayaLain2Val,
-      glueCost: calculatedGlueCost, glueBoronganPerSheet: calculatedGlueBoronganSheet,
+      otherCost: biayaLain1Val,
+      glueCost: calculatedGlueCost, glueBorongan: calculatedGlueBoronganSheet,
       subTotal, profitPercent, profitAmount, grandTotal
     }
     try {

@@ -77,3 +77,21 @@ Stage Summary:
 - API returns { mock: true } when fake key detected
 - PaymentDialog shows 3-2-1 countdown then auto-success
 - When ready to go live, just replace the 3 env vars with real Midtrans keys
+
+---
+Task ID: 1
+Agent: main
+Task: Samakan cara restore hitung cetakan dengan potong kertas — fix data tidak match antara riwayat dan restore
+
+Work Log:
+- Analisis perbedaan restore logic antara potong-kertas dan hitung-cetakan
+- Temukan bug: handleSaveRiwayat mengirim field `biayaLain1`, `biayaLain2`, `glueBoronganPerSheet` yang tidak dikenali API, menyebabkan `otherCost` dan `glueBorongan` selalu 0 di riwayat
+- Fix handleSaveRiwayat: ubah `biayaLain1` → `otherCost`, `glueBoronganPerSheet` → `glueBorongan` agar sesuai schema DB
+- Fix handleRestore di riwayat-content: tambahkan `paperGrammage` ke URL params untuk restore
+- Fix restore di hitung-cetakan: tambahkan toast "Data berhasil di-restore dari riwayat!" sama seperti potong-kertas
+- Verifikasi: server restart, test save riwayat API berhasil, semua field tersimpan dengan benar
+
+Stage Summary:
+- Fix payload save riwayat: `otherCost` dan `glueBorongan` sekarang tersimpan dengan nilai yang benar
+- Fix restore: tambahkan `paperGrammage` ke params, toast restore berhasil
+- Data restore dari riwayat sekarang match dengan data asli

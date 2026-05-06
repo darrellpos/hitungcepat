@@ -106,6 +106,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
 
     if (isHitungCetak) {
       // Field khusus hitung cetakan
+      if (item.paperGrammage && item.paperGrammage !== '0') params.set('paperGrammage', item.paperGrammage)
       if (item.pricePerSheet) params.set('pricePerSheet', item.pricePerSheet.toString())
       if (item.warna && item.warna !== '-') params.set('warna', item.warna)
       if (item.warnaKhusus && item.warnaKhusus !== '-' && parseInt(item.warnaKhusus) > 0) params.set('warnaKhusus', item.warnaKhusus)
