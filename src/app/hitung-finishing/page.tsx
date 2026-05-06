@@ -370,14 +370,20 @@ export default function HitungFinishingPage() {
   }
 
   const handleRestore = (r: any) => {
-    const params = new URLSearchParams()
-    params.set('restoredFromRiwayat', '1')
-    if (r.namaCetakan) params.set('namaCetakan', r.namaCetakan)
-    if (r.jumlahLembar) params.set('jumlahLembar', r.jumlahLembar)
-    if (r.lebarCm && r.lebarCm !== '0') params.set('lebarCm', r.lebarCm)
-    if (r.tinggiCm && r.tinggiCm !== '0') params.set('tinggiCm', r.tinggiCm)
-    if (r.finishingIds) params.set('finishingIds', r.finishingIds)
-    window.location.href = `/hitung-finishing?${params.toString()}`
+    // Restore data langsung ke state tanpa reload halaman
+    setNamaCetakan(r.namaCetakan || '')
+    setJumlahLembar(r.jumlahLembar || '')
+    setLebarCm(r.lebarCm && r.lebarCm !== '0' ? r.lebarCm : '')
+    setTinggiCm(r.tinggiCm && r.tinggiCm !== '0' ? r.tinggiCm : '')
+
+    if (r.finishingIds) {
+      const idArr = r.finishingIds.split(',').filter(Boolean)
+      setSelectedFinishingIds(idArr)
+      setSelectedFinishings([])
+    }
+
+    toast.success('Data berhasil di-restore dari riwayat!')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDeleteRiwayat = async (id: string) => {
