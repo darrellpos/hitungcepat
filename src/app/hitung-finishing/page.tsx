@@ -1,6 +1,6 @@
 'use client'
 
-import { Layers, Plus, Trash2, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle, History, Save, UserSearch } from 'lucide-react'
+import { Layers, Plus, Trash2, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle, History, Save, UserSearch, RefreshCw } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -42,6 +42,7 @@ export default function HitungFinishingPage() {
   const [tinggiCm, setTinggiCm] = useState('')
   const [mounted, setMounted] = useState(false)
   const [savingRiwayat, setSavingRiwayat] = useState(false)
+  const [restoredRiwayatId, setRestoredRiwayatId] = useState<string | null>(null)
   const [riwayatList, setRiwayatList] = useState<any[]>([])
   const [customers, setCustomers] = useState<any[]>([])
 
@@ -56,6 +57,30 @@ export default function HitungFinishingPage() {
     } catch {}
   }
 
+  const buildPayload = () => ({
+    namaCustomer: namaCustomer || '-',
+    namaCetakan: namaCetakan || '-',
+    jumlahLembar: jumlahLembar || '0',
+    lebarCm: lebarCm || '0',
+    tinggiCm: tinggiCm || '0',
+    finishingNames: selectedFinishings.map(sf => sf.finishing.name).join(', '),
+    finishingIds: selectedFinishings.map(sf => sf.finishing.id).join(','),
+    totalCost,
+    hargaPerLembar,
+  })
+
+  const resetForm = () => {
+    setNamaCustomer('')
+    setNamaCetakan('')
+    setJumlahLembar('')
+    setLebarCm('')
+    setTinggiCm('')
+    setSelectedFinishings([])
+    setSelectedFinishingIds([])
+    setRestoredRiwayatId(null)
+    localStorage.removeItem(STORAGE_KEY)
+  }
+
   const handleSaveRiwayat = async () => {
     if (selectedFinishings.length === 0) {
       toast.error('Tambahkan finishing terlebih dahulu')
@@ -66,35 +91,46 @@ export default function HitungFinishingPage() {
       const res = await fetcher('/api/riwayat-finishing', {
         method: 'POST',
         headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          namaCustomer: namaCustomer || '-',
-          namaCetakan: namaCetakan || '-',
-          jumlahLembar: jumlahLembar || '0',
-          lebarCm: lebarCm || '0',
-          tinggiCm: tinggiCm || '0',
-          finishingNames: selectedFinishings.map(sf => sf.finishing.name).join(', '),
-          finishingIds: selectedFinishings.map(sf => sf.finishing.id).join(','),
-          totalCost,
-          hargaPerLembar,
-        })
+        body: JSON.stringify(buildPayload())
       })
       if (res.ok) {
         toast.success('Riwayat berhasil disimpan!')
         fetchRiwayat()
-        // Auto reset form setelah simpan berhasil
-        setNamaCustomer('')
-        setNamaCetakan('')
-        setJumlahLembar('')
-        setLebarCm('')
-        setTinggiCm('')
-        setSelectedFinishings([])
-        setSelectedFinishingIds([])
-        localStorage.removeItem(STORAGE_KEY)
+        resetForm()
       } else {
         toast.error('Gagal menyimpan riwayat')
       }
     } catch {
       toast.error('Gagal menyimpan riwayat')
+    }
+    setSavingRiwayat(false)
+  }
+
+  const handleUpdateRiwayat = async () => {
+    if (!restoredRiwayatId) {
+      toast.error('Tidak ada data yang di-restore')
+      return
+    }
+    if (selectedFinishings.length === 0) {
+      toast.error('Tambahkan finishing terlebih dahulu')
+      return
+    }
+    setSavingRiwayat(true)
+    try {
+      const res = await fetcher(`/api/riwayat-finishing/${restoredRiwayatId}`, {
+        method: 'PUT',
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload())
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil diupdate!')
+        fetchRiwayat()
+        resetForm()
+      } else {
+        toast.error('Gagal mengupdate riwayat')
+      }
+    } catch {
+      toast.error('Gagal mengupdate riwayat')
     }
     setSavingRiwayat(false)
   }
@@ -299,14 +335,7 @@ export default function HitungFinishingPage() {
   const fmt = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`
 
   const handleReset = () => {
-    setNamaCustomer('')
-    setNamaCetakan('')
-    setJumlahLembar('')
-    setLebarCm('')
-    setTinggiCm('')
-    setSelectedFinishings([])
-    setSelectedFinishingIds([])
-    localStorage.removeItem(STORAGE_KEY)
+    resetForm()
     toast.success('Form berhasil direset')
   }
 
@@ -392,6 +421,7 @@ export default function HitungFinishingPage() {
 
   const handleRestore = (r: any) => {
     // Restore data langsung ke state tanpa reload halaman
+    setRestoredRiwayatId(r.id)
     setNamaCustomer(r.namaCustomer || '')
     setNamaCetakan(r.namaCetakan || '')
     setJumlahLembar(r.jumlahLembar || '')
@@ -691,14 +721,25 @@ export default function HitungFinishingPage() {
 
                 {/* Actions */}
                 <div className="space-y-2 pt-1">
-                  <Button
-                    onClick={handleSaveRiwayat}
-                    disabled={selectedFinishings.length === 0 || savingRiwayat}
-                    className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-white"
-                    size="sm"
-                  >
-                    <Save className="w-4 h-4" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan Riwayat'}
-                  </Button>
+                  {restoredRiwayatId ? (
+                    <Button
+                      onClick={handleUpdateRiwayat}
+                      disabled={selectedFinishings.length === 0 || savingRiwayat}
+                      className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                      size="sm"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${savingRiwayat ? 'animate-spin' : ''}`} /> {savingRiwayat ? 'Mengupdate...' : 'Update Riwayat'}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSaveRiwayat}
+                      disabled={selectedFinishings.length === 0 || savingRiwayat}
+                      className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-white"
+                      size="sm"
+                    >
+                      <Save className="w-4 h-4" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan Riwayat'}
+                    </Button>
+                  )}
                   <Button
                     onClick={handleWhatsApp}
                     disabled={selectedFinishings.length === 0}
