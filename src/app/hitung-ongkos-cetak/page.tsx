@@ -271,7 +271,7 @@ Harga Plat/Warna: ${fmt(plat)}
 Jumlah Lembar: ${qty.toLocaleString('id-ID')}
 
 Total Ongkos Cetak: ${fmt(calculations.totalOngkosCetak)}
-Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
+Harga/Lembar: ${fmt(calculations.hargaPerLembar)}`
     const encoded = encodeURIComponent(message)
     const isAndroid = /Android/i.test(navigator.userAgent)
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
