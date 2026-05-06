@@ -114,3 +114,31 @@ Stage Summary:
 - Finishing card lebih bersih tanpa harga per-item (rumus dihilangkan)
 - Tabel riwayat finishing ditampilkan di bawah finishing section
 - Tombol restore di setiap baris riwayat finishing untuk restore data lengkap
+---
+Task ID: 1
+Agent: main
+Task: Tambahkan tabel riwayat di halaman hitung finishing dengan aksi restore
+
+Work Log:
+- Added RiwayatFinishing model to Prisma schema (namaCetakan, jumlahLembar, lebarCm, tinggiCm, finishingNames, finishingIds, totalCost, hargaPerLembar)
+- Ran prisma db push to create the new table in SQLite
+- Created API route POST/GET at /api/riwayat-finishing
+- Created API route DELETE at /api/riwayat-finishing/[id]
+- Updated hitung-finishing page with:
+  - Simpan Riwayat button (amber color) in summary actions
+  - Riwayat Finishing table below main content (mobile + desktop versions)
+  - Restore button that uses URL params to restore data
+  - Delete button for each riwayat entry
+  - fetchRiwayat function to load history on mount
+  - handleRestore function with URL params and page reload
+  - handleDeleteRiwayat function
+  - Toast notifications on save, restore, and delete
+- Verified build with no errors
+
+Stage Summary:
+- New Prisma model RiwayatFinishing created and migrated
+- New API routes /api/riwayat-finishing (GET/POST) and /api/riwayat-finishing/[id] (DELETE) created
+- Hitung finishing page now has full riwayat table with Restore and Delete actions
+- Desktop table shows: #, Finishing, Nama Cetakan, Qty, Ukuran, Total, Per Lbr, Aksi (Restore + Delete)
+- Mobile table shows: Finishing, Cetakan, Qty, Total, Aksi (Restore + Delete)
+
