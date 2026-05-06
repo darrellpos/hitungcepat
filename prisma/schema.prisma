@@ -190,6 +190,41 @@ model RiwayatFinishing {
   updatedAt       DateTime @updatedAt
 }
 
+model RiwayatOngkosCetak {
+  id               String   @id @default(cuid())
+  namaCustomer     String   @default("")
+  namaCetakan      String
+  machineName      String
+  machineId        String   @default("")
+  jumlahWarna      String
+  warnaKhusus      String   @default("0")
+  hargaPlat        String   @default("0")
+  jumlahLembar     String
+  totalOngkosCetak Float
+  hargaPerLembar   Float    @default(0)
+  userId           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model RiwayatHargaKertas {
+  id              String   @id @default(cuid())
+  namaCustomer    String   @default("")
+  namaCetakan     String
+  paperName       String
+  paperId         String   @default("")
+  grammage        String   @default("0")
+  paperWidth      String   @default("0")
+  paperHeight     String   @default("0")
+  pricePerRim     String   @default("0")
+  quantity        String   @default("0")
+  totalPrice      Float
+  costPerPiece    Float    @default(0)
+  userId          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model Invoice {
   id               String   @id @default(cuid())
   invoiceNumber    String   @unique

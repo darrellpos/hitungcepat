@@ -1,6 +1,6 @@
 'use client'
 
-import { FileText, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle } from 'lucide-react'
+import { FileText, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle, Save, RefreshCw, Trash2, History, UserSearch } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -28,7 +28,9 @@ export default function HitungHargaKertasPage() {
   const { t } = useLanguage()
   const STORAGE_KEY = 'darrellpos-hitung-harga-kertas'
   const [papers, setPapers] = useState<Paper[]>([])
+  const [customers, setCustomers] = useState<any[]>([])
   const [selectedPaperId, setSelectedPaperId] = useState('')
+  const [namaCustomer, setNamaCustomer] = useState('')
   const [namaCetakan, setNamaCetakan] = useState('')
   const [customGrammage, setCustomGrammage] = useState('')
   const [customWidth, setCustomWidth] = useState('')
@@ -36,6 +38,11 @@ export default function HitungHargaKertasPage() {
   const [customPricePerRim, setCustomPricePerRim] = useState('')
   const [quantity, setQuantity] = useState('')
   const [mounted, setMounted] = useState(false)
+
+  // Riwayat states
+  const [savingRiwayat, setSavingRiwayat] = useState(false)
+  const [restoredRiwayatId, setRestoredRiwayatId] = useState<string | null>(null)
+  const [riwayatList, setRiwayatList] = useState<any[]>([])
 
   const fetchPapers = async () => {
     try {
@@ -47,6 +54,16 @@ export default function HitungHargaKertasPage() {
     }
   }
 
+  const fetchRiwayat = async () => {
+    try {
+      const res = await fetcher('/api/riwayat-harga-kertas', { headers: getAuthHeaders() })
+      if (res.ok) {
+        const data = await res.json()
+        setRiwayatList(Array.isArray(data) ? data : [])
+      }
+    } catch {}
+  }
+
   // === localStorage ===
   useEffect(() => {
     try {
@@ -54,6 +71,7 @@ export default function HitungHargaKertasPage() {
       if (saved) {
         const data = JSON.parse(saved)
         if (data.selectedPaperId) setSelectedPaperId(data.selectedPaperId)
+        if (data.namaCustomer) setNamaCustomer(data.namaCustomer)
         if (data.namaCetakan) setNamaCetakan(data.namaCetakan)
         if (data.customGrammage) setCustomGrammage(data.customGrammage)
         if (data.customWidth) setCustomWidth(data.customWidth)
@@ -68,11 +86,18 @@ export default function HitungHargaKertasPage() {
   useEffect(() => {
     if (!mounted) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      selectedPaperId, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity
+      selectedPaperId, namaCustomer, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity
     }))
-  }, [mounted, selectedPaperId, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity])
+  }, [mounted, selectedPaperId, namaCustomer, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity])
 
-  useEffect(() => { fetchPapers() }, [])
+  useEffect(() => {
+    fetchPapers()
+    fetchRiwayat()
+    fetcher('/api/customers', { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => { if (Array.isArray(data)) setCustomers(data) })
+      .catch(() => {})
+  }, [])
 
   const selectedPaper = papers.find(p => p.id === selectedPaperId) || null
   const isCustom = !selectedPaperId
@@ -108,15 +133,121 @@ export default function HitungHargaKertasPage() {
     }
   }, [pricePerRim, paperWidth, paperHeight, grammage, qty])
 
-  const handleReset = () => {
+  // === Riwayat ===
+  const buildPayload = () => ({
+    namaCustomer: namaCustomer || '-',
+    namaCetakan: namaCetakan || '-',
+    paperName: selectedPaper ? selectedPaper.name : 'Custom',
+    paperId: selectedPaper?.id || '',
+    grammage: grammage.toString(),
+    paperWidth: paperWidth.toString(),
+    paperHeight: paperHeight.toString(),
+    pricePerRim: pricePerRim.toString(),
+    quantity: quantity || '0',
+    totalPrice: calculations?.totalPrice || 0,
+    costPerPiece: calculations?.costPerPiece || 0,
+  })
+
+  const resetForm = () => {
     setSelectedPaperId('')
+    setNamaCustomer('')
     setNamaCetakan('')
     setCustomGrammage('')
     setCustomWidth('')
     setCustomHeight('')
     setCustomPricePerRim('')
     setQuantity('')
+    setRestoredRiwayatId(null)
     localStorage.removeItem(STORAGE_KEY)
+  }
+
+  const handleSaveRiwayat = async () => {
+    if (!calculations) {
+      toast.error('Hitung harga kertas terlebih dahulu')
+      return
+    }
+    setSavingRiwayat(true)
+    try {
+      const res = await fetcher('/api/riwayat-harga-kertas', {
+        method: 'POST',
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload())
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil disimpan!')
+        fetchRiwayat()
+        resetForm()
+      } else {
+        toast.error('Gagal menyimpan riwayat')
+      }
+    } catch {
+      toast.error('Gagal menyimpan riwayat')
+    }
+    setSavingRiwayat(false)
+  }
+
+  const handleUpdateRiwayat = async () => {
+    if (!restoredRiwayatId) {
+      toast.error('Tidak ada data yang di-restore')
+      return
+    }
+    if (!calculations) {
+      toast.error('Hitung harga kertas terlebih dahulu')
+      return
+    }
+    setSavingRiwayat(true)
+    try {
+      const res = await fetcher(`/api/riwayat-harga-kertas/${restoredRiwayatId}`, {
+        method: 'PUT',
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload())
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil diupdate!')
+        fetchRiwayat()
+        resetForm()
+      } else {
+        toast.error('Gagal mengupdate riwayat')
+      }
+    } catch {
+      toast.error('Gagal mengupdate riwayat')
+    }
+    setSavingRiwayat(false)
+  }
+
+  const handleRestore = (r: any) => {
+    setRestoredRiwayatId(r.id)
+    setNamaCustomer(r.namaCustomer || '')
+    setNamaCetakan(r.namaCetakan || '')
+    setSelectedPaperId(r.paperId || '')
+    setCustomGrammage(r.grammage || '')
+    setCustomWidth(r.paperWidth || '')
+    setCustomHeight(r.paperHeight || '')
+    setCustomPricePerRim(r.pricePerRim || '')
+    setQuantity(r.quantity || '')
+    toast.success('Data berhasil di-restore dari riwayat!')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleDeleteRiwayat = async (id: string) => {
+    try {
+      const res = await fetcher(`/api/riwayat-harga-kertas/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil dihapus')
+        fetchRiwayat()
+      } else {
+        toast.error('Gagal menghapus riwayat')
+      }
+    } catch {
+      toast.error('Gagal menghapus riwayat')
+    }
+  }
+
+  const handleReset = () => {
+    resetForm()
     toast.success('Form berhasil direset')
   }
 
@@ -126,6 +257,7 @@ export default function HitungHargaKertasPage() {
     const message = `Hitung Harga Kertas - Darrell Soft
 
 Nama: ${namaCetakan || '-'}
+Customer: ${namaCustomer || '-'}
 Kertas: ${paperName} (${grammage} gsm)
 Ukuran: ${paperWidth} x ${paperHeight} cm
 Harga/Rim: ${fmtRp(pricePerRim)}
@@ -145,7 +277,6 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
     let url: string
     if (isAndroid) {
-      // Android: pakai intent untuk buka WhatsApp Business (com.whatsapp.w4b)
       const fallback = `https://wa.me/?text=${encoded}`
       url = `intent://send?text=${encoded}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=${encodeURIComponent(fallback)};end`
     } else if (isMobile) {
@@ -223,19 +354,101 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
     </div>
   )
 
+  // Riwayat table component
+  const RiwayatTable = ({ items }: { items: any[] }) => (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50/80">
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Kertas</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Total</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Per Lbr</th>
+            <th className="text-center py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((r, idx) => (
+            <tr key={r.id} className="border-b border-slate-50 hover:bg-amber-50/40 transition-colors">
+              <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
+              <td className="py-2.5 px-3 text-slate-700 font-medium max-w-[120px]">
+                {r.namaCustomer && r.namaCustomer !== '-' ? r.namaCustomer : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 hidden sm:table-cell max-w-[120px]">
+                {r.namaCetakan || '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 whitespace-nowrap">
+                {r.paperName || '-'} ({r.grammage}gsm)
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 text-right whitespace-nowrap">
+                {parseInt(r.quantity || 0).toLocaleString('id-ID')}
+              </td>
+              <td className="py-2.5 px-3 text-rose-700 font-bold text-right whitespace-nowrap">
+                Rp {Math.round(r.totalPrice || 0).toLocaleString('id-ID')}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 text-right hidden lg:table-cell whitespace-nowrap">
+                {r.costPerPiece > 0 ? `Rp ${Math.round(r.costPerPiece).toLocaleString('id-ID')}` : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <button
+                    onClick={() => handleRestore(r)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-[11px] font-medium border border-emerald-200 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Restore
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRiwayat(r.id)}
+                    className="inline-flex items-center justify-center w-7 h-7 bg-red-50 hover:bg-red-100 text-red-600 rounded-md border border-red-200 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+
   return (
     <DashboardLayout title="Hitung Harga Kertas" subtitle="Kalkulator harga kertas per lembar, per m², dan per rim">
-      <div className="max-w-[1100px] mx-auto">
-        <div className="lg:flex lg:h-[calc(100vh-8rem)] lg:gap-4">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="lg:flex lg:gap-4">
 
           <div className="flex-1 lg:overflow-y-auto min-w-0 hide-scrollbar">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 
               <SectionHeader icon={<Info className="w-3.5 h-3.5 text-blue-600" />} label="Informasi" />
               <div className="px-4 py-3 space-y-2">
-                <div>
-                  <label className={labelClass}>Nama Cetakan</label>
-                  <input type="text" placeholder="Contoh: Brosur Lipat 3" value={namaCetakan} onChange={(e) => setNamaCetakan(e.target.value)} className={inputClass} />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelClass}>Nama Customer</label>
+                    <div className="relative">
+                      <UserSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        list="customer-kertas-list"
+                        placeholder="Pilih / ketik manual"
+                        value={namaCustomer}
+                        onChange={(e) => setNamaCustomer(e.target.value)}
+                        className={`${inputClass} pl-9`}
+                      />
+                      <datalist id="customer-kertas-list">
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.name} />
+                        ))}
+                      </datalist>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Nama Cetakan</label>
+                    <input type="text" placeholder="Contoh: Brosur Lipat 3" value={namaCetakan} onChange={(e) => setNamaCetakan(e.target.value)} className={inputClass} />
+                  </div>
                 </div>
               </div>
 
@@ -371,6 +584,25 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
 
                 {/* Actions */}
                 <div className="space-y-2 pt-1">
+                  {restoredRiwayatId ? (
+                    <Button
+                      onClick={handleUpdateRiwayat}
+                      disabled={!calculations || savingRiwayat}
+                      className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                      size="sm"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${savingRiwayat ? 'animate-spin' : ''}`} /> {savingRiwayat ? 'Mengupdate...' : 'Update Riwayat'}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSaveRiwayat}
+                      disabled={!calculations || savingRiwayat}
+                      className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-white"
+                      size="sm"
+                    >
+                      <Save className="w-4 h-4" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan Riwayat'}
+                    </Button>
+                  )}
                   <Button
                     onClick={handleWhatsApp}
                     disabled={!calculations}
@@ -389,7 +621,7 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
                   </Button>
                   <Button
                     onClick={handleReset}
-                    disabled={!calculations}
+                    disabled={!calculations && !restoredRiwayatId}
                     variant="outline"
                     className="w-full gap-2"
                     size="sm"
@@ -402,8 +634,28 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
           </div>
 
         </div>
+
+        {/* ========== RIWAYAT HARGA KERTAS (Full Width) ========== */}
+        <div className="mt-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
+              <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+                <History className="w-3.5 h-3.5 text-amber-600" />
+              </div>
+              <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Riwayat Harga Kertas</h2>
+              <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{riwayatList.length}</span>
+            </div>
+            {riwayatList.length > 0 ? (
+              <RiwayatTable items={riwayatList} />
+            ) : (
+              <div className="px-4 py-6 text-center">
+                <History className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                <p className="text-xs text-slate-400">Belum ada riwayat harga kertas</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   )
 }
-
