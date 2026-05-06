@@ -135,12 +135,14 @@ function CalculatorPage() {
       .catch(() => setPapers([]))
   }, [])
 
-  // Restore from riwayat URL params
+  // Restore dari riwayat URL params
   useEffect(() => {
     const restored = searchParams.get('restoredFromRiwayat')
     if (!restored) return
 
     const printNameParam = searchParams.get('printName')
+    const customerNameParam = searchParams.get('customerName')
+    const paperNameParam = searchParams.get('paperName')
     const paperLengthParam = searchParams.get('paperLength')
     const paperWidthParam = searchParams.get('paperWidth')
     const cutWidthParam = searchParams.get('cutWidth')
@@ -160,8 +162,16 @@ function CalculatorPage() {
       setIsCustomPaper(true)
     }
 
+    // Matching customer by name
+    if (customerNameParam) {
+      const match = customers.find(c => c.name === customerNameParam)
+      if (match) setSelectedCustomerId(match.id)
+    }
+
     toast.success('Data berhasil di-restore dari riwayat!')
-  }, [searchParams])
+    // Bersihkan URL params
+    window.history.replaceState({}, '', '/potong-kertas')
+  }, [searchParams, customers])
 
   const selectedPaper = papers.find(p => p.id === selectedPaperId)
   const selectedCustomer = customers.find(c => c.id === selectedCustomerId)

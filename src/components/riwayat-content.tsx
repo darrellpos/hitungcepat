@@ -90,22 +90,35 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
   const handleRestore = (item: RiwayatItem) => {
     const isHitungCetak = item.type === 'hitung_cetakan'
     const params = new URLSearchParams()
+    // Field umum
     if (item.printName) params.set('printName', item.printName)
+    if (item.customerName) params.set('customerName', item.customerName)
+    if (item.paperName) params.set('paperName', item.paperName)
     if (item.paperLength) params.set('paperLength', item.paperLength)
     if (item.paperWidth) params.set('paperWidth', item.paperWidth)
     if (item.cutWidth) params.set('cutWidth', item.cutWidth)
     if (item.cutHeight) params.set('cutHeight', item.cutHeight)
     if (item.quantity) params.set('quantity', item.quantity)
     if (item.totalPaperPrice) params.set('totalPaperPrice', item.totalPaperPrice.toString())
-    if (item.packingCost) params.set('packingCost', item.packingCost.toString())
-    if (item.shippingCost) params.set('shippingCost', item.shippingCost.toString())
     if (item.profitPercent) params.set('profitPercent', item.profitPercent.toString())
     params.set('restoredFromRiwayat', '1')
-    
+
     if (isHitungCetak) {
-      router.push(`/hitung-cetakan?${params.toString()}`)
+      // Field khusus hitung cetakan
+      if (item.warna && item.warna !== '-') params.set('warna', item.warna)
+      if (item.warnaKhusus && item.warnaKhusus !== '-' && parseInt(item.warnaKhusus) > 0) params.set('warnaKhusus', item.warnaKhusus)
+      if (item.hargaPlat) params.set('hargaPlat', item.hargaPlat.toString())
+      if (item.machineName && item.machineName !== '-') params.set('machineName', item.machineName)
+      if (item.machineName2 && item.machineName2 !== '-') params.set('machineName2', item.machineName2)
+      if (item.finishingNames && item.finishingNames !== '-') params.set('finishingNames', item.finishingNames)
+      if (item.packingCost) params.set('packingCost', item.packingCost.toString())
+      if (item.shippingCost) params.set('shippingCost', item.shippingCost.toString())
+      if (item.glueCost) params.set('glueCost', item.glueCost.toString())
+      if (item.glueBorongan) params.set('glueBorongan', item.glueBorongan.toString())
+      if (item.otherCost) params.set('otherCost', item.otherCost.toString())
+      window.location.href = `/hitung-cetakan?${params.toString()}`
     } else {
-      router.push(`/potong-kertas?${params.toString()}`)
+      window.location.href = `/potong-kertas?${params.toString()}`
     }
   }
 

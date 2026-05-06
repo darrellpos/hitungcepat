@@ -1,5 +1,14 @@
 'use client'
 
+declare global {
+  interface Window {
+    __restorePaperName?: string
+    __restoreMachineName?: string
+    __restoreMachineName2?: string
+    __restoreFinishingNames?: string
+  }
+}
+
 import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -293,38 +302,78 @@ function HitungCetakanPage() {
     return { cost: total, isMin: false, breakdown }
   }
 
+  // Flag untuk restore dari riwayat
+  const [isRestoring, setIsRestoring] = useState(false)
+
+  // Restore dari riwayat URL params
   useEffect(() => {
+    const restored = searchParams.get('restoredFromRiwayat')
+    if (!restored) return
+    setIsRestoring(true)
+
     const printName = searchParams.get('printName')
+    const customerNameParam = searchParams.get('customerName')
+    const paperNameParam = searchParams.get('paperName')
     const paperLength = searchParams.get('paperLength')
     const paperWidthParam = searchParams.get('paperWidth')
     const cutWidthParam = searchParams.get('cutWidth')
     const cutHeightParam = searchParams.get('cutHeight')
     const quantityParam = searchParams.get('quantity')
-    const paperId = searchParams.get('paperId')
-    const pricePerSheet = searchParams.get('pricePerSheet')
     const totalPaperPriceParam = searchParams.get('totalPaperPrice')
+    const warnaParam = searchParams.get('warna')
+    const warnaKhususParam = searchParams.get('warnaKhusus')
+    const hargaPlatParam = searchParams.get('hargaPlat')
+    const machineNameParam = searchParams.get('machineName')
+    const machineName2Param = searchParams.get('machineName2')
+    const finishingNamesParam = searchParams.get('finishingNames')
+    const packingCostParam = searchParams.get('packingCost')
+    const shippingCostParam = searchParams.get('shippingCost')
+    const glueCostParam = searchParams.get('glueCost')
+    const glueBoronganParam = searchParams.get('glueBorongan')
+    const otherCostParam = searchParams.get('otherCost')
+    const profitPercentParam = searchParams.get('profitPercent')
 
-    if (totalPaperPriceParam) {
-      setTotalPaperPrice(parseFloat(totalPaperPriceParam) || 0)
+    if (totalPaperPriceParam) setTotalPaperPrice(parseFloat(totalPaperPriceParam) || 0)
+    if (profitPercentParam) setProfitPercent(parseFloat(profitPercentParam) || 0)
+
+    setFormData(prev => ({
+      ...prev,
+      customerName: customerNameParam || prev.customerName,
+      printName: printName || prev.printName,
+      paperLength: paperLength || prev.paperLength,
+      paperWidth: paperWidthParam || prev.paperWidth,
+      cutWidth: cutWidthParam || prev.cutWidth,
+      cutHeight: cutHeightParam || prev.cutHeight,
+      quantity: quantityParam || prev.quantity,
+      warna: warnaParam || prev.warna,
+      warnaKhusus: warnaKhususParam || prev.warnaKhusus,
+      hargaPlat: hargaPlatParam || prev.hargaPlat,
+      packingCost: packingCostParam || prev.packingCost,
+      shippingCost: shippingCostParam || prev.shippingCost,
+      biayaLain1: otherCostParam ? (parseFloat(otherCostParam) > 0 ? otherCostParam : prev.biayaLain1) : prev.biayaLain1,
+      biayaLain2: '',
+      glueCostPerCm: glueCostParam ? (parseFloat(glueCostParam) > 0 ? '1' : prev.glueCostPerCm) : prev.glueCostPerCm,
+      glueBoronganPerSheet: glueBoronganParam || prev.glueBoronganPerSheet,
+    }))
+
+    // Matching mesin, kertas, finishing by name setelah data fetch selesai
+    if (paperNameParam) {
+      const matchPaper = (papersList: Paper[]) => {
+        const paper = papersList.find(p => p.name === paperNameParam)
+        if (paper) {
+          setFormData(prev => ({ ...prev, paperId: paper.id, pricePerSheet: Math.round(paper.pricePerRim / 500).toString() }))
+        }
+      }
+      // Simpan nama untuk matching setelah fetch
+      window.__restorePaperName = paperNameParam
     }
+    if (machineNameParam) window.__restoreMachineName = machineNameParam
+    if (machineName2Param) window.__restoreMachineName2 = machineName2Param
+    if (finishingNamesParam && finishingNamesParam !== '-') window.__restoreFinishingNames = finishingNamesParam
 
-    const customerNameParam = searchParams.get('customerName')
-
-    if (printName || paperLength || quantityParam || paperId) {
-      setFormData(prev => ({
-        ...prev,
-        customerName: customerNameParam || prev.customerName,
-        printName: printName || prev.printName,
-        paperLength: paperLength || prev.paperLength,
-        paperWidth: paperWidthParam || prev.paperWidth,
-        cutWidth: cutWidthParam || prev.cutWidth,
-        cutHeight: cutHeightParam || prev.cutHeight,
-        quantity: quantityParam || prev.quantity,
-        paperId: paperId || prev.paperId,
-        pricePerSheet: pricePerSheet || prev.pricePerSheet,
-      }))
-      setPrefilled(true)
-    }
+    setPrefilled(true)
+    // Bersihkan URL params setelah dibaca
+    window.history.replaceState({}, '', '/hitung-cetakan')
   }, [searchParams])
 
   const fetchCustomers = async () => {
@@ -367,15 +416,55 @@ function HitungCetakanPage() {
     }
   }
 
+  // Matching restore data setelah fetch selesai
+  useEffect(() => {
+    if (!isRestoring) return
+    if (papers.length === 0 && printingCosts.length === 0 && finishings.length === 0) return
+
+    if (window.__restorePaperName && papers.length > 0) {
+      const paper = papers.find(p => p.name === window.__restorePaperName)
+      if (paper) {
+        setFormData(prev => ({ ...prev, paperId: paper.id, pricePerSheet: Math.round(paper.pricePerRim / 500).toString() }))
+      }
+    }
+    if (window.__restoreMachineName && printingCosts.length > 0) {
+      const machine = printingCosts.find(m => m.machineName === window.__restoreMachineName)
+      if (machine) {
+        setFormData(prev => ({ ...prev, machineId: machine.id }))
+      }
+    }
+    if (window.__restoreMachineName2 && printingCosts.length > 0) {
+      const machine2 = printingCosts.find(m => m.machineName === window.__restoreMachineName2)
+      if (machine2) {
+        setFormData(prev => ({ ...prev, machineId2: machine2.id }))
+      }
+    }
+    if (window.__restoreFinishingNames && finishings.length > 0) {
+      const names = window.__restoreFinishingNames.split(',').map(n => n.trim()).filter(Boolean)
+      const matchedIds = finishings.filter(f => names.includes(f.name)).map(f => f.id)
+      if (matchedIds.length > 0) setSelectedFinishings(matchedIds)
+    }
+
+    // Bersihkan
+    delete window.__restorePaperName
+    delete window.__restoreMachineName
+    delete window.__restoreMachineName2
+    delete window.__restoreFinishingNames
+    setIsRestoring(false)
+  }, [isRestoring, papers, printingCosts, finishings])
+
   useEffect(() => {
     fetchCustomers()
     fetchPapers()
     fetchPrintingCosts()
     fetchFinishings()
+    // Jangan override profitPercent saat restore
     fetcher('/api/settings?key=profit', { headers: getAuthHeaders() })
       .then(res => res.json())
       .then(data => {
-        if (data.value) setProfitPercent(parseFloat(data.value) || 0)
+        if (data.value && !searchParams.get('restoredFromRiwayat')) {
+          setProfitPercent(parseFloat(data.value) || 0)
+        }
       })
       .catch(() => {})
   }, [])
