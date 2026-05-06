@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
         paperHeight: body.paperHeight || '0',
         pricePerRim: body.pricePerRim || '0',
         quantity: body.quantity || '0',
+        lebarPotong: body.lebarPotong || '0',
+        tinggiPotong: body.tinggiPotong || '0',
         totalPrice: body.totalPrice || 0,
         costPerPiece: body.costPerPiece || 0,
         userId: user?.id || null,

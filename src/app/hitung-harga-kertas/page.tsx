@@ -37,6 +37,8 @@ export default function HitungHargaKertasPage() {
   const [customHeight, setCustomHeight] = useState('')
   const [customPricePerRim, setCustomPricePerRim] = useState('')
   const [quantity, setQuantity] = useState('')
+  const [lebarPotong, setLebarPotong] = useState('')
+  const [tinggiPotong, setTinggiPotong] = useState('')
   const [mounted, setMounted] = useState(false)
 
   // Riwayat states
@@ -78,6 +80,8 @@ export default function HitungHargaKertasPage() {
         if (data.customHeight) setCustomHeight(data.customHeight)
         if (data.customPricePerRim) setCustomPricePerRim(data.customPricePerRim)
         if (data.quantity) setQuantity(data.quantity)
+        if (data.lebarPotong) setLebarPotong(data.lebarPotong)
+        if (data.tinggiPotong) setTinggiPotong(data.tinggiPotong)
       }
     } catch {}
     setMounted(true)
@@ -86,9 +90,9 @@ export default function HitungHargaKertasPage() {
   useEffect(() => {
     if (!mounted) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      selectedPaperId, namaCustomer, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity
+      selectedPaperId, namaCustomer, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity, lebarPotong, tinggiPotong
     }))
-  }, [mounted, selectedPaperId, namaCustomer, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity])
+  }, [mounted, selectedPaperId, namaCustomer, namaCetakan, customGrammage, customWidth, customHeight, customPricePerRim, quantity, lebarPotong, tinggiPotong])
 
   useEffect(() => {
     fetchPapers()
@@ -108,6 +112,9 @@ export default function HitungHargaKertasPage() {
   const pricePerRim = selectedPaper ? selectedPaper.pricePerRim : (parseFloat(customPricePerRim) || 0)
   const qty = parseInt(quantity) || 0
 
+  const cutW = parseFloat(lebarPotong) || 0
+  const cutH = parseFloat(tinggiPotong) || 0
+
   const calculations = useMemo(() => {
     if (pricePerRim <= 0) return null
 
@@ -121,6 +128,46 @@ export default function HitungHargaKertasPage() {
     const costPerPiece = qty > 0 ? Math.round(totalPrice / qty) : 0
     const totalWeightKg = (weightPerSheetGram * qty) / 1000
 
+    // Ukuran potong calculations
+    let potonganPerLembar = 0
+    let layoutX = 0
+    let layoutY = 0
+    let hargaPerPotongan = 0
+    let totalPotongan = 0
+    let lembarDibutuhkan = 0
+    let totalHargaPotong = 0
+    let sisaWaste = 0
+
+    if (cutW > 0 && cutH > 0 && paperWidth > 0 && paperHeight > 0) {
+      // Hitung layout tanpa rotasi
+      const fitX_noRot = Math.floor(paperWidth / cutW)
+      const fitY_noRot = Math.floor(paperHeight / cutH)
+      const total_noRot = fitX_noRot * fitY_noRot
+
+      // Hitung layout dengan rotasi (90 derajat)
+      const fitX_rot = Math.floor(paperWidth / cutH)
+      const fitY_rot = Math.floor(paperHeight / cutW)
+      const total_rot = fitX_rot * fitY_rot
+
+      if (total_rot > total_noRot) {
+        layoutX = fitX_rot
+        layoutY = fitY_rot
+      } else {
+        layoutX = fitX_noRot
+        layoutY = fitY_noRot
+      }
+
+      potonganPerLembar = layoutX * layoutY
+      hargaPerPotongan = potonganPerLembar > 0 ? Math.round(pricePerSheet / potonganPerLembar) : 0
+
+      if (qty > 0) {
+        totalPotongan = qty
+        lembarDibutuhkan = potonganPerLembar > 0 ? Math.ceil(qty / potonganPerLembar) : 0
+        totalHargaPotong = Math.round(pricePerSheet * lembarDibutuhkan)
+        sisaWaste = (lembarDibutuhkan * potonganPerLembar) - qty
+      }
+    }
+
     return {
       pricePerSheet,
       pricePerM2,
@@ -130,8 +177,16 @@ export default function HitungHargaKertasPage() {
       costPerPiece,
       totalWeightKg,
       areaM2,
+      potonganPerLembar,
+      layoutX,
+      layoutY,
+      hargaPerPotongan,
+      totalPotongan,
+      lembarDibutuhkan,
+      totalHargaPotong,
+      sisaWaste,
     }
-  }, [pricePerRim, paperWidth, paperHeight, grammage, qty])
+  }, [pricePerRim, paperWidth, paperHeight, grammage, qty, cutW, cutH])
 
   // === Riwayat ===
   const buildPayload = () => ({
@@ -144,8 +199,10 @@ export default function HitungHargaKertasPage() {
     paperHeight: paperHeight.toString(),
     pricePerRim: pricePerRim.toString(),
     quantity: quantity || '0',
-    totalPrice: calculations?.totalPrice || 0,
-    costPerPiece: calculations?.costPerPiece || 0,
+    lebarPotong: lebarPotong || '0',
+    tinggiPotong: tinggiPotong || '0',
+    totalPrice: calculations?.totalHargaPotong > 0 ? calculations.totalHargaPotong : (calculations?.totalPrice || 0),
+    costPerPiece: calculations?.hargaPerPotongan > 0 ? calculations.hargaPerPotongan : (calculations?.costPerPiece || 0),
   })
 
   const resetForm = () => {
@@ -157,6 +214,8 @@ export default function HitungHargaKertasPage() {
     setCustomHeight('')
     setCustomPricePerRim('')
     setQuantity('')
+    setLebarPotong('')
+    setTinggiPotong('')
     setRestoredRiwayatId(null)
     localStorage.removeItem(STORAGE_KEY)
   }
@@ -225,6 +284,8 @@ export default function HitungHargaKertasPage() {
     setCustomHeight(r.paperHeight || '')
     setCustomPricePerRim(r.pricePerRim || '')
     setQuantity(r.quantity || '')
+    setLebarPotong(r.lebarPotong || '')
+    setTinggiPotong(r.tinggiPotong || '')
     toast.success('Data berhasil di-restore dari riwayat!')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -267,11 +328,19 @@ Harga/Lembar: ${fmtRp(calculations.pricePerSheet)}
 Harga/m2: ${fmtRp(calculations.pricePerM2)}
 Berat/Lembar: ${Math.round(calculations.weightPerSheetGram)} gram
 Berat/Rim: ${Math.round(calculations.weightPerRimKg)} kg` +
+      (cutW > 0 && cutH > 0 ? `
+
+Ukuran Potong: ${cutW} × ${cutH} cm
+Potong/Lembar: ${calculations.potonganPerLembar} pcs (${calculations.layoutX}×${calculations.layoutY})
+Harga/Potongan: ${fmtRp(calculations.hargaPerPotongan)}` : '') +
       (qty > 0 ? `
 
 Total Harga (${fmtNum(qty)} lbr): ${fmtRp(calculations.totalPrice)}
 Harga/Lembar: ${fmtRp(calculations.costPerPiece)}
-Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
+Total Berat: ${Math.round(calculations.totalWeightKg)} kg` +
+      (calculations.potonganPerLembar > 0 ? `
+Lembar Dibutuhkan: ${calculations.lembarDibutuhkan} lbr
+Total Harga Potong: ${fmtRp(calculations.totalHargaPotong)}` : '') : '')
     const encoded = encodeURIComponent(message)
     const isAndroid = /Android/i.test(navigator.userAgent)
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
@@ -364,6 +433,7 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Kertas</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Ukuran Potong</th>
             <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
             <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Total</th>
             <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Per Lbr</th>
@@ -382,6 +452,9 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
               </td>
               <td className="py-2.5 px-3 text-slate-600 whitespace-nowrap">
                 {r.paperName || '-'} ({r.grammage}gsm)
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 whitespace-nowrap hidden md:table-cell">
+                {r.lebarPotong && r.lebarPotong !== '0' ? `${r.lebarPotong} × ${r.tinggiPotong} cm` : '-'}
               </td>
               <td className="py-2.5 px-3 text-slate-600 text-right whitespace-nowrap">
                 {parseInt(r.quantity || 0).toLocaleString('id-ID')}
@@ -513,6 +586,49 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
                 </div>
               </div>
 
+              {/* Section: Ukuran Potong */}
+              <SectionHeader icon={<Ruler className="w-3.5 h-3.5 text-violet-600" />} label="Ukuran Potong" />
+              <div className="px-4 py-3 space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelClass}>Lebar Potong (cm)</label>
+                    <div className="relative">
+                      <Ruler className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                      <input type="number" step="0.1" min="0" placeholder="21" value={lebarPotong} onChange={(e) => setLebarPotong(e.target.value)} className={`${inputClass} pl-9`} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Tinggi Potong (cm)</label>
+                    <div className="relative">
+                      <Ruler className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                      <input type="number" step="0.1" min="0" placeholder="29.7" value={tinggiPotong} onChange={(e) => setTinggiPotong(e.target.value)} className={`${inputClass} pl-9`} />
+                    </div>
+                  </div>
+                </div>
+
+                {calculations && calculations.potonganPerLembar > 0 && (
+                  <div className="bg-violet-50 border border-violet-200 rounded-lg px-3 py-2 text-[11px] text-violet-700 space-y-0.5">
+                    <p><span className="font-semibold">Layout:</span> {calculations.layoutX} × {calculations.layoutY} = <b>{calculations.potonganPerLembar}</b> potong/lembar</p>
+                    <p><span className="font-semibold">Harga/Potongan:</span> {fmtRp(calculations.hargaPerPotongan)}</p>
+                    {qty > 0 && (
+                      <>
+                        <p><span className="font-semibold">Lembar Dibutuhkan:</span> {calculations.lembarDibutuhkan} lembar</p>
+                        <p><span className="font-semibold">Total Harga:</span> {fmtRp(calculations.totalHargaPotong)}</p>
+                        {calculations.sisaWaste > 0 && (
+                          <p><span className="font-semibold">Sisa Potongan:</span> {calculations.sisaWaste} pcs</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {calculations && cutW > 0 && cutH > 0 && (cutW > paperWidth || cutH > paperHeight) && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-[11px] text-red-600">
+                    Ukuran potongan lebih besar dari ukuran kertas!
+                  </div>
+                )}
+              </div>
+
               {!calculations && (
                 <div className="px-4 py-8 text-center">
                   <Calculator className="w-10 h-10 mx-auto text-slate-300 mb-2" />
@@ -541,21 +657,55 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
                       <ValueBox label="Berat / Rim" value={`${Math.round(calculations.weightPerRimKg)} kg`} gradient="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200" />
                     </div>
 
-                    {qty > 0 && (
-                      <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
-                          <span className="text-[11px] text-slate-600">Total Harga</span>
-                          <span className="text-xs font-semibold text-slate-700">{fmtRp(calculations.totalPrice)}</span>
-                        </div>
-                        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
-                          <span className="text-[11px] text-slate-600">Total Berat</span>
-                          <span className="text-xs font-semibold text-slate-700">{Math.round(calculations.totalWeightKg)} kg</span>
-                        </div>
+                    {calculations.potonganPerLembar > 0 && (
+                      <div className="space-y-1.5 pt-2 border-t border-violet-100">
+                        <ValueBox label="Potong / Lembar" value={`${calculations.potonganPerLembar} pcs (${calculations.layoutX}×${calculations.layoutY})`} gradient="bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200" />
+                        <ValueBox label="Harga / Potongan" value={fmtRp(calculations.hargaPerPotongan)} gradient="bg-gradient-to-r from-purple-50 to-fuchsia-50 border-purple-200" />
                       </div>
                     )}
 
-                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl p-3.5 text-white">
-                      {qty > 0 ? (
+                    {(qty > 0 || calculations.potonganPerLembar > 0) && (
+                      <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                        {qty > 0 && (
+                          <>
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
+                              <span className="text-[11px] text-slate-600">Total Harga ({qty} lbr)</span>
+                              <span className="text-xs font-semibold text-slate-700">{fmtRp(calculations.totalPrice)}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50">
+                              <span className="text-[11px] text-slate-600">Total Berat</span>
+                              <span className="text-xs font-semibold text-slate-700">{Math.round(calculations.totalWeightKg)} kg</span>
+                            </div>
+                          </>
+                        )}
+                        {calculations.potonganPerLembar > 0 && qty > 0 && (
+                          <>
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-violet-50">
+                              <span className="text-[11px] text-violet-600">Lembar Dibutuhkan</span>
+                              <span className="text-xs font-semibold text-violet-700">{calculations.lembarDibutuhkan} lbr</span>
+                            </div>
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-violet-50">
+                              <span className="text-[11px] text-violet-600">Total Harga Potong</span>
+                              <span className="text-xs font-bold text-violet-700">{fmtRp(calculations.totalHargaPotong)}</span>
+                            </div>
+                            {calculations.sisaWaste > 0 && (
+                              <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-50">
+                                <span className="text-[11px] text-amber-600">Sisa Potongan</span>
+                                <span className="text-xs font-semibold text-amber-700">{calculations.sisaWaste} pcs</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    <div className={`rounded-xl p-3.5 text-white ${calculations.potonganPerLembar > 0 && qty > 0 ? 'bg-gradient-to-r from-violet-500 to-purple-500' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}>
+                      {calculations.potonganPerLembar > 0 && qty > 0 ? (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold">Total Harga Potong</span>
+                          <span className="text-lg font-extrabold">{fmtRp(calculations.totalHargaPotong)}</span>
+                        </div>
+                      ) : qty > 0 ? (
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold">Total Harga</span>
                           <span className="text-lg font-extrabold">{fmtRp(calculations.totalPrice)}</span>
@@ -566,12 +716,17 @@ Total Berat: ${Math.round(calculations.totalWeightKg)} kg` : '')
                           <span className="text-lg font-extrabold">{fmtRp(calculations.pricePerSheet)}</span>
                         </div>
                       )}
-                      {qty > 0 && (
+                      {calculations.potonganPerLembar > 0 && qty > 0 ? (
+                        <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/20">
+                          <span className="text-[11px] opacity-80">Harga / Potongan ({calculations.potonganPerLembar} pcs/lbr)</span>
+                          <span className="text-xs font-bold">{fmtRp(calculations.hargaPerPotongan)}</span>
+                        </div>
+                      ) : qty > 0 ? (
                         <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/20">
                           <span className="text-sm font-bold opacity-80">Harga / Lembar</span>
                           <span className="text-sm font-extrabold">{fmtRp(calculations.costPerPiece)}</span>
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
                   </>

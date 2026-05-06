@@ -34,6 +34,8 @@ export async function PUT(
         paperHeight: body.paperHeight ?? item.paperHeight,
         pricePerRim: body.pricePerRim ?? item.pricePerRim,
         quantity: body.quantity ?? item.quantity,
+        lebarPotong: body.lebarPotong ?? item.lebarPotong,
+        tinggiPotong: body.tinggiPotong ?? item.tinggiPotong,
         totalPrice: body.totalPrice ?? item.totalPrice,
         costPerPiece: body.costPerPiece ?? item.costPerPiece,
       }

@@ -218,6 +218,8 @@ model RiwayatHargaKertas {
   paperHeight     String   @default("0")
   pricePerRim     String   @default("0")
   quantity        String   @default("0")
+  lebarPotong     String   @default("0")
+  tinggiPotong    String   @default("0")
   totalPrice      Float
   costPerPiece    Float    @default(0)
   userId          String?
