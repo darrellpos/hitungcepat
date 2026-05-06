@@ -176,6 +176,7 @@ model RiwayatCetakan {
 
 model RiwayatFinishing {
   id              String   @id @default(cuid())
+  namaCustomer    String   @default("")
   namaCetakan     String
   jumlahLembar    String
   lebarCm         String

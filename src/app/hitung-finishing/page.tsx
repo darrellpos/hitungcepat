@@ -1,6 +1,6 @@
 'use client'
 
-import { Layers, Plus, Trash2, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle, History, Save } from 'lucide-react'
+import { Layers, Plus, Trash2, Printer, RotateCcw, Calculator, Ruler, Info, MessageCircle, History, Save, UserSearch } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { getAuthHeaders } from '@/lib/auth'
@@ -35,6 +35,7 @@ export default function HitungFinishingPage() {
   const [finishings, setFinishings] = useState<Finishing[]>([])
   const [selectedFinishings, setSelectedFinishings] = useState<SelectedFinishing[]>([])
   const [selectedFinishingIds, setSelectedFinishingIds] = useState<string[]>([])
+  const [namaCustomer, setNamaCustomer] = useState('')
   const [namaCetakan, setNamaCetakan] = useState('')
   const [jumlahLembar, setJumlahLembar] = useState('')
   const [lebarCm, setLebarCm] = useState('')
@@ -42,6 +43,7 @@ export default function HitungFinishingPage() {
   const [mounted, setMounted] = useState(false)
   const [savingRiwayat, setSavingRiwayat] = useState(false)
   const [riwayatList, setRiwayatList] = useState<any[]>([])
+  const [customers, setCustomers] = useState<any[]>([])
 
   // === Riwayat ===
   const fetchRiwayat = async () => {
@@ -65,6 +67,7 @@ export default function HitungFinishingPage() {
         method: 'POST',
         headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          namaCustomer: namaCustomer || '-',
           namaCetakan: namaCetakan || '-',
           jumlahLembar: jumlahLembar || '0',
           lebarCm: lebarCm || '0',
@@ -98,6 +101,8 @@ export default function HitungFinishingPage() {
       const w = params.get('lebarCm') || ''
       const h = params.get('tinggiCm') || ''
 
+      const cust = params.get('namaCustomer') || ''
+      setNamaCustomer(cust)
       setNamaCetakan(name)
       setJumlahLembar(qty)
       setLebarCm(w)
@@ -120,6 +125,7 @@ export default function HitungFinishingPage() {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
         const data = JSON.parse(saved)
+        if (data.namaCustomer) setNamaCustomer(data.namaCustomer)
         if (data.namaCetakan) setNamaCetakan(data.namaCetakan)
         if (data.jumlahLembar) setJumlahLembar(data.jumlahLembar)
         if (data.lebarCm) setLebarCm(data.lebarCm)
@@ -134,9 +140,9 @@ export default function HitungFinishingPage() {
   useEffect(() => {
     if (!mounted) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      namaCetakan, jumlahLembar, lebarCm, tinggiCm, selectedFinishingIds
+      namaCustomer, namaCetakan, jumlahLembar, lebarCm, tinggiCm, selectedFinishingIds
     }))
-  }, [mounted, namaCetakan, jumlahLembar, lebarCm, tinggiCm, selectedFinishingIds])
+  }, [mounted, namaCustomer, namaCetakan, jumlahLembar, lebarCm, tinggiCm, selectedFinishingIds])
 
   // Rebuild selected finishings from IDs when finishings are loaded
   useEffect(() => {
@@ -167,6 +173,11 @@ export default function HitungFinishingPage() {
   useEffect(() => {
     fetchFinishings()
     fetchRiwayat()
+    // Fetch customers for datalist
+    fetcher('/api/customers', { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => { if (Array.isArray(data)) setCustomers(data) })
+      .catch(() => {})
   }, [])
 
   const calculateFinishingCost = (finishing: Finishing): { cost: number; isMin: boolean; breakdown: string } => {
@@ -279,6 +290,7 @@ export default function HitungFinishingPage() {
   const fmt = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`
 
   const handleReset = () => {
+    setNamaCustomer('')
     setNamaCetakan('')
     setJumlahLembar('')
     setLebarCm('')
@@ -371,6 +383,7 @@ export default function HitungFinishingPage() {
 
   const handleRestore = (r: any) => {
     // Restore data langsung ke state tanpa reload halaman
+    setNamaCustomer(r.namaCustomer || '')
     setNamaCetakan(r.namaCetakan || '')
     setJumlahLembar(r.jumlahLembar || '')
     setLebarCm(r.lebarCm && r.lebarCm !== '0' ? r.lebarCm : '')
@@ -428,12 +441,13 @@ export default function HitungFinishingPage() {
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50/80">
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Finishing</th>
-            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Nama Cetakan</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
             <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
-            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Ukuran</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Ukuran</th>
             <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Total</th>
-            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Per Lbr</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Per Lbr</th>
             <th className="text-center py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Aksi</th>
           </tr>
         </thead>
@@ -441,10 +455,13 @@ export default function HitungFinishingPage() {
           {items.map((r, idx) => (
             <tr key={r.id} className="border-b border-slate-50 hover:bg-amber-50/40 transition-colors">
               <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
-              <td className="py-2.5 px-3 text-slate-700 font-medium max-w-[200px]">
-                {r.finishingNames}
+              <td className="py-2.5 px-3 text-slate-700 font-medium max-w-[120px]">
+                {r.namaCustomer && r.namaCustomer !== '-' ? r.namaCustomer : '-'}
               </td>
               <td className="py-2.5 px-3 text-slate-600 max-w-[160px]">
+                {r.finishingNames}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 hidden sm:table-cell max-w-[120px]">
                 {r.namaCetakan || '-'}
               </td>
               <td className="py-2.5 px-3 text-slate-600 text-right whitespace-nowrap">
@@ -494,9 +511,30 @@ export default function HitungFinishingPage() {
               {/* Section: Info Cetakan */}
               <SectionHeader icon={<Info className="w-3.5 h-3.5 text-blue-600" />} label="Informasi" />
               <div className="px-4 py-3 space-y-2">
-                <div>
-                  <label className={labelClass}>Nama Cetakan</label>
-                  <input type="text" placeholder="Contoh: Brosur Lipat 3" value={namaCetakan} onChange={(e) => setNamaCetakan(e.target.value)} className={inputClass} />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelClass}>Nama Customer</label>
+                    <div className="relative">
+                      <UserSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        list="customer-finishing-list"
+                        placeholder="Pilih / ketik manual"
+                        value={namaCustomer}
+                        onChange={(e) => setNamaCustomer(e.target.value)}
+                        className={`${inputClass} pl-9`}
+                      />
+                      <datalist id="customer-finishing-list">
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.name} />
+                        ))}
+                      </datalist>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Nama Cetakan</label>
+                    <input type="text" placeholder="Contoh: Brosur Lipat 3" value={namaCetakan} onChange={(e) => setNamaCetakan(e.target.value)} className={inputClass} />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>

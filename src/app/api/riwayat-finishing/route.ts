@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
 
     const riwayat = await db.riwayatFinishing.create({
       data: {
+        namaCustomer: body.namaCustomer || '',
         namaCetakan: body.namaCetakan || '',
         jumlahLembar: body.jumlahLembar || '0',
         lebarCm: body.lebarCm || '0',
