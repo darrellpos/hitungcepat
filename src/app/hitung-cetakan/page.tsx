@@ -449,7 +449,15 @@ function HitungCetakanPage() {
     }
     if (window.__restoreFinishingNames && finishings.length > 0) {
       const names = window.__restoreFinishingNames.split(',').map(n => n.trim()).filter(Boolean)
-      const matchedIds = finishings.filter(f => names.includes(f.name)).map(f => f.id)
+      // Deduplicate: hanya ambil 1 finishing per nama (hindari duplikat di DB)
+      const matchedIds: string[] = []
+      const seenNames = new Set<string>()
+      for (const name of names) {
+        if (seenNames.has(name)) continue
+        seenNames.add(name)
+        const found = finishings.find(f => f.name === name)
+        if (found) matchedIds.push(found.id)
+      }
       if (matchedIds.length > 0) setSelectedFinishings(matchedIds)
     }
 
