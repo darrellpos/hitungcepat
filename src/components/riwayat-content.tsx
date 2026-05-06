@@ -243,19 +243,18 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
       )
     },
     {
-      key: 'paperName',
-      title: 'Kertas',
-      render: (h: RiwayatItem) => (
-        <div>
-          <div className="font-medium text-slate-700">{h.paperName}</div>
-          <div className="text-xs text-slate-400">{h.paperGrammage} gsm · {h.paperLength}×{h.paperWidth} cm</div>
-        </div>
-      )
-    },
-    {
       key: 'quantity',
       title: 'Jumlah',
       render: (h: RiwayatItem) => `${parseInt(h.quantity || '0').toLocaleString()} lbr`
+    },
+    {
+      key: 'pricePerSheet',
+      title: 'Harga/Lembar',
+      render: (h: RiwayatItem) => {
+        const qty = parseInt(h.quantity || '0')
+        if (qty <= 0) return <span className="text-slate-400">-</span>
+        return <span className="font-semibold text-slate-700">{formatRp(Math.round(h.grandTotal / qty))}</span>
+      }
     },
     {
       key: 'grandTotal',
