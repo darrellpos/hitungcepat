@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
         ongkosCetak2: body.ongkosCetak2 || 0,
         ongkosCetak2Detail: body.ongkosCetak2Detail || '',
         totalPaperPrice: body.totalPaperPrice || 0,
+        pricePerSheet: body.pricePerSheet || 0,
         finishingNames: body.finishingNames || '',
         finishingBreakdown: body.finishingBreakdown || '',
         finishingCost: body.finishingCost || 0,

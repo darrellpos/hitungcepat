@@ -156,6 +156,7 @@ model RiwayatCetakan {
   ongkosCetak2       Float    @default(0)
   ongkosCetak2Detail String   @default("")
   totalPaperPrice    Float
+  pricePerSheet      Float    @default(0)
   finishingNames     String
   finishingBreakdown String
   finishingCost      Float

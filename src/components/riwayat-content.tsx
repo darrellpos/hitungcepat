@@ -32,6 +32,7 @@ interface RiwayatItem {
   ongkosCetak2: number
   ongkosCetak2Detail: string
   totalPaperPrice: number
+  pricePerSheet: number
   finishingNames: string
   finishingBreakdown: string
   finishingCost: number
@@ -105,6 +106,7 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
 
     if (isHitungCetak) {
       // Field khusus hitung cetakan
+      if (item.pricePerSheet) params.set('pricePerSheet', item.pricePerSheet.toString())
       if (item.warna && item.warna !== '-') params.set('warna', item.warna)
       if (item.warnaKhusus && item.warnaKhusus !== '-' && parseInt(item.warnaKhusus) > 0) params.set('warnaKhusus', item.warnaKhusus)
       if (item.hargaPlat) params.set('hargaPlat', item.hargaPlat.toString())

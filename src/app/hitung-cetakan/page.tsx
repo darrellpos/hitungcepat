@@ -6,6 +6,7 @@ declare global {
     __restoreMachineName?: string
     __restoreMachineName2?: string
     __restoreFinishingNames?: string
+    __restorePricePerSheet?: string
   }
 }
 
@@ -370,6 +371,7 @@ function HitungCetakanPage() {
     if (machineNameParam) window.__restoreMachineName = machineNameParam
     if (machineName2Param) window.__restoreMachineName2 = machineName2Param
     if (finishingNamesParam && finishingNamesParam !== '-') window.__restoreFinishingNames = finishingNamesParam
+    if (pricePerSheetParam) window.__restorePricePerSheet = pricePerSheetParam
 
     setPrefilled(true)
     // Bersihkan URL params setelah dibaca
@@ -424,7 +426,13 @@ function HitungCetakanPage() {
     if (window.__restorePaperName && papers.length > 0) {
       const paper = papers.find(p => p.name === window.__restorePaperName)
       if (paper) {
-        setFormData(prev => ({ ...prev, paperId: paper.id, pricePerSheet: Math.round(paper.pricePerRim / 500).toString() }))
+        // Jika pricePerSheet dari riwayat ada, gunakan itu (bukan hitung ulang dari harga kertas saat ini)
+        const restoredPPS = window.__restorePricePerSheet
+        setFormData(prev => ({
+          ...prev,
+          paperId: paper.id,
+          pricePerSheet: restoredPPS || prev.pricePerSheet || Math.round(paper.pricePerRim / 500).toString()
+        }))
       }
     }
     if (window.__restoreMachineName && printingCosts.length > 0) {
@@ -450,6 +458,7 @@ function HitungCetakanPage() {
     delete window.__restoreMachineName
     delete window.__restoreMachineName2
     delete window.__restoreFinishingNames
+    delete window.__restorePricePerSheet
     setIsRestoring(false)
   }, [isRestoring, papers, printingCosts, finishings])
 
@@ -1232,8 +1241,9 @@ function HitungCetakanPage() {
       ongkosCetakDetail: selectedMachine ? `(Rp ${Math.round(selectedMachine.pricePerColor).toLocaleString('id-ID')} × ${formData.warna || 0} warna)${parseInt(formData.warnaKhusus || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna || '0') + parseInt(formData.warnaKhusus || '0')} plat` : '',
       machineName2: selectedMachine2?.machineName || '',
       ongkosCetak2: calculatedPrintingCost2,
-      ongkosCetak2Detail: selectedMachine2 ? `(Rp ${Math.round(selectedMachine2.pricePerColor).toLocaleString('id-ID')} × ${formData.warna2 || 0} warna)${parseInt(formData.warnaKhusus2 || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine2.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus2} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine2.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine2.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine2.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine2.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna2 || '0') + parseInt(formData.warnaKhusus2 || '0')} plat` : '',
+      ongkosCetak2Detail: selectedMachine2 ? `(Rp ${Math.round(selectedMachine2.pricePerColor).toLocaleString('id-ID')} × ${formData.warna2 || 0} warna)${parseInt(formData.warnaKhusus2 || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine2.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus2} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine2.minimumPrintQuantity ? ` + (${formData.quantity} - ${formData.minimumPrintQuantity2 || selectedMachine2.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine2.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine2.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna2 || '0') + parseInt(formData.warnaKhusus2 || '0')} plat` : '',
       totalPaperPrice,
+      pricePerSheet: parseFloat(formData.pricePerSheet) || 0,
       finishingNames: selectedFinishingItems.map(f => f.name).join(', '),
       finishingBreakdown: selectedFinishingItems.map(f => { const r = getFinishingCost(f); return `${f.name}: ${r.breakdown} = Rp ${Math.round(r.cost).toLocaleString('id-ID')}` }).join(' | '),
       finishingCost: calculatedFinishingCost, packingCost: packing, shippingCost: shipping,
