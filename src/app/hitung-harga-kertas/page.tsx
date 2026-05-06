@@ -262,9 +262,6 @@ Nama Cetakan: ${namaCetakan || '-'}
 Kertas: ${paperName} (${grammage} gsm)
 Ukuran: ${paperWidth} x ${paperHeight} cm
 Harga/Rim: ${fmtRp(pricePerRim)}
-Harga/Lembar: ${fmtRp(calculations.pricePerSheet)}
-Harga/m2: ${fmtRp(calculations.pricePerM2)}
-Berat/Lembar: ${Math.round(calculations.weightPerSheetGram)} gram
 Berat/Rim: ${Math.round(calculations.weightPerRimKg)} kg` +
       (qty > 0 ? `
 
