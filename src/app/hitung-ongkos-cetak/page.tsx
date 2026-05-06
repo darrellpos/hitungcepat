@@ -542,14 +542,6 @@ Harga per Lembar: ${fmt(calculations.hargaPerLembar)}/lbr`
                   </div>
                 </div>
 
-                {selectedMachine && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2 text-[11px] text-purple-700 space-y-0.5">
-                    <p><span className="font-semibold">Mesin:</span> {selectedMachine.machineName}</p>
-                    <p><span className="font-semibold">Area Cetak:</span> {selectedMachine.printAreaWidth} × {selectedMachine.printAreaHeight} cm</p>
-                    <p><span className="font-semibold">Harga/Warna:</span> {fmt(selectedMachine.pricePerColor)} · <span className="font-semibold">Warna Khusus:</span> {fmt(selectedMachine.specialColorPrice)}</p>
-                    <p><span className="font-semibold">Min Cetak:</span> {selectedMachine.minimumPrintQuantity} lbr · <span className="font-semibold">Lewat Min:</span> {fmt(selectedMachine.priceAboveMinimumPerSheet)}/lbr</p>
-                  </div>
-                )}
               </div>
 
 
