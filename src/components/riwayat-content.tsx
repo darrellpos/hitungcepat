@@ -222,6 +222,13 @@ export function RiwayatContent({ title, subtitle, defaultFilterType }: RiwayatCo
 
   const columns = [
     {
+      key: 'customerName',
+      title: 'Nama Customer',
+      render: (h: RiwayatItem) => (
+        <span className="text-slate-700 truncate">{h.customerName || '-'}</span>
+      )
+    },
+    {
       key: 'printName',
       title: 'Nama Cetakan',
       render: (h: RiwayatItem) => (

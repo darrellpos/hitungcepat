@@ -571,6 +571,13 @@ export default function RiwayatPage() {
       }
     },
     {
+      key: 'customerName',
+      title: 'Nama Customer',
+      render: (h: RiwayatItem) => (
+        <span className="text-slate-700 truncate">{h.customerName || '-'}</span>
+      )
+    },
+    {
       key: 'printName',
       title: 'Nama Cetakan',
       render: (h: RiwayatItem) => (
