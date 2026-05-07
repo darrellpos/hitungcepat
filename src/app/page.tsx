@@ -1033,7 +1033,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
               Dipercaya{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Ratusan Pengusaha</span> Percetakan
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Ribuan Pengusaha</span> Percetakan
             </h2>
           </div>
         </FadeIn>
