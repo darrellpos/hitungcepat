@@ -159,3 +159,29 @@ Stage Summary:
 - After clicking "Restore", all data including cutting diagram, blocks, steps, efficiency, and all calculation results are now restored
 - Old riwayat entries without `resultData` will restore form fields but not results (graceful fallback)
 - Schema pushed to both SQLite and PostgreSQL production database
+---
+Task ID: 2
+Agent: main
+Task: Add riwayat table system to halaman hitung cetakan (same as potong kertas)
+
+Work Log:
+- Added PUT route to `/api/riwayat-cetakan/[id]/route.ts` for updating riwayat
+- Added riwayat states: `savingRiwayat`, `restoredRiwayatId`, `riwayatCetakanList`
+- Added `fetchRiwayatCetakan()` to fetch filtered `type=hitung_cetakan` records
+- Created `buildRiwayatPayload()` to extract payload from form data
+- Created `resetFormForRiwayat()` to clear form after save/update
+- Updated `handleSaveRiwayat()` to auto-reset form and refresh lists
+- Added `handleUpdateRiwayat()` for updating existing riwayat
+- Added `handleRestoreRiwayat()` to restore all form fields + match paper/machine/finishing by name
+- Added `handleDeleteRiwayat()` with ownership check
+- Added `handlePreviewRiwayat()` to preview riwayat data using existing preview dialog
+- Updated both "Simpan Riwayat" buttons to support save/update toggle
+- Added full-width riwayat table below main content with icon-only action buttons (Preview, Restore, Delete)
+- Table columns: #, Customer, Nama Cetakan, Kertas, Mesin, Qty, Total, Aksi
+
+Stage Summary:
+- Full riwayat system now works on hitung cetakan page matching potong kertas pattern
+- Icon-only action buttons in table: 👁️ Preview, 🔄 Restore, 🗑️ Hapus
+- Save/Update toggle on Simpan Riwayat button
+- Auto-reset form after save/update
+- Schema already in PostgreSQL (RiwayatCetakan model existed)

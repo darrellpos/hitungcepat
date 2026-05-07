@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors, History, UserSearch } from 'lucide-react'
+import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors, History, UserSearch, RefreshCw } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard-layout'
@@ -185,6 +185,20 @@ function HitungCetakanPage() {
         const data = await res.json()
         const filtered = (Array.isArray(data) ? data : []).filter((r: any) => r.finishingNames && r.finishingNames !== '' && r.finishingNames !== '-')
         setFinishingRiwayat(filtered)
+      }
+    } catch {}
+  }
+
+  // Riwayat hitung cetakan (full list)
+  const [savingRiwayat, setSavingRiwayat] = useState(false)
+  const [restoredRiwayatId, setRestoredRiwayatId] = useState<string | null>(null)
+  const [riwayatCetakanList, setRiwayatCetakanList] = useState<any[]>([])
+  const fetchRiwayatCetakan = async () => {
+    try {
+      const res = await fetcher('/api/riwayat-cetakan', { headers: getAuthHeaders() })
+      if (res.ok) {
+        const data = await res.json()
+        setRiwayatCetakanList((Array.isArray(data) ? data : []).filter((r: any) => r.type === 'hitung_cetakan'))
       }
     } catch {}
   }
@@ -490,6 +504,7 @@ function HitungCetakanPage() {
     fetchPrintingCosts()
     fetchFinishings()
     fetchFinishingRiwayat()
+    fetchRiwayatCetakan()
     // Jangan override profitPercent saat restore
     fetcher('/api/settings?key=profit', { headers: getAuthHeaders() })
       .then(res => res.json())
@@ -1242,7 +1257,7 @@ function HitungCetakanPage() {
     toast.success('Form berhasil direset')
   }
 
-  const handleSaveRiwayat = async () => {
+  const buildRiwayatPayload = () => {
     const packing = parseFloat(formData.packingCost) || 0
     const shipping = parseFloat(formData.shippingCost) || 0
     const biayaLain1Val = parseFloat(formData.biayaLain1) || 0
@@ -1251,7 +1266,7 @@ function HitungCetakanPage() {
     const subTotal = totalPaperPrice + calculatedPrintingCost + calculatedPrintingCost2 + calculatedFinishingCost + packing + shipping + biayaLain1Val + biayaLain2Val + glueTotal
     const profitAmount = subTotal * (profitPercent / 100)
     const grandTotal = subTotal + profitAmount
-    const payload = {
+    return {
       type: 'hitung_cetakan',
       printName: formData.printName, customerName: formData.customerName, paperName: selectedPaper?.name || '',
       paperGrammage: selectedPaper?.grammage?.toString() || '0',
@@ -1274,15 +1289,163 @@ function HitungCetakanPage() {
       glueCost: calculatedGlueCost, glueBorongan: calculatedGlueBoronganSheet,
       subTotal, profitPercent, profitAmount, grandTotal
     }
+  }
+
+  const resetFormForRiwayat = () => {
+    setRestoredRiwayatId(null)
+    clearStorage()
+    setFormData({ customerName: '', printName: '', paperLength: '', paperWidth: '', cutWidth: '', cutHeight: '', quantity: '', warna: '', warnaKhusus: '', hargaPlat: '', paperId: '', machineId: '', packingCost: '', shippingCost: '', pricePerSheet: '', glueLengthCm: '', glueCostPerCm: '', glueBoronganPerSheet: '', biayaLain1: '', biayaLain2: '', machineId2: '', warna2: '', warnaKhusus2: '', hargaPlat2: '' })
+    setSelectedFinishings([])
+    setCalculatedCost(0)
+    setCalculatedGlueCost(0)
+    setCalculatedGlueBoronganSheet(0)
+    setCalculatedPrintingCost2(0)
+    setTotalPaperPrice(0)
+  }
+
+  const handleSaveRiwayat = async () => {
+    setSavingRiwayat(true)
     try {
       const res = await fetcher('/api/riwayat-cetakan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(buildRiwayatPayload())
       })
-      if (res.ok) { toast.success('Riwayat hitung cetakan berhasil disimpan!') }
-      else { toast.error('Gagal menyimpan riwayat') }
+      if (res.ok) {
+        toast.success('Riwayat hitung cetakan berhasil disimpan!')
+        fetchRiwayatCetakan()
+        fetchFinishingRiwayat()
+        resetFormForRiwayat()
+      } else { toast.error('Gagal menyimpan riwayat') }
     } catch { toast.error('Gagal menyimpan riwayat') }
+    setSavingRiwayat(false)
+  }
+
+  const handleUpdateRiwayat = async () => {
+    if (!restoredRiwayatId) { toast.error('Tidak ada data yang di-restore'); return }
+    setSavingRiwayat(true)
+    try {
+      const res = await fetcher(`/api/riwayat-cetakan/${restoredRiwayatId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(buildRiwayatPayload())
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil diupdate!')
+        fetchRiwayatCetakan()
+        fetchFinishingRiwayat()
+        resetFormForRiwayat()
+      } else { toast.error('Gagal mengupdate riwayat') }
+    } catch { toast.error('Gagal mengupdate riwayat') }
+    setSavingRiwayat(false)
+  }
+
+  const handleRestoreRiwayat = (r: any) => {
+    setRestoredRiwayatId(r.id)
+    const restoredForm = {
+      customerName: r.customerName || '',
+      printName: r.printName || '',
+      paperLength: r.paperLength || '',
+      paperWidth: r.paperWidth || '',
+      cutWidth: r.cutWidth || '',
+      cutHeight: r.cutHeight || '',
+      quantity: r.quantity || '',
+      warna: r.warna || '',
+      warnaKhusus: r.warnaKhusus || '',
+      hargaPlat: r.hargaPlat?.toString() || '',
+      paperId: '',
+      machineId: '',
+      packingCost: r.packingCost?.toString() || '',
+      shippingCost: r.shippingCost?.toString() || '',
+      pricePerSheet: r.pricePerSheet?.toString() || '',
+      glueLengthCm: r.glueCost ? '1' : '',
+      glueCostPerCm: '',
+      glueBoronganPerSheet: r.glueBorongan?.toString() || '',
+      biayaLain1: r.otherCost?.toString() || '',
+      biayaLain2: '',
+      machineId2: '',
+      warna2: '',
+      warnaKhusus2: '',
+      hargaPlat2: ''
+    }
+    setFormData(restoredForm)
+    if (r.totalPaperPrice) setTotalPaperPrice(r.totalPaperPrice)
+    if (r.profitPercent) setProfitPercent(r.profitPercent)
+    saveToStorage({ formData: restoredForm, selectedFinishings: [], totalPaperPrice: r.totalPaperPrice || 0 })
+
+    // Match paper, machine, finishing after data loaded
+    setIsRestoring(true)
+    if (r.paperName) window.__restorePaperName = r.paperName
+    if (r.pricePerSheet) window.__restorePricePerSheet = r.pricePerSheet?.toString()
+    if (r.machineName) window.__restoreMachineName = r.machineName
+    if (r.machineName2) window.__restoreMachineName2 = r.machineName2
+    if (r.finishingNames && r.finishingNames !== '-') window.__restoreFinishingNames = r.finishingNames
+
+    toast.success('Data berhasil di-restore dari riwayat!')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleDeleteRiwayat = async (id: string) => {
+    try {
+      const res = await fetcher(`/api/riwayat-cetakan/${id}`, { method: 'DELETE', headers: getAuthHeaders() })
+      if (res.ok) {
+        toast.success('Riwayat berhasil dihapus')
+        if (restoredRiwayatId === id) setRestoredRiwayatId(null)
+        fetchRiwayatCetakan()
+        fetchFinishingRiwayat()
+      } else { toast.error('Gagal menghapus riwayat') }
+    } catch { toast.error('Gagal menghapus riwayat') }
+  }
+
+  const handlePreviewRiwayat = (r: any) => {
+    const qty = parseInt(r.quantity) || 0
+    const hargaPerLembar = qty > 0 ? (r.grandTotal || 0) / qty : 0
+    const previewData: PrintCalculation = {
+      id: 'riwayat-preview',
+      printName: r.printName || '-',
+      paperLength: r.paperLength || '',
+      paperWidth: r.paperWidth || '',
+      cutWidth: r.cutWidth || '',
+      cutHeight: r.cutHeight || '',
+      quantity: r.quantity || '',
+      warna: r.warna || '',
+      warnaKhusus: r.warnaKhusus || '',
+      paperId: '',
+      paperName: r.paperName || '-',
+      machineId: '',
+      machineName: r.machineName || '-',
+      printingCost: r.ongkosCetak || 0,
+      finishingId: '',
+      finishingName: r.finishingNames || '',
+      packingCost: r.packingCost?.toString() || '0',
+      shippingCost: r.shippingCost?.toString() || '0',
+      pricePerSheet: r.pricePerSheet?.toString() || '0',
+      hargaPlat: r.hargaPlat?.toString() || '0',
+      totalPrice: r.grandTotal || 0,
+      customerName: r.customerName || '',
+      machineId2: '',
+      machineName2: r.machineName2 || '',
+      warna2: '',
+      warnaKhusus2: '',
+      hargaPlat2: '',
+      glueLengthCm: '',
+      glueCostPerCm: '',
+      glueBoronganPerSheet: r.glueBorongan?.toString() || '0',
+      biayaLain1: r.otherCost?.toString() || '0',
+      biayaLain2: '',
+      totalPaperPrice: r.totalPaperPrice || 0,
+      calculatedPrintingCost: r.ongkosCetak || 0,
+      calculatedPrintingCost2: r.ongkosCetak2 || 0,
+      calculatedFinishingCost: r.finishingCost || 0,
+      calculatedGlueCost: r.glueCost || 0,
+      calculatedGlueBoronganSheet: r.glueBorongan || 0,
+      finishingBreakdown: r.finishingBreakdown ? r.finishingBreakdown.split(' | ').map(s => {
+        const parts = s.split(': ')
+        return { name: parts[0] || '', cost: parseFloat(parts[parts.length - 1]?.replace(/[^\d.-]/g, '') || '0') || 0 }
+      }) : []
+    }
+    setPreviewCalc(previewData)
+    setPreviewOpen(true)
   }
 
   // Summary values
@@ -1733,7 +1896,7 @@ function HitungCetakanPage() {
                 </div>
               </div>
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
-                <Button onClick={handleSaveRiwayat} className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-700 text-sm"><Save className="w-4 h-4 mr-1.5" /> Simpan Riwayat</Button>
+                <Button onClick={restoredRiwayatId ? handleUpdateRiwayat : handleSaveRiwayat} disabled={savingRiwayat} className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-sm">{restoredRiwayatId ? <><RefreshCw className={`w-4 h-4 mr-1.5 ${savingRiwayat ? 'animate-spin' : ''}`} /> {savingRiwayat ? 'Updating...' : 'Update Riwayat'}</> : <><Save className="w-4 h-4 mr-1.5" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan Riwayat'}</>}</Button>
                 <Button onClick={handlePreview} className="flex-1 h-10 text-sm bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-4 h-4 mr-1.5" /> Preview</Button>
                 <Button onClick={resetForm} variant="outline" className="flex-1 h-10 text-sm"><RotateCcw className="w-4 h-4 mr-1.5" /> Reset</Button>
               </div>
@@ -2050,7 +2213,7 @@ function HitungCetakanPage() {
               </div>
               <div className="px-2.5 pb-2 flex flex-col gap-1">
                 <div className="flex gap-1">
-                  <Button onClick={handleSaveRiwayat} className="flex-1 h-7 bg-emerald-600 hover:bg-emerald-700 text-[10px]"><Save className="w-3 h-3 mr-1" /> Simpan Riwayat</Button>
+                  <Button onClick={restoredRiwayatId ? handleUpdateRiwayat : handleSaveRiwayat} disabled={savingRiwayat} className="flex-1 h-7 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-[10px]">{restoredRiwayatId ? <><RefreshCw className={`w-3 h-3 mr-1 ${savingRiwayat ? 'animate-spin' : ''}`} /> {savingRiwayat ? 'Updating...' : 'Update'}</> : <><Save className="w-3 h-3 mr-1" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan'}</>}</Button>
                   <Button onClick={handlePreview} className="flex-1 h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3 h-3 mr-1" /> Preview</Button>
                 </div>
                 <Button onClick={resetForm} variant="outline" className="w-full h-7 text-[10px]"><RotateCcw className="w-3 h-3 mr-1" /> Reset Form</Button>
@@ -2138,6 +2301,88 @@ function HitungCetakanPage() {
             )}
 
         </div>
+      </div>
+
+      {/* ===== RIWAYAT HITUNG CETAKAN (Full Width) ===== */}
+      <div className="mt-6 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 bg-slate-50/60">
+          <History className="w-4 h-4 text-emerald-600" />
+          <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Riwayat Hitung Cetakan</h2>
+          <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{riwayatCetakanList.length} data</span>
+        </div>
+        {riwayatCetakanList.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/80">
+                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
+                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
+                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
+                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Kertas</th>
+                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Mesin</th>
+                  <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
+                  <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Total</th>
+                  <th className="text-center py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {riwayatCetakanList.slice(0, 50).map((r, idx) => (
+                  <tr key={r.id} className={`border-b border-slate-50 hover:bg-amber-50/40 transition-colors ${restoredRiwayatId === r.id ? 'bg-emerald-50/60' : ''}`}>
+                    <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
+                    <td className="py-2.5 px-3 text-slate-700 font-medium max-w-[120px] truncate">
+                      {r.customerName && r.customerName !== '' ? r.customerName : '-'}
+                    </td>
+                    <td className="py-2.5 px-3 text-slate-600 hidden sm:table-cell max-w-[120px] truncate">
+                      {r.printName || '-'}
+                    </td>
+                    <td className="py-2.5 px-3 text-slate-600 hidden md:table-cell max-w-[100px] truncate">
+                      {r.paperName || '-'}
+                    </td>
+                    <td className="py-2.5 px-3 text-slate-500 hidden lg:table-cell whitespace-nowrap">
+                      {r.machineName && r.machineName !== '' ? r.machineName : '-'}
+                    </td>
+                    <td className="py-2.5 px-3 text-slate-600 text-right whitespace-nowrap">
+                      {parseInt(r.quantity || 0).toLocaleString('id-ID')}
+                    </td>
+                    <td className="py-2.5 px-3 text-rose-700 font-bold text-right whitespace-nowrap">
+                      Rp {Math.round(r.grandTotal || 0).toLocaleString('id-ID')}
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handlePreviewRiwayat(r)}
+                          className="inline-flex items-center justify-center w-7 h-7 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 transition-colors"
+                          title="Preview"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleRestoreRiwayat(r)}
+                          className="inline-flex items-center justify-center w-7 h-7 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200 transition-colors"
+                          title="Restore"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRiwayat(r.id)}
+                          className="inline-flex items-center justify-center w-7 h-7 bg-red-50 hover:bg-red-100 text-red-600 rounded-md border border-red-200 transition-colors"
+                          title="Hapus"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="px-4 py-6 text-center">
+            <History className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+            <p className="text-xs text-slate-400">Belum ada riwayat hitung cetakan</p>
+          </div>
+        )}
       </div>
 
       {/* ===== PREVIEW DIALOG ===== */}
