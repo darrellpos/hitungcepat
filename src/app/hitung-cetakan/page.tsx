@@ -1266,6 +1266,9 @@ function HitungCetakanPage() {
       ongkosCetak: calculatedPrintingCost,
       ongkosCetakDetail: selectedMachine ? `(Rp ${Math.round(selectedMachine.pricePerColor).toLocaleString('id-ID')} × ${formData.warna || 0} warna)${parseInt(formData.warnaKhusus || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine.minimumPrintQuantity ? ` + (${formData.quantity} - ${selectedMachine.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna || '0') + parseInt(formData.warnaKhusus || '0')} plat` : '',
       machineName2: selectedMachine2?.machineName || '',
+      warna2: formData.warna2,
+      warnaKhusus2: formData.warnaKhusus2,
+      hargaPlat2: parseFloat(formData.hargaPlat2) || 0,
       ongkosCetak2: calculatedPrintingCost2,
       ongkosCetak2Detail: selectedMachine2 ? `(Rp ${Math.round(selectedMachine2.pricePerColor).toLocaleString('id-ID')} × ${formData.warna2 || 0} warna)${parseInt(formData.warnaKhusus2 || '0') > 0 ? ` + (Rp ${Math.round(selectedMachine2.specialColorPrice).toLocaleString('id-ID')} × ${formData.warnaKhusus2} khusus)` : ''}${parseInt(formData.quantity) > selectedMachine2.minimumPrintQuantity ? ` + (${formData.quantity} - ${formData.minimumPrintQuantity2 || selectedMachine2.minimumPrintQuantity}) × Rp ${Math.round(selectedMachine2.priceAboveMinimumPerSheet).toLocaleString('id-ID')}` : ''} + Rp ${Math.round(selectedMachine2.platePricePerSheet).toLocaleString('id-ID')} × ${parseInt(formData.warna2 || '0') + parseInt(formData.warnaKhusus2 || '0')} plat` : '',
       totalPaperPrice,
@@ -1350,9 +1353,9 @@ function HitungCetakanPage() {
       biayaLain1: r.otherCost?.toString() || '',
       biayaLain2: '',
       machineId2: '',
-      warna2: '',
-      warnaKhusus2: '',
-      hargaPlat2: ''
+      warna2: r.warna2 || '',
+      warnaKhusus2: r.warnaKhusus2 || '',
+      hargaPlat2: r.hargaPlat2?.toString() || ''
     }
     setFormData(restoredForm)
     if (r.totalPaperPrice) setTotalPaperPrice(r.totalPaperPrice)
@@ -1410,9 +1413,9 @@ function HitungCetakanPage() {
       customerName: r.customerName || '',
       machineId2: '',
       machineName2: r.machineName2 || '',
-      warna2: '',
-      warnaKhusus2: '',
-      hargaPlat2: '',
+      warna2: r.warna2 || '',
+      warnaKhusus2: r.warnaKhusus2 || '',
+      hargaPlat2: r.hargaPlat2?.toString() || '0',
       glueLengthCm: '',
       glueCostPerCm: '',
       glueBoronganPerSheet: r.glueBorongan?.toString() || '0',
@@ -2318,7 +2321,7 @@ function HitungCetakanPage() {
                 </div>
 
                 {/* === ONGKOS CETAK === */}
-                {calculatedPrintingCost > 0 && (
+                {(previewCalc?.calculatedPrintingCost ?? calculatedPrintingCost) > 0 && (
                   <div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className="w-5 h-5 rounded bg-blue-100 flex items-center justify-center">
@@ -2329,14 +2332,14 @@ function HitungCetakanPage() {
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-bold text-blue-800">Total Ongkos Cetak</p>
-                        <p className="text-lg font-extrabold text-blue-700">{formatRp(calculatedPrintingCost)}</p>
+                        <p className="text-lg font-extrabold text-blue-700">{formatRp(previewCalc?.calculatedPrintingCost ?? calculatedPrintingCost)}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* === ONGKOS CETAK 2 === */}
-                {calculatedPrintingCost2 > 0 && (
+                {(previewCalc?.calculatedPrintingCost2 ?? calculatedPrintingCost2) > 0 && (
                   <div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className="w-5 h-5 rounded bg-fuchsia-100 flex items-center justify-center">
@@ -2347,7 +2350,7 @@ function HitungCetakanPage() {
                     <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-lg p-3">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-bold text-fuchsia-800">Total Ongkos Cetak 2</p>
-                        <p className="text-lg font-extrabold text-fuchsia-700">{formatRp(calculatedPrintingCost2)}</p>
+                        <p className="text-lg font-extrabold text-fuchsia-700">{formatRp(previewCalc?.calculatedPrintingCost2 ?? calculatedPrintingCost2)}</p>
                       </div>
                     </div>
                   </div>

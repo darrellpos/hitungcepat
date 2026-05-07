@@ -153,6 +153,9 @@ model RiwayatCetakan {
   ongkosCetak        Float
   ongkosCetakDetail  String
   machineName2       String   @default("")
+  warna2             String   @default("")
+  warnaKhusus2       String   @default("")
+  hargaPlat2         Float    @default(0)
   ongkosCetak2       Float    @default(0)
   ongkosCetak2Detail String   @default("")
   totalPaperPrice    Float
