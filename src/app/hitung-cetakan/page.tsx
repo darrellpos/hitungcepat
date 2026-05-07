@@ -176,18 +176,7 @@ function HitungCetakanPage() {
   const [biayaLain1Label, setBiayaLain1Label] = useState('Biaya Bikin Piso')
   const [biayaLain2Label, setBiayaLain2Label] = useState('Biaya')
 
-  // Riwayat finishing
-  const [finishingRiwayat, setFinishingRiwayat] = useState<any[]>([])
-  const fetchFinishingRiwayat = async () => {
-    try {
-      const res = await fetcher('/api/riwayat-cetakan', { headers: getAuthHeaders() })
-      if (res.ok) {
-        const data = await res.json()
-        const filtered = (Array.isArray(data) ? data : []).filter((r: any) => r.finishingNames && r.finishingNames !== '' && r.finishingNames !== '-')
-        setFinishingRiwayat(filtered)
-      }
-    } catch {}
-  }
+
 
   // Riwayat hitung cetakan (full list)
   const [savingRiwayat, setSavingRiwayat] = useState(false)
@@ -503,7 +492,6 @@ function HitungCetakanPage() {
     fetchPapers()
     fetchPrintingCosts()
     fetchFinishings()
-    fetchFinishingRiwayat()
     fetchRiwayatCetakan()
     // Jangan override profitPercent saat restore
     fetcher('/api/settings?key=profit', { headers: getAuthHeaders() })
@@ -1706,72 +1694,6 @@ function HitungCetakanPage() {
                 </div>
               </div>
 
-              {/* Riwayat Finishing */}
-              {finishingRiwayat.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-100">
-                  <History className="w-3.5 h-3.5 text-rose-600" />
-                  <span className="text-xs font-semibold text-slate-700">Riwayat Finishing</span>
-                </div>
-                <div className="px-2 py-2 max-h-[260px] overflow-y-auto">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-[10px]">
-                      <thead>
-                        <tr className="border-b border-slate-200">
-                          <th className="text-left py-1.5 px-1.5 text-slate-500 font-semibold">Finishing</th>
-                          <th className="text-left py-1.5 px-1.5 text-slate-500 font-semibold">Nama Cetakan</th>
-                          <th className="text-right py-1.5 px-1.5 text-slate-500 font-semibold">Qty</th>
-                          <th className="text-right py-1.5 px-1.5 text-slate-500 font-semibold">Harga</th>
-                          <th className="text-center py-1.5 px-1.5 text-slate-500 font-semibold">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {finishingRiwayat.slice(0, 20).map((r) => (
-                          <tr key={r.id} className="border-b border-slate-50 hover:bg-rose-50/50">
-                            <td className="py-1.5 px-1.5 text-slate-700 font-medium max-w-[80px] truncate">{r.finishingNames}</td>
-                            <td className="py-1.5 px-1.5 text-slate-600 max-w-[80px] truncate">{r.printName}</td>
-                            <td className="py-1.5 px-1.5 text-slate-600 text-right">{parseInt(r.quantity || 0).toLocaleString('id-ID')}</td>
-                            <td className="py-1.5 px-1.5 text-rose-700 font-bold text-right">Rp {Math.round(r.finishingCost || 0).toLocaleString('id-ID')}</td>
-                            <td className="py-1.5 px-1.5 text-center">
-                              <button onClick={() => {
-                                const params = new URLSearchParams()
-                                params.set('restoredFromRiwayat', '1')
-                                if (r.printName) params.set('printName', r.printName)
-                                if (r.customerName) params.set('customerName', r.customerName)
-                                if (r.paperName) params.set('paperName', r.paperName)
-                                if (r.paperLength) params.set('paperLength', r.paperLength)
-                                if (r.paperWidth) params.set('paperWidth', r.paperWidth)
-                                if (r.cutWidth) params.set('cutWidth', r.cutWidth)
-                                if (r.cutHeight) params.set('cutHeight', r.cutHeight)
-                                if (r.quantity) params.set('quantity', r.quantity)
-                                if (r.totalPaperPrice) params.set('totalPaperPrice', r.totalPaperPrice.toString())
-                                if (r.profitPercent) params.set('profitPercent', r.profitPercent.toString())
-                                if (r.paperGrammage && r.paperGrammage !== '0') params.set('paperGrammage', r.paperGrammage)
-                                if (r.pricePerSheet) params.set('pricePerSheet', r.pricePerSheet.toString())
-                                if (r.warna && r.warna !== '-') params.set('warna', r.warna)
-                                if (r.warnaKhusus && r.warnaKhusus !== '-' && parseInt(r.warnaKhusus) > 0) params.set('warnaKhusus', r.warnaKhusus)
-                                if (r.hargaPlat) params.set('hargaPlat', r.hargaPlat.toString())
-                                if (r.machineName && r.machineName !== '-') params.set('machineName', r.machineName)
-                                if (r.machineName2 && r.machineName2 !== '-') params.set('machineName2', r.machineName2)
-                                if (r.finishingNames && r.finishingNames !== '-') params.set('finishingNames', r.finishingNames)
-                                if (r.packingCost) params.set('packingCost', r.packingCost.toString())
-                                if (r.shippingCost) params.set('shippingCost', r.shippingCost.toString())
-                                if (r.glueCost) params.set('glueCost', r.glueCost.toString())
-                                if (r.glueBorongan) params.set('glueBorongan', r.glueBorongan.toString())
-                                if (r.otherCost) params.set('otherCost', r.otherCost.toString())
-                                window.location.href = `/hitung-cetakan?${params.toString()}`
-                              }} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[9px] font-medium border border-rose-200">
-                                <RotateCcw className="w-2.5 h-2.5" /> Restore
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              )}
 
               {/* Ongkos Lem */}
               <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
@@ -2024,70 +1946,6 @@ function HitungCetakanPage() {
                 <ValueBox label={`Finishing (${selectedFinishingItems.length} item)`} value={calculatedFinishingCost > 0 ? `Rp ${Math.round(calculatedFinishingCost).toLocaleString('id-ID')}` : 'Rp 0'} gradient="bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200" />
               </div>
 
-              {/* Riwayat Finishing (Desktop) */}
-              {finishingRiwayat.length > 0 && (
-              <div className="border-t border-slate-100">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5">
-                  <History className="w-3 h-3 text-rose-600" />
-                  <span className="text-[10px] font-semibold text-slate-700">Riwayat Finishing</span>
-                </div>
-                <div className="px-2 pb-2 max-h-[200px] overflow-y-auto">
-                  <table className="w-full text-[9px]">
-                    <thead>
-                      <tr className="border-b border-slate-200">
-                        <th className="text-left py-1 px-1 text-slate-500 font-semibold">Finishing</th>
-                        <th className="text-left py-1 px-1 text-slate-500 font-semibold">Nama Cetakan</th>
-                        <th className="text-right py-1 px-1 text-slate-500 font-semibold">Qty</th>
-                        <th className="text-right py-1 px-1 text-slate-500 font-semibold">Harga</th>
-                        <th className="text-center py-1 px-1 text-slate-500 font-semibold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {finishingRiwayat.slice(0, 15).map((r) => (
-                        <tr key={r.id} className="border-b border-slate-50 hover:bg-rose-50/50">
-                          <td className="py-1 px-1 text-slate-700 font-medium max-w-[70px] truncate">{r.finishingNames}</td>
-                          <td className="py-1 px-1 text-slate-600 max-w-[70px] truncate">{r.printName}</td>
-                          <td className="py-1 px-1 text-slate-600 text-right">{parseInt(r.quantity || 0).toLocaleString('id-ID')}</td>
-                          <td className="py-1 px-1 text-rose-700 font-bold text-right">Rp {Math.round(r.finishingCost || 0).toLocaleString('id-ID')}</td>
-                          <td className="py-1 px-1 text-center">
-                            <button onClick={() => {
-                              const params = new URLSearchParams()
-                              params.set('restoredFromRiwayat', '1')
-                              if (r.printName) params.set('printName', r.printName)
-                              if (r.customerName) params.set('customerName', r.customerName)
-                              if (r.paperName) params.set('paperName', r.paperName)
-                              if (r.paperLength) params.set('paperLength', r.paperLength)
-                              if (r.paperWidth) params.set('paperWidth', r.paperWidth)
-                              if (r.cutWidth) params.set('cutWidth', r.cutWidth)
-                              if (r.cutHeight) params.set('cutHeight', r.cutHeight)
-                              if (r.quantity) params.set('quantity', r.quantity)
-                              if (r.totalPaperPrice) params.set('totalPaperPrice', r.totalPaperPrice.toString())
-                              if (r.profitPercent) params.set('profitPercent', r.profitPercent.toString())
-                              if (r.paperGrammage && r.paperGrammage !== '0') params.set('paperGrammage', r.paperGrammage)
-                              if (r.pricePerSheet) params.set('pricePerSheet', r.pricePerSheet.toString())
-                              if (r.warna && r.warna !== '-') params.set('warna', r.warna)
-                              if (r.warnaKhusus && r.warnaKhusus !== '-' && parseInt(r.warnaKhusus) > 0) params.set('warnaKhusus', r.warnaKhusus)
-                              if (r.hargaPlat) params.set('hargaPlat', r.hargaPlat.toString())
-                              if (r.machineName && r.machineName !== '-') params.set('machineName', r.machineName)
-                              if (r.machineName2 && r.machineName2 !== '-') params.set('machineName2', r.machineName2)
-                              if (r.finishingNames && r.finishingNames !== '-') params.set('finishingNames', r.finishingNames)
-                              if (r.packingCost) params.set('packingCost', r.packingCost.toString())
-                              if (r.shippingCost) params.set('shippingCost', r.shippingCost.toString())
-                              if (r.glueCost) params.set('glueCost', r.glueCost.toString())
-                              if (r.glueBorongan) params.set('glueBorongan', r.glueBorongan.toString())
-                              if (r.otherCost) params.set('otherCost', r.otherCost.toString())
-                              window.location.href = `/hitung-cetakan?${params.toString()}`
-                            }} className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[8px] font-medium border border-rose-200">
-                              <RotateCcw className="w-2 h-2" /> Restore
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              )}
 
               {/* Ongkos Lem */}
               <SectionHeader icon={<Package className="w-3.5 h-3.5 text-cyan-600" />} label="Ongkos Lem" />
