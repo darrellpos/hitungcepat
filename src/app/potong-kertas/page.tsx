@@ -116,6 +116,8 @@ function CalculatorPage() {
 
   // Preview state
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewRiwayatData, setPreviewRiwayatData] = useState<CuttingResult | null>(null)
+  const [previewRiwayatInfo, setPreviewRiwayatInfo] = useState<{ customer: string; paper: string }>({ customer: '-', paper: '-' })
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const previewRef = useRef<HTMLDivElement>(null)
 
@@ -374,6 +376,52 @@ function CalculatorPage() {
       toast.error('Gagal mengupdate riwayat')
     }
     setSavingRiwayat(false)
+  }
+
+  const handlePreviewRiwayat = async (r: any) => {
+    let resultData: CuttingResult | null = null
+
+    // Try resultData from riwayat first
+    if (r.resultData) {
+      try {
+        resultData = JSON.parse(r.resultData)
+      } catch {}
+    }
+
+    // If no resultData, calculate from riwayat values
+    if (!resultData) {
+      const pw = parseFloat(r.paperWidth)
+      const ph = parseFloat(r.paperHeight)
+      const cw = parseFloat(r.cutWidth)
+      const ch = parseFloat(r.cutHeight)
+      const qty = parseInt(r.quantity) || 0
+      const setelan = parseInt(r.setelanKertas) || 0
+      const price = parseFloat(r.pricePerSheet) || 0
+
+      if (pw && ph && cw && ch) {
+        try {
+          const { calculateCuts } = await import('@/lib/cutting-engine')
+          resultData = calculateCuts({
+            paperWidth: pw, paperHeight: ph, cutWidth: cw, cutHeight: ch,
+            quantity: qty + setelan, pricePerSheet: price, optimizationMode,
+            customerName: r.namaCustomer || '',
+            paperMaterial: r.paperName || '',
+            grammage: parseFloat(r.grammage) || 0,
+          })
+        } catch {}
+      }
+    }
+
+    if (resultData) {
+      setPreviewRiwayatData(resultData)
+      setPreviewRiwayatInfo({
+        customer: (r.namaCustomer && r.namaCustomer !== '-') ? r.namaCustomer : '-',
+        paper: r.paperName || 'Custom',
+      })
+      setPreviewOpen(true)
+    } else {
+      toast.error('Data tidak cukup untuk preview')
+    }
   }
 
   const handleRestore = async (r: any) => {
@@ -789,6 +837,12 @@ function CalculatorPage() {
               <td className="py-2.5 px-3 text-center">
                 <div className="flex items-center justify-center gap-1">
                   <button
+                    onClick={() => handlePreviewRiwayat(r)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-[11px] font-medium border border-blue-200 transition-colors"
+                  >
+                    <Eye className="w-3 h-3" /> Preview
+                  </button>
+                  <button
                     onClick={() => handleRestore(r)}
                     className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-[11px] font-medium border border-emerald-200 transition-colors"
                   >
@@ -1122,7 +1176,7 @@ function CalculatorPage() {
       </div>
 
       {/* ===== PREVIEW DIALOG ===== */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <Dialog open={previewOpen} onOpenChange={(open) => { setPreviewOpen(open); if (!open) { setPreviewRiwayatData(null); setPreviewRiwayatInfo({ customer: '-', paper: '-' }) } }}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-0">
           <DialogHeader className="p-4 pb-0">
             <DialogTitle>Preview Potong Kertas</DialogTitle>
@@ -1134,7 +1188,7 @@ function CalculatorPage() {
             <div className="text-center mb-4 pb-3 border-b-2 border-slate-200">
               <h1 className="text-lg font-bold text-slate-900">Preview Potong Kertas</h1>
               <p className="text-xs text-slate-500 mt-0.5">
-                {selectedCustomer?.name ? `${selectedCustomer.name}` : '-'} · {selectedPaper?.name || 'Custom'} · {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                {(previewRiwayatData ? previewRiwayatInfo.customer : (selectedCustomer?.name || '-'))} · {previewRiwayatData ? previewRiwayatInfo.paper : (selectedPaper?.name || 'Custom')} · {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             </div>
 
@@ -1142,49 +1196,49 @@ function CalculatorPage() {
             <div className="grid grid-cols-2 gap-2 mb-4">
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                 <p className="text-[10px] text-blue-600 font-medium">Jumlah Diperlukan</p>
-                <p className="text-xl font-bold text-blue-700">{results?.quantity || 0} <span className="text-xs font-normal">lembar</span></p>
+                <p className="text-xl font-bold text-blue-700">{previewRiwayatData?.quantity || results?.quantity || 0} <span className="text-xs font-normal">lembar</span></p>
               </div>
               <div className="bg-purple-50 border border-purple-100 rounded-lg p-3">
                 <p className="text-[10px] text-purple-600 font-medium">Potongan / Lembar</p>
-                <p className="text-xl font-bold text-purple-700">{results?.totalPieces || 0} <span className="text-xs font-normal">lembar</span></p>
+                <p className="text-xl font-bold text-purple-700">{previewRiwayatData?.totalPieces || results?.totalPieces || 0} <span className="text-xs font-normal">lembar</span></p>
               </div>
               <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
                 <p className="text-[10px] text-emerald-600 font-medium">Lembar Kertas</p>
-                <p className="text-xl font-bold text-emerald-700">{results?.sheetsNeeded || 0} <span className="text-xs font-normal">lembar</span></p>
+                <p className="text-xl font-bold text-emerald-700">{previewRiwayatData?.sheetsNeeded || results?.sheetsNeeded || 0} <span className="text-xs font-normal">lembar</span></p>
               </div>
               <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
                 <p className="text-[10px] text-orange-600 font-medium">Total Harga Kertas</p>
-                <p className="text-[24px] font-bold text-orange-700">Rp {Math.round(results?.totalPrice || 0).toLocaleString('id-ID')}</p>
+                <p className="text-[24px] font-bold text-orange-700">Rp {Math.round(previewRiwayatData?.totalPrice || results?.totalPrice || 0).toLocaleString('id-ID')}</p>
               </div>
               <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
                 <p className="text-[10px] text-rose-600 font-medium">Sisa Potongan</p>
-                <p className="text-xl font-bold text-rose-700">{results?.totalWasteArea.toFixed(2)} <span className="text-xs font-normal">cm²</span></p>
+                <p className="text-xl font-bold text-rose-700">{(previewRiwayatData || results)?.totalWasteArea.toFixed(2)} <span className="text-xs font-normal">cm²</span></p>
               </div>
               <div className="bg-teal-50 border border-teal-100 rounded-lg p-3">
                 <p className="text-[10px] text-teal-600 font-medium">Efisiensi Bahan</p>
-                <p className="text-xl font-bold text-teal-700">{Math.round((results?.efficiency || 0) * 10) / 10}%</p>
+                <p className="text-xl font-bold text-teal-700">{Math.round(((previewRiwayatData || results)?.efficiency || 0) * 10) / 10}%</p>
               </div>
             </div>
 
             {/* Strategy */}
             <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
               <p className="text-[10px] text-indigo-600 font-medium text-center">Strategi Optimasi</p>
-              <p className="text-xl font-bold text-indigo-700 text-center">{results?.strategy}</p>
+              <p className="text-xl font-bold text-indigo-700 text-center">{previewRiwayatData?.strategy || results?.strategy}</p>
             </div>
 
             {/* Diagram */}
-            {results && (
+            {(previewRiwayatData || results) && (
               <div className="text-center mb-4">
-                <CuttingDiagram results={results} maxHeight="260px" />
+                <CuttingDiagram results={previewRiwayatData || results!} maxHeight="260px" />
               </div>
             )}
 
             {/* Steps */}
-            {results && (
+            {(previewRiwayatData || results) && (
               <div className="mb-4">
                 <h3 className="text-xs font-bold text-slate-700 mb-2">Cara Potong:</h3>
                 <div className="space-y-1.5">
-                  {results.steps.map((step, idx) => (
+                  {(previewRiwayatData || results)!.steps.map((step, idx) => (
                     <div key={idx} className="flex items-start gap-2">
                       <div className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-[9px] font-bold">{idx + 1}</div>
                       <p className="text-[11px] text-slate-600 pt-0.5">{step}</p>
@@ -1195,11 +1249,11 @@ function CalculatorPage() {
             )}
 
             {/* Block Details */}
-            {results && (
+            {(previewRiwayatData || results) && (
               <div className="mb-2">
                 <h3 className="text-xs font-bold text-slate-700 mb-2">Detail per Blok:</h3>
                 <div className="space-y-2">
-                  {results.blocks.map((block: any, idx: number) => (
+                  {(previewRiwayatData || results)!.blocks.map((block: any, idx: number) => (
                     <div key={idx} className="border border-slate-200 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-slate-800">{block.name}</span>
