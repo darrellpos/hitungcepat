@@ -210,3 +210,19 @@ Stage Summary:
 - Restore now properly fills warna2, warnaKhusus2, hargaPlat2 so calculatedPrintingCost2 is computed correctly
 - Database schema updated with 3 new columns (warna2, warnaKhusus2, hargaPlat2)
 - Files changed: schema.prisma, route.ts (POST), [id]/route.ts (PUT), page.tsx (hitung-cetakan)
+---
+Task ID: 3
+Agent: Main Agent
+Task: Add WhatsApp send button next to Reset form button on hitung cetakan page
+
+Work Log:
+- Added `MessageCircle` icon import from lucide-react
+- Created `handleWhatsApp()` function that builds a comprehensive WhatsApp message including: customer name, item name, quantity, paper size, paper type, printing costs (1 & 2), paper price, finishing costs, additional costs (packing, shipping, glue, etc.), profit percentage, grand total, and price per sheet
+- Supports Android intent, iOS wa.me, and desktop web.whatsapp.com
+- Added WhatsApp button in mobile view (lg:hidden) - green "WhatsApp" button
+- Added WhatsApp button in desktop/tablet view - green "WA" button
+- Both buttons placed between Preview and Reset buttons
+
+Stage Summary:
+- WhatsApp button added to both mobile and desktop layouts on hitung cetakan page
+- Message format uses WhatsApp bold text (*) for headers and includes all calculation details

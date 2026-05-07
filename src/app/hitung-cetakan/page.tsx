@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors, History, UserSearch, RefreshCw } from 'lucide-react'
+import { Calculator, Printer, Plus, Users, FileText, Ruler, Cog, Layers, Package, Truck, Banknote, RotateCcw, Trash2, Palette, Minus, X, Percent, Save, Eye, Loader2, FileImage, Scissors, History, UserSearch, RefreshCw, MessageCircle } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard-layout'
@@ -1181,6 +1181,69 @@ function HitungCetakanPage() {
     toast.success('Cetakan berhasil dihapus dari daftar')
   }
 
+  const handleWhatsApp = () => {
+    if (!formData.printName || !formData.quantity) {
+      toast.error('Lengkapi Nama Barang dan Jumlah terlebih dahulu')
+      return
+    }
+    const rp = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`
+    const qty = parseInt(formData.quantity) || 0
+    const warnaText = `${formData.warna || 0} warna${parseInt(formData.warnaKhusus || '0') > 0 ? ` + ${formData.warnaKhusus} khusus` : ''}`
+    const warna2Text = formData.machineId2 ? `${formData.warna2 || 0} warna${parseInt(formData.warnaKhusus2 || '0') > 0 ? ` + ${formData.warnaKhusus2} khusus` : ''}` : ''
+    const ukuran = formData.cutWidth && formData.cutHeight ? `${formData.cutWidth} x ${formData.cutHeight} cm` : (formData.paperLength && formData.paperWidth ? `${formData.paperLength} x ${formData.paperWidth} cm` : '-')
+    const profitAmt = summarySubTotal * (profitPercent / 100)
+
+    let msg = `*Rincian Harga Cetakan*\n\n`
+    msg += `Nama Customer: ${formData.customerName || '-'}\n`
+    msg += `Nama Barang: ${formData.printName}\n`
+    msg += `Jumlah: ${qty.toLocaleString('id-ID')} lbr\n`
+    msg += `Ukuran Potongan: ${ukuran}\n`
+    msg += `Kertas: ${selectedPaper?.name || '-'} ${selectedPaper?.grammage ? `(${selectedPaper.grammage} gsm)` : ''}\n\n`
+    msg += `*Ongkos Cetak*\n`
+    msg += `Mesin: ${selectedMachine?.machineName || '-'} (${warnaText})\n`
+    if (calculatedPrintingCost > 0) msg += `Total Ongkos Cetak: ${rp(calculatedPrintingCost)}\n`
+    if (formData.machineId2 && selectedMachine2?.machineName) {
+      msg += `Mesin 2: ${selectedMachine2.machineName} (${warna2Text})\n`
+      if (calculatedPrintingCost2 > 0) msg += `Total Ongkos Cetak 2: ${rp(calculatedPrintingCost2)}\n`
+    }
+    const paperCost = (parseFloat(formData.pricePerSheet) || 0) * qty
+    if (totalPaperPrice > 0) msg += `\n*Kertas*\nHarga Kertas: ${rp(totalPaperPrice)}\n`
+    else if (paperCost > 0) msg += `\n*Kertas*\nHarga Kertas: ${rp(paperCost)}\n`
+    if (selectedFinishingItems.length > 0) {
+      msg += `\n*Finishing*\n`
+      selectedFinishingItems.forEach(fin => {
+        const { cost } = getFinishingCost(fin)
+        if (cost > 0) msg += `${fin.name}: ${rp(cost)}\n`
+      })
+    }
+    const extras: string[] = []
+    if (summaryPacking > 0) extras.push(`Ongkos Packing: ${rp(summaryPacking)}`)
+    if (summaryShipping > 0) extras.push(`Ongkos Kirim: ${rp(summaryShipping)}`)
+    if (calculatedGlueCost > 0) extras.push(`Ongkos Lem: ${rp(calculatedGlueCost)}`)
+    if (calculatedGlueBoronganSheet > 0) extras.push(`Lem Borongan: ${rp(calculatedGlueBoronganSheet)}`)
+    if (summaryBiayaLain1 > 0) extras.push(`${biayaLain1Label}: ${rp(summaryBiayaLain1)}`)
+    if (summaryBiayaLain2 > 0) extras.push(`${biayaLain2Label}: ${rp(summaryBiayaLain2)}`)
+    if (extras.length > 0) msg += `\n*Biaya Tambahan*\n${extras.join('\n')}\n`
+    if (profitPercent > 0 && profitAmt > 0) msg += `\n*Uang Capek (${profitPercent}%)*: ${rp(profitAmt)}\n`
+    msg += `\n*Grand Total: ${rp(summaryGrandTotal)}*`
+    if (qty > 0) msg += `\nHarga/Lembar: ${rp(summaryGrandTotal / qty)}`
+
+    const encoded = encodeURIComponent(msg)
+    const isAndroid = /Android/i.test(navigator.userAgent)
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    let url: string
+    if (isAndroid) {
+      const fallback = `https://wa.me/?text=${encoded}`
+      url = `intent://send?text=${encoded}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=${encodeURIComponent(fallback)};end`
+    } else if (isMobile) {
+      url = `https://wa.me/?text=${encoded}`
+    } else {
+      url = `https://web.whatsapp.com/send?text=${encoded}`
+    }
+    window.open(url, '_blank')
+    toast.success('Membuka WhatsApp...')
+  }
+
   const handleRestoreCalc = (calc: PrintCalculation) => {
     const restoredForm = {
       customerName: calc.customerName || '',
@@ -1820,6 +1883,7 @@ function HitungCetakanPage() {
               <div className="lg:hidden px-3 pb-3 flex flex-col sm:flex-row gap-2">
                 <Button onClick={restoredRiwayatId ? handleUpdateRiwayat : handleSaveRiwayat} disabled={savingRiwayat} className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-sm">{restoredRiwayatId ? <><RefreshCw className={`w-4 h-4 mr-1.5 ${savingRiwayat ? 'animate-spin' : ''}`} /> {savingRiwayat ? 'Updating...' : 'Update Riwayat'}</> : <><Save className="w-4 h-4 mr-1.5" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan Riwayat'}</>}</Button>
                 <Button onClick={handlePreview} className="flex-1 h-10 text-sm bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-4 h-4 mr-1.5" /> Preview</Button>
+                <Button onClick={handleWhatsApp} className="flex-1 h-10 text-sm bg-green-600 hover:bg-green-700 text-white"><MessageCircle className="w-4 h-4 mr-1.5" /> WhatsApp</Button>
                 <Button onClick={resetForm} variant="outline" className="flex-1 h-10 text-sm"><RotateCcw className="w-4 h-4 mr-1.5" /> Reset</Button>
               </div>
               </div>{/* end mobile-only wrapper */}
@@ -2075,6 +2139,7 @@ function HitungCetakanPage() {
                 <div className="flex gap-1">
                   <Button onClick={restoredRiwayatId ? handleUpdateRiwayat : handleSaveRiwayat} disabled={savingRiwayat} className="flex-1 h-7 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-[10px]">{restoredRiwayatId ? <><RefreshCw className={`w-3 h-3 mr-1 ${savingRiwayat ? 'animate-spin' : ''}`} /> {savingRiwayat ? 'Updating...' : 'Update'}</> : <><Save className="w-3 h-3 mr-1" /> {savingRiwayat ? 'Menyimpan...' : 'Simpan'}</>}</Button>
                   <Button onClick={handlePreview} className="flex-1 h-7 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"><Eye className="w-3 h-3 mr-1" /> Preview</Button>
+                  <Button onClick={handleWhatsApp} className="flex-1 h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white"><MessageCircle className="w-3 h-3 mr-1" /> WA</Button>
                 </div>
                 <Button onClick={resetForm} variant="outline" className="w-full h-7 text-[10px]"><RotateCcw className="w-3 h-3 mr-1" /> Reset Form</Button>
               </div>
