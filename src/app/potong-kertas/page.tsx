@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight, Share2 } from 'lucide-react'
+import { Calculator, Save, Eye, RotateCcw, Printer, FileImage, Loader2, ArrowRight, Share2, History, RefreshCw, Trash2 } from 'lucide-react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { useLanguage } from '@/contexts/language-context'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -11,7 +11,9 @@ import { toast } from 'sonner'
 import type { Customer, Paper, CuttingResult } from '@/lib/cutting-engine'
 import dynamic from 'next/dynamic'
 import { getAuthUser } from '@/lib/auth'
+import { getAuthHeaders } from '@/lib/auth'
 import { authFetch } from '@/lib/auth-fetch'
+import { fetcher } from '@/lib/fetcher'
 
 const CuttingDiagram = dynamic(
   () => import('@/components/cutting-results').then(m => ({ default: m.CuttingDiagram })),
@@ -107,6 +109,11 @@ function CalculatorPage() {
   const [optimizationMode, setOptimizationMode] = useState<'fast' | 'maximal'>(initialForm.current.optimizationMode as 'fast' | 'maximal')
   const [isCalculating, setIsCalculating] = useState(false)
 
+  // Riwayat states
+  const [savingRiwayat, setSavingRiwayat] = useState(false)
+  const [restoredRiwayatId, setRestoredRiwayatId] = useState<string | null>(null)
+  const [riwayatList, setRiwayatList] = useState<any[]>([])
+
   // Preview state
   const [previewOpen, setPreviewOpen] = useState(false)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
@@ -133,6 +140,8 @@ function CalculatorPage() {
       .then(res => { if (!res.ok) return []; return res.json() })
       .then(data => { if (Array.isArray(data)) setPapers(data); else setPapers([]) })
       .catch(() => setPapers([]))
+
+    fetchRiwayat()
   }, [])
 
   // Restore dari riwayat URL params
@@ -262,47 +271,160 @@ function CalculatorPage() {
     toast.success('Data berhasil direset')
   }
 
-  const handleSave = async () => {
+  // === Riwayat functions ===
+  const fetchRiwayat = async () => {
+    try {
+      const res = await fetcher('/api/riwayat-potong-kertas', { headers: getAuthHeaders() })
+      if (res.ok) {
+        const data = await res.json()
+        setRiwayatList(Array.isArray(data) ? data : [])
+      }
+    } catch {}
+  }
+
+  const buildPayload = () => ({
+    namaCustomer: selectedCustomer?.name || '-',
+    namaCetakan: printName || '-',
+    paperName: selectedPaper?.name || 'Custom',
+    paperId: selectedPaper?.id || '',
+    grammage: grammage || '0',
+    paperWidth: paperWidth || '0',
+    paperHeight: paperHeight || '0',
+    cutWidth: cutWidth || '0',
+    cutHeight: cutHeight || '0',
+    quantity: quantity || '0',
+    setelanKertas: setelanKertas || '0',
+    sheetsNeeded: results?.sheetsNeeded?.toString() || '0',
+    totalPrice: results?.totalPrice || 0,
+    pricePerSheet: parseFloat(pricePerSheet) || 0,
+    efficiency: results?.efficiency || 0,
+    strategy: results?.strategy || '',
+  })
+
+  const resetFormForRiwayat = () => {
+    setRestoredRiwayatId(null)
+    setPaperWidth('')
+    setPaperHeight('')
+    setCutWidth('')
+    setCutHeight('')
+    setSelectedCustomerId('')
+    setSelectedPaperId('')
+    setGrammage('')
+    setPricePerSheet('')
+    setQuantity('')
+    setSetelanKertas('')
+    setPrintName('')
+    setIsCustomPaper(false)
+    setResults(null)
+    setOptimizationMode('maximal')
+    localStorage.removeItem(STORAGE_KEY())
+    localStorage.removeItem(STORAGE_RESULTS_KEY())
+  }
+
+  const handleSaveRiwayat = async () => {
     if (!results) {
       toast.error('Hitung potongan terlebih dahulu!')
       return
     }
+    setSavingRiwayat(true)
     try {
-      await authFetch('/api/riwayat-cetakan', {
+      const res = await fetcher('/api/riwayat-potong-kertas', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'potong_kertas',
-          printName: printName || selectedCustomer?.name || '-',
-          customerName: selectedCustomer?.name || '',
-          paperName: selectedPaper?.name || 'Custom',
-          paperGrammage: grammage || '0',
-          paperLength: paperWidth,
-          paperWidth: paperHeight,
-          cutWidth: cutWidth,
-          cutHeight: cutHeight,
-          quantity: quantity || '0',
-          warna: '-',
-          warnaKhusus: '-',
-          machineName: '-',
-          hargaPlat: 0,
-          ongkosCetak: 0,
-          ongkosCetakDetail: results.strategy,
-          totalPaperPrice: results.totalPrice,
-          finishingNames: '-',
-          finishingBreakdown: '-',
-          finishingCost: 0,
-          packingCost: 0,
-          shippingCost: 0,
-          subTotal: results.totalPrice,
-          profitPercent: 0,
-          profitAmount: 0,
-          grandTotal: results.totalPrice,
-        })
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload())
       })
-      toast.success('Data berhasil disimpan ke riwayat!')
+      if (res.ok) {
+        toast.success('Riwayat berhasil disimpan!')
+        fetchRiwayat()
+        resetFormForRiwayat()
+      } else {
+        toast.error('Gagal menyimpan riwayat')
+      }
     } catch {
-      toast.error('Gagal menyimpan data')
+      toast.error('Gagal menyimpan riwayat')
+    }
+    setSavingRiwayat(false)
+  }
+
+  const handleUpdateRiwayat = async () => {
+    if (!restoredRiwayatId) {
+      toast.error('Tidak ada data yang di-restore')
+      return
+    }
+    if (!results) {
+      toast.error('Hitung potongan terlebih dahulu!')
+      return
+    }
+    setSavingRiwayat(true)
+    try {
+      const res = await fetcher(`/api/riwayat-potong-kertas/${restoredRiwayatId}`, {
+        method: 'PUT',
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload())
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil diupdate!')
+        fetchRiwayat()
+        resetFormForRiwayat()
+      } else {
+        toast.error('Gagal mengupdate riwayat')
+      }
+    } catch {
+      toast.error('Gagal mengupdate riwayat')
+    }
+    setSavingRiwayat(false)
+  }
+
+  const handleRestore = (r: any) => {
+    setRestoredRiwayatId(r.id)
+    setPrintName(r.namaCetakan || '')
+    setGrammage(r.grammage || '')
+    setPaperWidth(r.paperWidth || '')
+    setPaperHeight(r.paperHeight || '')
+    setCutWidth(r.cutWidth || '')
+    setCutHeight(r.cutHeight || '')
+    setQuantity(r.quantity || '')
+    setSetelanKertas(r.setelanKertas || '')
+    setPricePerSheet(r.pricePerSheet?.toString() || '')
+    setResults(null)
+
+    // Set paper selection
+    if (r.paperId && papers.find(p => p.id === r.paperId)) {
+      setSelectedPaperId(r.paperId)
+      setIsCustomPaper(false)
+    } else {
+      setSelectedPaperId('custom')
+      setIsCustomPaper(true)
+    }
+
+    // Match customer by name
+    if (r.namaCustomer && r.namaCustomer !== '-') {
+      const match = customers.find(c => c.name === r.namaCustomer)
+      if (match) setSelectedCustomerId(match.id)
+      else setSelectedCustomerId('')
+    } else {
+      setSelectedCustomerId('')
+    }
+
+    toast.success('Data berhasil di-restore dari riwayat!')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleDeleteRiwayat = async (id: string) => {
+    try {
+      const res = await fetcher(`/api/riwayat-potong-kertas/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      })
+      if (res.ok) {
+        toast.success('Riwayat berhasil dihapus')
+        if (restoredRiwayatId === id) setRestoredRiwayatId(null)
+        fetchRiwayat()
+      } else {
+        toast.error('Gagal menghapus riwayat')
+      }
+    } catch {
+      toast.error('Gagal menghapus riwayat')
     }
   }
 
@@ -577,6 +699,71 @@ function CalculatorPage() {
     }
   }
 
+  // Riwayat table component
+  const RiwayatTable = ({ items }: { items: any[] }) => (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50/80">
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Kertas</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Ukuran Kertas</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Ukuran Potong</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
+            <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Total</th>
+            <th className="text-center py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((r, idx) => (
+            <tr key={r.id} className={`border-b border-slate-50 hover:bg-amber-50/40 transition-colors ${restoredRiwayatId === r.id ? 'bg-emerald-50/60' : ''}`}>
+              <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
+              <td className="py-2.5 px-3 text-slate-700 font-medium max-w-[120px] truncate">
+                {r.namaCustomer && r.namaCustomer !== '-' ? r.namaCustomer : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 hidden sm:table-cell max-w-[120px] truncate">
+                {r.namaCetakan || '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 max-w-[100px] truncate">
+                {r.paperName || '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-500 hidden md:table-cell whitespace-nowrap">
+                {r.paperWidth && r.paperWidth !== '0' ? `${r.paperWidth} × ${r.paperHeight}` : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-500 hidden lg:table-cell whitespace-nowrap">
+                {r.cutWidth && r.cutWidth !== '0' ? `${r.cutWidth} × ${r.cutHeight}` : '-'}
+              </td>
+              <td className="py-2.5 px-3 text-slate-600 text-right whitespace-nowrap">
+                {parseInt(r.quantity || 0).toLocaleString('id-ID')}
+              </td>
+              <td className="py-2.5 px-3 text-rose-700 font-bold text-right whitespace-nowrap">
+                Rp {Math.round(r.totalPrice || 0).toLocaleString('id-ID')}
+              </td>
+              <td className="py-2.5 px-3 text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <button
+                    onClick={() => handleRestore(r)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-[11px] font-medium border border-emerald-200 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Restore
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRiwayat(r.id)}
+                    className="inline-flex items-center justify-center w-7 h-7 bg-red-50 hover:bg-red-100 text-red-600 rounded-md border border-red-200 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+
   return (
     <DashboardLayout
       title={t('potong_kertas')}
@@ -686,9 +873,10 @@ function CalculatorPage() {
               {isCalculating ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
               {t('hitung_potongan')}
             </button>
-            <button onClick={handleSave} disabled={!results}
-              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('simpan')}>
-              {t('simpan')}
+            <button onClick={restoredRiwayatId ? handleUpdateRiwayat : handleSaveRiwayat} disabled={!results || savingRiwayat}
+              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={restoredRiwayatId ? 'Update Riwayat' : 'Simpan Riwayat'}>
+              {restoredRiwayatId ? <RefreshCw className={`w-3 h-3 ${savingRiwayat ? 'animate-spin' : ''}`} /> : <Save className="w-3 h-3" />}
+              {restoredRiwayatId ? (savingRiwayat ? 'Updating...' : 'Update Riwayat') : (savingRiwayat ? 'Menyimpan...' : 'Simpan Riwayat')}
             </button>
             <button onClick={() => { if (!results) { toast.error('Hitung potongan terlebih dahulu!'); return; } setPreviewOpen(true) }} disabled={!results}
               className="flex items-center justify-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-base lg:text-[13px] font-semibold py-3.5 lg:py-2 rounded-lg transition-colors" title={t('preview')}>
@@ -862,6 +1050,27 @@ function CalculatorPage() {
                 <p className="text-sm font-medium text-slate-400">Belum ada hasil</p>
                 <p className="text-xs text-slate-300 mt-0.5">Masukkan ukuran dan klik &quot;Hitung&quot;</p>
               </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Riwayat Table Section */}
+      <div className="mt-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
+            <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+              <History className="w-3.5 h-3.5 text-amber-600" />
+            </div>
+            <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Riwayat Potong Kertas</h2>
+            <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">{riwayatList.length}</span>
+          </div>
+          {riwayatList.length > 0 ? (
+            <RiwayatTable items={riwayatList} />
+          ) : (
+            <div className="px-4 py-6 text-center">
+              <History className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+              <p className="text-xs text-slate-400">Belum ada riwayat potong kertas</p>
             </div>
           )}
         </div>

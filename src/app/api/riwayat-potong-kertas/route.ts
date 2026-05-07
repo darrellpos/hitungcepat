@@ -5,13 +5,13 @@ import { getServerUser, getDataFilter, requireAuth } from '@/lib/server-auth'
 export async function GET(request: NextRequest) {
   try {
     const user = getServerUser(request)
-    const riwayat = await db.riwayatOngkosCetak.findMany({
+    const riwayat = await db.riwayatPotongKertas.findMany({
       where: await getDataFilter(user),
       orderBy: { createdAt: 'desc' }
     })
     return NextResponse.json(riwayat)
   } catch (error) {
-    console.error('Error fetching riwayat ongkos cetak:', error)
+    console.error('Error fetching riwayat potong kertas:', error)
     return NextResponse.json({ error: 'Failed to fetch riwayat' }, { status: 500 })
   }
 }
@@ -23,25 +23,31 @@ export async function POST(request: NextRequest) {
     const user = getServerUser(request)!
     const body = await request.json()
 
-    const riwayat = await db.riwayatOngkosCetak.create({
+    const riwayat = await db.riwayatPotongKertas.create({
       data: {
         namaCustomer: body.namaCustomer || '',
         namaCetakan: body.namaCetakan || '',
-        machineName: body.machineName || '',
-        machineId: body.machineId || '',
-        jumlahWarna: body.jumlahWarna || '0',
-        warnaKhusus: body.warnaKhusus || '0',
-        hargaPlat: body.hargaPlat || '0',
-        jumlahLembar: body.jumlahLembar || '0',
-        totalOngkosCetak: body.totalOngkosCetak || 0,
-        hargaPerLembar: body.hargaPerLembar || 0,
+        paperName: body.paperName || '',
+        paperId: body.paperId || '',
+        grammage: body.grammage || '0',
+        paperWidth: body.paperWidth || '0',
+        paperHeight: body.paperHeight || '0',
+        cutWidth: body.cutWidth || '0',
+        cutHeight: body.cutHeight || '0',
+        quantity: body.quantity || '0',
+        setelanKertas: body.setelanKertas || '0',
+        sheetsNeeded: body.sheetsNeeded || '0',
+        totalPrice: body.totalPrice || 0,
+        pricePerSheet: body.pricePerSheet || 0,
+        efficiency: body.efficiency || 0,
+        strategy: body.strategy || '',
         userId: user?.id || null,
       }
     })
 
     return NextResponse.json(riwayat, { status: 201 })
   } catch (error) {
-    console.error('Error creating riwayat ongkos cetak:', error)
+    console.error('Error creating riwayat potong kertas:', error)
     return NextResponse.json({ error: 'Failed to save riwayat' }, { status: 500 })
   }
 }

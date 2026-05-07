@@ -13,7 +13,7 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
-    const item = await db.riwayatFinishing.findUnique({ where: { id } })
+    const item = await db.riwayatPotongKertas.findUnique({ where: { id } })
     if (!item) {
       return NextResponse.json({ error: 'Riwayat tidak ditemukan' }, { status: 404 })
     }
@@ -22,24 +22,31 @@ export async function PUT(
       return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 })
     }
 
-    const updated = await db.riwayatFinishing.update({
+    const updated = await db.riwayatPotongKertas.update({
       where: { id },
       data: {
         namaCustomer: body.namaCustomer ?? item.namaCustomer,
         namaCetakan: body.namaCetakan ?? item.namaCetakan,
-        jumlahLembar: body.jumlahLembar ?? item.jumlahLembar,
-        lebarCm: body.lebarCm ?? item.lebarCm,
-        tinggiCm: body.tinggiCm ?? item.tinggiCm,
-        finishingNames: body.finishingNames ?? item.finishingNames,
-        finishingIds: body.finishingIds ?? item.finishingIds,
-        totalCost: body.totalCost ?? item.totalCost,
-        hargaPerLembar: body.hargaPerLembar ?? item.hargaPerLembar,
+        paperName: body.paperName ?? item.paperName,
+        paperId: body.paperId ?? item.paperId,
+        grammage: body.grammage ?? item.grammage,
+        paperWidth: body.paperWidth ?? item.paperWidth,
+        paperHeight: body.paperHeight ?? item.paperHeight,
+        cutWidth: body.cutWidth ?? item.cutWidth,
+        cutHeight: body.cutHeight ?? item.cutHeight,
+        quantity: body.quantity ?? item.quantity,
+        setelanKertas: body.setelanKertas ?? item.setelanKertas,
+        sheetsNeeded: body.sheetsNeeded ?? item.sheetsNeeded,
+        totalPrice: body.totalPrice ?? item.totalPrice,
+        pricePerSheet: body.pricePerSheet ?? item.pricePerSheet,
+        efficiency: body.efficiency ?? item.efficiency,
+        strategy: body.strategy ?? item.strategy,
       }
     })
 
     return NextResponse.json(updated)
   } catch (error) {
-    console.error('Error updating riwayat finishing:', error)
+    console.error('Error updating riwayat potong kertas:', error)
     return NextResponse.json({ error: 'Gagal mengupdate riwayat' }, { status: 500 })
   }
 }
@@ -54,7 +61,7 @@ export async function DELETE(
     const user = getServerUser(request)!
     const { id } = await params
 
-    const item = await db.riwayatFinishing.findUnique({ where: { id } })
+    const item = await db.riwayatPotongKertas.findUnique({ where: { id } })
     if (!item) {
       return NextResponse.json({ error: 'Riwayat tidak ditemukan' }, { status: 404 })
     }
@@ -63,10 +70,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Akses ditolak' }, { status: 403 })
     }
 
-    await db.riwayatFinishing.delete({ where: { id } })
+    await db.riwayatPotongKertas.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting riwayat finishing:', error)
+    console.error('Error deleting riwayat potong kertas:', error)
     return NextResponse.json({ error: 'Gagal menghapus' }, { status: 500 })
   }
 }

@@ -227,6 +227,29 @@ model RiwayatHargaKertas {
   updatedAt       DateTime @updatedAt
 }
 
+model RiwayatPotongKertas {
+  id              String   @id @default(cuid())
+  namaCustomer    String   @default("")
+  namaCetakan     String
+  paperName       String
+  paperId         String   @default("")
+  grammage        String   @default("0")
+  paperWidth      String   @default("0")
+  paperHeight     String   @default("0")
+  cutWidth        String   @default("0")
+  cutHeight       String   @default("0")
+  quantity        String   @default("0")
+  setelanKertas   String   @default("0")
+  sheetsNeeded    String   @default("0")
+  totalPrice      Float    @default(0)
+  pricePerSheet   Float    @default(0)
+  efficiency      Float    @default(0)
+  strategy        String   @default("")
+  userId          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model Invoice {
   id               String   @id @default(cuid())
   invoiceNumber    String   @unique
