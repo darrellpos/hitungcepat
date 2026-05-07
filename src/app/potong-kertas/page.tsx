@@ -109,6 +109,9 @@ function CalculatorPage() {
   const [optimizationMode, setOptimizationMode] = useState<'fast' | 'maximal'>(initialForm.current.optimizationMode as 'fast' | 'maximal')
   const [isCalculating, setIsCalculating] = useState(false)
 
+  // Flag to skip selectedPaper useEffect during restore
+  const isRestoringRef = useRef(false)
+
   // Riwayat states
   const [savingRiwayat, setSavingRiwayat] = useState(false)
   const [restoredRiwayatId, setRestoredRiwayatId] = useState<string | null>(null)
@@ -188,7 +191,7 @@ function CalculatorPage() {
   const selectedCustomer = customers.find(c => c.id === selectedCustomerId)
 
   useEffect(() => {
-    if (selectedPaper) {
+    if (selectedPaper && !isRestoringRef.current) {
       requestAnimationFrame(() => {
         setGrammage(selectedPaper.grammage.toString())
         setPricePerSheet(Math.round(selectedPaper.pricePerRim / 500).toString())
@@ -425,6 +428,8 @@ function CalculatorPage() {
   }
 
   const handleRestore = async (r: any) => {
+    // Set flag to prevent selectedPaper useEffect from overriding restored values
+    isRestoringRef.current = true
     setRestoredRiwayatId(r.id)
     setPrintName(r.namaCetakan || '')
     setGrammage(r.grammage || '')
@@ -498,6 +503,13 @@ function CalculatorPage() {
     } else {
       setResults(null)
     }
+
+    // Reset flag after a frame to allow normal useEffect behavior again
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        isRestoringRef.current = false
+      })
+    })
 
     toast.success('Data berhasil di-restore dari riwayat!')
     window.scrollTo({ top: 0, behavior: 'smooth' })
