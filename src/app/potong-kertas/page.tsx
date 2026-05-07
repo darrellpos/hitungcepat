@@ -838,21 +838,24 @@ function CalculatorPage() {
                 <div className="flex items-center justify-center gap-1">
                   <button
                     onClick={() => handlePreviewRiwayat(r)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-[11px] font-medium border border-blue-200 transition-colors"
+                    className="inline-flex items-center justify-center w-7 h-7 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 transition-colors"
+                    title="Preview"
                   >
-                    <Eye className="w-3 h-3" /> Preview
+                    <Eye className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleRestore(r)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-[11px] font-medium border border-emerald-200 transition-colors"
+                    className="inline-flex items-center justify-center w-7 h-7 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200 transition-colors"
+                    title="Restore"
                   >
-                    <RotateCcw className="w-3 h-3" /> Restore
+                    <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleDeleteRiwayat(r.id)}
                     className="inline-flex items-center justify-center w-7 h-7 bg-red-50 hover:bg-red-100 text-red-600 rounded-md border border-red-200 transition-colors"
+                    title="Hapus"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </td>
