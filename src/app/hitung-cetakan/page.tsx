@@ -1302,7 +1302,6 @@ function HitungCetakanPage() {
       if (res.ok) {
         toast.success('Riwayat hitung cetakan berhasil disimpan!')
         fetchRiwayatCetakan()
-        fetchFinishingRiwayat()
         resetFormForRiwayat()
       } else { toast.error('Gagal menyimpan riwayat') }
     } catch { toast.error('Gagal menyimpan riwayat') }
@@ -1321,7 +1320,6 @@ function HitungCetakanPage() {
       if (res.ok) {
         toast.success('Riwayat berhasil diupdate!')
         fetchRiwayatCetakan()
-        fetchFinishingRiwayat()
         resetFormForRiwayat()
       } else { toast.error('Gagal mengupdate riwayat') }
     } catch { toast.error('Gagal mengupdate riwayat') }
@@ -1380,7 +1378,6 @@ function HitungCetakanPage() {
         toast.success('Riwayat berhasil dihapus')
         if (restoredRiwayatId === id) setRestoredRiwayatId(null)
         fetchRiwayatCetakan()
-        fetchFinishingRiwayat()
       } else { toast.error('Gagal menghapus riwayat') }
     } catch { toast.error('Gagal menghapus riwayat') }
   }
