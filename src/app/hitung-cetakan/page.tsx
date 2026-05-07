@@ -1528,15 +1528,13 @@ function HitungCetakanPage() {
                       </datalist>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className={labelClass}>{t('nama_cetakan')} <span className="text-red-500">*</span></label>
-                      <input type="text" placeholder="Nama barang" value={formData.printName} onChange={(e) => setFormData({ ...formData, printName: e.target.value })} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Jumlah Cetakan <span className="text-red-500">*</span></label>
-                      <input type="number" placeholder="Contoh: 1000" value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} className={inputClass} />
-                    </div>
+                  <div>
+                    <label className={labelClass}>{t('nama_cetakan')} <span className="text-red-500">*</span></label>
+                    <input type="text" placeholder="Nama barang" value={formData.printName} onChange={(e) => setFormData({ ...formData, printName: e.target.value })} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Jumlah Cetakan <span className="text-red-500">*</span></label>
+                    <input type="number" placeholder="Contoh: 1000" value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} className={inputClass} />
                   </div>
                 </div>
               </div>
