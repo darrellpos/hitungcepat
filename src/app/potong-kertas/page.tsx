@@ -376,7 +376,7 @@ function CalculatorPage() {
     setSavingRiwayat(false)
   }
 
-  const handleRestore = (r: any) => {
+  const handleRestore = async (r: any) => {
     setRestoredRiwayatId(r.id)
     setPrintName(r.namaCetakan || '')
     setGrammage(r.grammage || '')
@@ -388,8 +388,58 @@ function CalculatorPage() {
     setSetelanKertas(r.setelanKertas || '')
     setPricePerSheet(r.pricePerSheet?.toString() || '')
 
-    // Restore results (cutting calculation) from resultData
-    if (r.resultData) {
+    // Set paper selection
+    let restoredPaper = null
+    if (r.paperId && papers.find(p => p.id === r.paperId)) {
+      setSelectedPaperId(r.paperId)
+      setIsCustomPaper(false)
+      restoredPaper = papers.find(p => p.id === r.paperId)
+    } else {
+      setSelectedPaperId('custom')
+      setIsCustomPaper(true)
+    }
+
+    // Match customer by name
+    let restoredCustomer = null
+    if (r.namaCustomer && r.namaCustomer !== '-') {
+      const match = customers.find(c => c.name === r.namaCustomer)
+      if (match) {
+        setSelectedCustomerId(match.id)
+        restoredCustomer = match
+      } else {
+        setSelectedCustomerId('')
+      }
+    } else {
+      setSelectedCustomerId('')
+    }
+
+    // Auto-calculate cuts with restored values
+    const pw = parseFloat(r.paperWidth)
+    const ph = parseFloat(r.paperHeight)
+    const cw = parseFloat(r.cutWidth)
+    const ch = parseFloat(r.cutHeight)
+    const qty = parseInt(r.quantity) || 0
+    const setelan = parseInt(r.setelanKertas) || 0
+    const price = parseFloat(r.pricePerSheet) || 0
+    const totalQty = qty + setelan
+
+    if (pw && ph && cw && ch && cw <= pw && ch <= ph) {
+      try {
+        const { calculateCuts } = await import('@/lib/cutting-engine')
+        const result = calculateCuts({
+          paperWidth: pw, paperHeight: ph, cutWidth: cw, cutHeight: ch,
+          quantity: totalQty, pricePerSheet: price, optimizationMode,
+          customerName: restoredCustomer?.name || '',
+          paperMaterial: restoredPaper?.name || '',
+          grammage: parseFloat(r.grammage) || 0,
+        })
+        setResults(result)
+        localStorage.setItem(STORAGE_RESULTS_KEY(), JSON.stringify(result))
+      } catch {
+        setResults(null)
+      }
+    } else if (r.resultData) {
+      // Fallback: if can't calculate, use saved resultData
       try {
         const parsedResults = JSON.parse(r.resultData)
         setResults(parsedResults)
@@ -399,24 +449,6 @@ function CalculatorPage() {
       }
     } else {
       setResults(null)
-    }
-
-    // Set paper selection
-    if (r.paperId && papers.find(p => p.id === r.paperId)) {
-      setSelectedPaperId(r.paperId)
-      setIsCustomPaper(false)
-    } else {
-      setSelectedPaperId('custom')
-      setIsCustomPaper(true)
-    }
-
-    // Match customer by name
-    if (r.namaCustomer && r.namaCustomer !== '-') {
-      const match = customers.find(c => c.name === r.namaCustomer)
-      if (match) setSelectedCustomerId(match.id)
-      else setSelectedCustomerId('')
-    } else {
-      setSelectedCustomerId('')
     }
 
     toast.success('Data berhasil di-restore dari riwayat!')
