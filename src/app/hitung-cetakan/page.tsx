@@ -1680,7 +1680,7 @@ function HitungCetakanPage() {
                             <div className="w-8 h-8 rounded bg-rose-100 flex items-center justify-center flex-shrink-0"><Layers className="w-4 h-4 text-rose-600" /></div>
                             <div className="flex-1 min-w-0">
                               <p className="text-base font-bold text-slate-800">{fin.name}</p>
-                              {finCost.cost > 0 && <p className="text-[15px] text-rose-600 font-bold">Rp {Math.round(finCost.cost).toLocaleString('id-ID')}</p>}
+                              {finCost.cost > 0 && <p className="text-sm text-rose-600 font-bold">Rp {Math.round(finCost.cost).toLocaleString('id-ID')}</p>}
                             </div>
                             <button onClick={() => handleRemoveFinishing(fin.id)} className="w-7 h-7 rounded bg-white border border-rose-200 hover:bg-rose-100 flex items-center justify-center flex-shrink-0"><X className="w-4 h-4 text-rose-500" /></button>
                           </div>
@@ -1937,7 +1937,7 @@ function HitungCetakanPage() {
                           <div className="w-6 h-6 rounded bg-rose-100 flex items-center justify-center flex-shrink-0"><Layers className="w-3 h-3 text-rose-600" /></div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-slate-800">{fin.name}</p>
-                            {finCost.cost > 0 && <p className="text-[13px] text-rose-600 font-bold">Rp {Math.round(finCost.cost).toLocaleString('id-ID')}</p>}
+                            {finCost.cost > 0 && <p className="text-xs text-rose-600 font-bold">Rp {Math.round(finCost.cost).toLocaleString('id-ID')}</p>}
                           </div>
                           <button onClick={() => handleRemoveFinishing(fin.id)} className="w-6 h-6 rounded bg-white border border-rose-200 hover:bg-rose-100 flex items-center justify-center flex-shrink-0"><X className="w-3.5 h-3.5 text-rose-500" /></button>
                         </div>
