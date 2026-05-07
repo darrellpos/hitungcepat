@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         pricePerSheet: body.pricePerSheet || 0,
         efficiency: body.efficiency || 0,
         strategy: body.strategy || '',
+        resultData: body.resultData || '',
         userId: user?.id || null,
       }
     })

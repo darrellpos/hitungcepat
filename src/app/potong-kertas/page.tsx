@@ -284,6 +284,7 @@ function CalculatorPage() {
 
   const buildPayload = () => ({
     namaCustomer: selectedCustomer?.name || '-',
+    resultData: results ? JSON.stringify(results) : '',
     namaCetakan: printName || '-',
     paperName: selectedPaper?.name || 'Custom',
     paperId: selectedPaper?.id || '',
@@ -386,7 +387,19 @@ function CalculatorPage() {
     setQuantity(r.quantity || '')
     setSetelanKertas(r.setelanKertas || '')
     setPricePerSheet(r.pricePerSheet?.toString() || '')
-    setResults(null)
+
+    // Restore results (cutting calculation) from resultData
+    if (r.resultData) {
+      try {
+        const parsedResults = JSON.parse(r.resultData)
+        setResults(parsedResults)
+        localStorage.setItem(STORAGE_RESULTS_KEY(), JSON.stringify(parsedResults))
+      } catch {
+        setResults(null)
+      }
+    } else {
+      setResults(null)
+    }
 
     // Set paper selection
     if (r.paperId && papers.find(p => p.id === r.paperId)) {

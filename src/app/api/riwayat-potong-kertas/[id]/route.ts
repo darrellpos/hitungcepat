@@ -41,6 +41,7 @@ export async function PUT(
         pricePerSheet: body.pricePerSheet ?? item.pricePerSheet,
         efficiency: body.efficiency ?? item.efficiency,
         strategy: body.strategy ?? item.strategy,
+        resultData: body.resultData ?? item.resultData,
       }
     })
 

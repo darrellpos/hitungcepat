@@ -245,6 +245,7 @@ model RiwayatPotongKertas {
   pricePerSheet   Float    @default(0)
   efficiency      Float    @default(0)
   strategy        String   @default("")
+  resultData      String   @default("") // JSON string of full CuttingResult
   userId          String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

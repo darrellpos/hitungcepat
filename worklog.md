@@ -142,3 +142,20 @@ Stage Summary:
 - Desktop table shows: #, Finishing, Nama Cetakan, Qty, Ukuran, Total, Per Lbr, Aksi (Restore + Delete)
 - Mobile table shows: Finishing, Cetakan, Qty, Total, Aksi (Restore + Delete)
 
+---
+Task ID: 1
+Agent: main
+Task: Restore potong kertas riwayat including full cutting results (hitung potongan)
+
+Work Log:
+- Added `resultData` (String, JSON) field to `RiwayatPotongKertas` Prisma model
+- Pushed schema to SQLite (local) and PostgreSQL (production via Vercel env)
+- Updated POST `/api/riwayat-potong-kertas` to save `resultData`
+- Updated PUT `/api/riwayat-potong-kertas/[id]` to update `resultData`
+- Updated `buildPayload()` to include `resultData: results ? JSON.stringify(results) : ''`
+- Updated `handleRestore()` to parse `resultData` JSON and restore `results` state + localStorage
+
+Stage Summary:
+- After clicking "Restore", all data including cutting diagram, blocks, steps, efficiency, and all calculation results are now restored
+- Old riwayat entries without `resultData` will restore form fields but not results (graceful fallback)
+- Schema pushed to both SQLite and PostgreSQL production database
