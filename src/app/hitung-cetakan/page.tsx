@@ -646,7 +646,7 @@ function HitungCetakanPage() {
           <div class="info-value">${calc.customerName || '-'}</div>
         </div>
         <div class="info-card indigo">
-          <div class="info-label">Nama Cetakan</div>
+          <div class="info-label">Nama Barang</div>
           <div class="info-value">${calc.printName || '-'}</div>
         </div>
         <div class="info-card purple">
@@ -1098,7 +1098,7 @@ function HitungCetakanPage() {
 
   const handleAddCalculation = () => {
     if (!formData.customerName || !formData.printName || !formData.quantity || !formData.paperId || !formData.machineId) {
-      toast.error('Mohon lengkapi data wajib (Nama Customer, Nama Cetakan, Jumlah, Bahan, dan Mesin)')
+      toast.error('Mohon lengkapi data wajib (Nama Customer, Nama Barang, Jumlah, Bahan, dan Mesin)')
       return
     }
     const packing = parseFloat(formData.packingCost) || 0
@@ -1142,7 +1142,7 @@ function HitungCetakanPage() {
 
   const handlePreview = () => {
     if (!formData.printName || !formData.quantity) {
-      toast.error('Lengkapi Nama Cetakan dan Jumlah terlebih dahulu')
+      toast.error('Lengkapi Nama Barang dan Jumlah terlebih dahulu')
       return
     }
     const packing = parseFloat(formData.packingCost) || 0
@@ -1531,7 +1531,7 @@ function HitungCetakanPage() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className={labelClass}>{t('nama_cetakan')} <span className="text-red-500">*</span></label>
-                      <input type="text" placeholder="Nama cetakan" value={formData.printName} onChange={(e) => setFormData({ ...formData, printName: e.target.value })} className={inputClass} />
+                      <input type="text" placeholder="Nama barang" value={formData.printName} onChange={(e) => setFormData({ ...formData, printName: e.target.value })} className={inputClass} />
                     </div>
                     <div>
                       <label className={labelClass}>Jumlah Cetakan <span className="text-red-500">*</span></label>
@@ -2175,7 +2175,7 @@ function HitungCetakanPage() {
                 <tr className="border-b border-slate-200 bg-slate-50/80">
                   <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
                   <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
-                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
+                  <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Barang</th>
                   <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Kertas</th>
                   <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Mesin</th>
                   <th className="text-right py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Qty</th>
@@ -2281,7 +2281,7 @@ function HitungCetakanPage() {
                       <p className="text-sm font-bold text-blue-800">{formData.customerName || '-'}</p>
                     </div>
                     <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-2.5">
-                      <p className="text-[10px] text-indigo-500 font-medium">Nama Cetakan</p>
+                      <p className="text-[10px] text-indigo-500 font-medium">Nama Barang</p>
                       <p className="text-sm font-bold text-indigo-800">{previewCalc.printName || '-'}</p>
                     </div>
                     <div className="bg-purple-50 border border-purple-100 rounded-lg p-2.5">

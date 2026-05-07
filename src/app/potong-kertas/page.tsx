@@ -812,7 +812,7 @@ function CalculatorPage() {
           <tr className="border-b border-slate-200 bg-slate-50/80">
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">#</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Customer</th>
-            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Cetakan</th>
+            <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden sm:table-cell">Nama Barang</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap">Kertas</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden md:table-cell">Ukuran Kertas</th>
             <th className="text-left py-2.5 px-3 text-slate-500 font-semibold whitespace-nowrap hidden lg:table-cell">Ukuran Potong</th>
