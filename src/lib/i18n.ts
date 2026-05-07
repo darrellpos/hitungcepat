@@ -135,7 +135,7 @@ export const translations = {
     // Potong Kertas
     info_cetak: 'Informasi Cetak',
     nama_customer: 'Nama Customer',
-    nama_cetakan: 'Nama Cetakan',
+    nama_cetakan: 'Nama Barang',
     pilih_customer: 'Pilih customer',
     nama_bahan_kertas: 'Nama Bahan Kertas',
     pilih_kertas: 'Pilih kertas',
@@ -423,7 +423,7 @@ export const translations = {
     // Potong Kertas
     info_cetak: 'Print Information',
     nama_customer: 'Customer Name',
-    nama_cetakan: 'Print Name',
+    nama_cetakan: 'Item Name',
     pilih_customer: 'Select customer',
     nama_bahan_kertas: 'Paper Material Name',
     pilih_kertas: 'Select paper',
