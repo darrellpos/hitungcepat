@@ -144,9 +144,9 @@ function FeatureCard({
   return (
     <FadeIn delay={delay}>
       <Card className="card-tap group relative overflow-hidden border-0 bg-white shadow-lg hover:shadow-2xl transition-all duration-500 h-full">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-sky-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <CardContent className="relative p-6 pt-8 flex flex-col items-center text-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-110 transition-transform duration-500">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center shadow-lg shadow-blue-600/25 group-hover:scale-110 transition-transform duration-500">
             <Icon className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900">{title}</h3>
@@ -194,23 +194,23 @@ function PricingCard({
         onClick={onSelect}
         className={`relative overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 active:shadow-xl bg-[#1a1a1a] ${
           popular
-            ? 'border-2 border-orange-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40'
+            ? 'border-2 border-blue-600 shadow-2xl shadow-blue-600/20 hover:shadow-blue-600/40'
             : 'border border-white/10 shadow-lg hover:shadow-xl hover:border-white/20'
         }`}
       >
         {popular && (
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-amber-500" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-sky-400" />
         )}
         <CardHeader className="relative p-4 pb-3 text-center">
           {popular && (
-            <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 px-3 py-0.5 text-xs font-semibold shadow-lg">
+            <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-sky-400 text-white border-0 px-3 py-0.5 text-xs font-semibold shadow-lg">
               <Star className="w-3 h-3 mr-1" /> Hemat Banget!
             </Badge>
           )}
           <h3 className="text-base font-bold text-white mt-1">{title}</h3>
           <p className="text-gray-400 text-xs mt-0.5">{description}{descriptionExtra && <><br />{descriptionExtra}</>}</p>
           <div className="mt-3">
-            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">
               {price}
             </span>
             {periodBelow ? (
@@ -235,7 +235,7 @@ function PricingCard({
           <Button
             className={`ripple-btn w-full py-2 text-xs font-semibold transition-all duration-300 ${
               popular
-                ? 'cta-glow bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30'
+                ? 'cta-glow bg-gradient-to-r from-blue-600 to-sky-400 hover:from-blue-700 hover:to-sky-500 text-white shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30'
                 : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
             }`}
           >
@@ -270,12 +270,12 @@ function TestimonialCard({
         <CardContent className="p-6 flex flex-col gap-4">
           <div className="flex gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <Star key={i} className="w-4 h-4 fill-sky-300 text-sky-300" />
             ))}
           </div>
           <p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;{quote}&rdquo;</p>
           <div className="flex items-center gap-3 mt-auto pt-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-sky-300 flex items-center justify-center text-white font-bold text-sm">
               {avatar}
             </div>
             <div>
@@ -307,30 +307,30 @@ function LoginPage({ onBack }: { onBack: () => void }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 relative overflow-hidden"
+      className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50/80 via-white to-blue-50/50 relative overflow-hidden"
     >
       {/* Background decorations */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 right-1/4 w-96 h-96 bg-orange-200/25 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-amber-200/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-1/4 w-96 h-96 bg-blue-100/25 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-1/4 w-80 h-80 bg-blue-100/20 rounded-full blur-3xl" />
       </div>
 
       {/* Navbar */}
       <nav className="w-full bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <button onClick={onBack} className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/20">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center shadow-md shadow-blue-600/20">
               <Printer className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight">
-              <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Darrell</span>
+              <span className="bg-gradient-to-r from-blue-700 to-sky-500 bg-clip-text text-transparent">Darrell</span>
               <span className="text-gray-900"> Soft</span>
             </span>
           </button>
           <Button
             variant="ghost"
             onClick={onBack}
-            className="text-gray-600 hover:text-orange-600 transition-colors"
+            className="text-gray-600 hover:text-blue-700 transition-colors"
           >
             <ArrowLeft className="mr-1 w-4 h-4" />
             Kembali
@@ -346,9 +346,9 @@ function LoginPage({ onBack }: { onBack: () => void }) {
           transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
           className="w-full max-w-md"
         >
-          <Card className="border-0 shadow-2xl shadow-orange-500/10 overflow-hidden">
+          <Card className="border-0 shadow-2xl shadow-blue-600/10 overflow-hidden">
             {/* Header gradient */}
-            <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-8 text-center">
+            <div className="bg-gradient-to-r from-blue-600 to-sky-400 px-8 py-8 text-center">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -378,7 +378,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
                       id="email"
                       type="email"
                       placeholder="nama@email.com"
-                      className="pl-10 h-12 border-gray-200 focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-300"
+                      className="pl-10 h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-300"
                       required
                     />
                   </div>
@@ -399,13 +399,13 @@ function LoginPage({ onBack }: { onBack: () => void }) {
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Masukkan password"
-                      className="pl-10 pr-12 h-12 border-gray-200 focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-300"
+                      className="pl-10 pr-12 h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-300"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors p-1"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors p-1"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -415,10 +415,10 @@ function LoginPage({ onBack }: { onBack: () => void }) {
                 {/* Remember & Forgot */}
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400/20" />
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-400/20" />
                     <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Ingat saya</span>
                   </label>
-                  <button type="button" className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
+                  <button type="button" className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">
                     Lupa password?
                   </button>
                 </div>
@@ -432,7 +432,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="ripple-btn cta-glow w-full h-12 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-base shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300"
+                    className="ripple-btn cta-glow w-full h-12 bg-gradient-to-r from-blue-600 to-sky-400 hover:from-blue-700 hover:to-sky-500 text-white font-semibold text-base shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30 transition-all duration-300"
                   >
                     {isLoading ? (
                       <motion.div
@@ -466,7 +466,7 @@ function LoginPage({ onBack }: { onBack: () => void }) {
               >
                 <p className="text-sm text-gray-600">
                   Belum punya akun?{' '}
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-600 hover:text-orange-700 transition-colors">
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 hover:text-blue-800 transition-colors">
                     Daftar sekarang
                   </a>
                 </p>
@@ -542,13 +542,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50/50 via-white to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50/50 via-white to-white">
       {/* =================== TRANSITION OVERLAY =================== */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: loginTransition ? 1 : 0 }}
         transition={{ duration: 0.4 }}
-        className="fixed inset-0 z-[100] bg-gradient-to-br from-orange-500 to-amber-500 pointer-events-none"
+        className="fixed inset-0 z-[100] bg-gradient-to-br from-blue-600 to-sky-400 pointer-events-none"
         style={{ pointerEvents: loginTransition ? 'auto' : 'none' }}
       />
 
@@ -562,22 +562,22 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/20">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center shadow-md shadow-blue-600/20">
               <Printer className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight">
-              <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Darrell</span>
+              <span className="bg-gradient-to-r from-blue-700 to-sky-500 bg-clip-text text-transparent">Darrell</span>
               <span className="text-gray-900"> Soft</span>
             </span>
           </div>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#fitur" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Fitur</a>
-            <a href="#keunggulan" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Keunggulan</a>
-            <a href="#harga" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Harga</a>
-            <a href="#testimoni" className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Testimoni</a>
-            <Button onClick={goToLogin} className="ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md shadow-orange-500/20 hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-300">
+            <a href="#fitur" className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">Fitur</a>
+            <a href="#keunggulan" className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">Keunggulan</a>
+            <a href="#harga" className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">Harga</a>
+            <a href="#testimoni" className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 transition-colors">Testimoni</a>
+            <Button onClick={goToLogin} className="ripple-btn bg-gradient-to-r from-blue-600 to-sky-400 hover:from-blue-700 hover:to-sky-500 text-white shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300">
               Masuk <ChevronRight className="ml-1 w-4 h-4" />
             </Button>
           </div>
@@ -605,11 +605,11 @@ export default function Home() {
             className="md:hidden border-t border-gray-100 bg-white"
           >
             <div className="px-4 py-4 flex flex-col gap-3">
-              <a href="#fitur" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Fitur</a>
-              <a href="#keunggulan" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Keunggulan</a>
-              <a href="#harga" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Harga</a>
-              <a href="#testimoni" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-orange-600 py-2">Testimoni</a>
-              <Button onClick={goToLogin} className="w-full ripple-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white mt-1">
+              <a href="#fitur" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 py-2">Fitur</a>
+              <a href="#keunggulan" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 py-2">Keunggulan</a>
+              <a href="#harga" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 py-2">Harga</a>
+              <a href="#testimoni" onClick={() => setMobileMenuOpen(false)} className="nav-link text-sm font-medium text-gray-600 hover:text-blue-700 py-2">Testimoni</a>
+              <Button onClick={goToLogin} className="w-full ripple-btn bg-gradient-to-r from-blue-600 to-sky-400 hover:from-blue-700 hover:to-sky-500 text-white mt-1">
                 Masuk <ChevronRight className="ml-1 w-4 h-4" />
               </Button>
             </div>
@@ -621,29 +621,32 @@ export default function Home() {
       <section className="relative w-full overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 left-1/4 w-72 h-72 bg-orange-200/30 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-1/4 w-72 h-72 bg-blue-100/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl" />
         </div>
 
         <div className="max-w-6xl mx-auto px-4 md:px-8 pt-12 md:pt-20 pb-16 md:pb-24">
-          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
             {/* Left - Text */}
             <FadeIn direction="right">
               <div className="flex flex-col gap-6">
-                <Badge variant="secondary" className="w-fit bg-orange-100 text-orange-700 border-orange-200 px-3 py-1 text-xs font-semibold">
+                <Badge variant="secondary" className="w-fit bg-blue-50 text-blue-800 border-blue-100 px-3 py-1 text-xs font-semibold">
                   <Zap className="w-3 h-3 mr-1" /> Sistem Hitung Cepat Percetakan
                 </Badge>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight" style={{ fontWeight: 900 }}>
-                  Pusing Hitung{' '}
-                  <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Cetakan</span>{' '}
-                  Sampai Sering{' '}
-                  <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">Rugi</span>?
+                  Mau bisnis{' '}
+                  <span className="font-extrabold" style={{ color: '#4374C1' }}>cetakan</span>{' '}
+                  tapi tidak bisa hitung?{' '}
+                  <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">Sering salah hitung</span>{' '}
+                  hingga rugi?
                 </h1>
 
                 <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                  Pakai <span className="font-bold text-gray-900">Darrell Soft</span>! Dulu cuma yang ahli yang bisa hitung modal cetak.
-                  Sekarang, <span className="font-semibold text-orange-600">siapapun bisa</span> jadi pengusaha percetakan sukses!
+                  <span className="font-bold text-blue-600">Sekarang sudah gak jaman lagi salah hitung...!</span><br />
+                  <span className="font-bold text-gray-900">Pakai Darrell Soft aja!</span>.<br />
+                  Dulu cuma yang ahli yang bisa hitung modal cetak.
+                  Sekarang, <span className="font-semibold text-blue-700">siapapun bisa</span> jadi pengusaha percetakan yang sukses!
                 </p>
 
                 <p className="text-base text-gray-500 leading-relaxed">
@@ -660,26 +663,30 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.375rem', color: '#000' }}>
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    <span className="font-extrabold">Bisa batal kapan saja</span>
+                    <span className="font-extrabold">Bisa batal kapan saja tanpa syarat</span>
                   </div>
                   <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.375rem', color: '#000' }}>
                     <X className="w-5 h-5 text-red-400" />
                     <span className="font-extrabold">Tanpa denda</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-bold" style={{ fontSize: '1.375rem', color: '#000' }}>
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span className="font-extrabold">Bisa langganan 1 bulan saja</span>
                   </div>
                 </div>
               </div>
             </FadeIn>
 
             {/* Right - Hero image */}
-            <FadeIn direction="left" delay={0.2}>
+            <FadeIn direction="left" delay={0.2} className="md:pt-[171px]">
               <div className="relative">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-orange-500/10 border border-orange-100">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-blue-600/10 border border-blue-50 md:scale-110 md:origin-top">
                   <img
                     src="/hero-printing.png"
                     alt="Darrell Soft - Sistem Kasir Percetakan"
                     className="w-full h-auto object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-orange-900/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/10 to-transparent" />
                 </div>
                 {/* Floating badge */}
                 <motion.div
@@ -704,12 +711,12 @@ export default function Home() {
                   className="absolute -top-4 -right-4 md:-right-6 bg-white rounded-xl shadow-xl p-3 md:p-4 border border-gray-100"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                      <Calculator className="w-5 h-5 text-orange-600" />
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-blue-700" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Hitung Cepat</p>
-                      <p className="text-lg font-bold text-orange-600">&lt; 3 detik</p>
+                      <p className="text-lg font-bold text-blue-700">&lt; 5 detik</p>
                     </div>
                   </div>
                 </motion.div>
@@ -731,7 +738,7 @@ export default function Home() {
             ].map((stat, i) => (
               <FadeIn key={i} delay={i * 0.1}>
                 <div className="flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 text-center md:text-left">
-                  <stat.icon className="w-8 h-8 text-orange-400 hidden md:block" />
+                  <stat.icon className="w-8 h-8 text-blue-400 hidden md:block" />
                   <div>
                     <p className="text-2xl md:text-3xl font-extrabold text-white">
                       <CountUp end={stat.value} suffix={stat.suffix} />
@@ -749,39 +756,16 @@ export default function Home() {
       <Section id="fitur" className="bg-white">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-800 border-blue-100 mb-4">
               Fitur Unggulan
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
               Hitung Modal Jadi{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Semudah Mengetik</span>
+              <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">Semudah Mengetik</span>
             </h2>
             <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base md:text-lg">
               Semua yang kamu butuhkan untuk mengelola bisnis percetakan, dalam satu aplikasi yang powerful.
             </p>
-          </div>
-        </FadeIn>
-
-        {/* 2 Fitur Images - small */}
-        <FadeIn delay={0.05}>
-          <div className="flex justify-center gap-3 sm:gap-5 mb-10 md:mb-12">
-            {[
-              { src: '/fitur-small-1.jpeg', alt: 'Tampilan aplikasi Darrell Soft' },
-              { src: '/fitur-small-2.jpeg', alt: 'Fitur kalkulasi Darrell Soft' },
-            ].map((img, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05, y: -3 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="relative rounded-xl overflow-hidden shadow-md shadow-orange-500/10 border border-orange-100 w-[160px] sm:w-[200px] md:w-[260px]"
-              >
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  className="w-full h-auto object-contain"
-                />
-              </motion.div>
-            ))}
           </div>
         </FadeIn>
 
@@ -808,14 +792,14 @@ export default function Home() {
       </Section>
 
       {/* =================== KEUNGGULAN =================== */}
-      <Section id="keunggulan" className="bg-gradient-to-b from-orange-50/30 to-white">
+      <Section id="keunggulan" className="bg-gradient-to-b from-blue-50/30 to-white">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-800 border-blue-100 mb-4">
               Kenapa Darrell Soft?
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Cepat, Akurat,</span> dan Fleksibel!
+              <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">Cepat, Akurat,</span> dan Fleksibel!
             </h2>
             <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-base md:text-lg">
               Bisa diakses via Desktop maupun HP, kapan saja dan di mana saja.
@@ -829,19 +813,19 @@ export default function Home() {
               icon: Monitor,
               title: 'Akses via Desktop',
               desc: 'Tampilan penuh yang nyaman untuk penggunaan di kantor atau toko. Semua fitur lengkap tersedia.',
-              color: 'from-orange-500 to-red-500',
+              color: 'from-blue-600 to-red-500',
             },
             {
               icon: Smartphone,
               title: 'Akses via HP',
               desc: 'Mobile-friendly! Kelola bisnis percetakanmu langsung dari smartphone, di mana saja kamu berada.',
-              color: 'from-amber-500 to-orange-500',
+              color: 'from-sky-400 to-blue-600',
             },
             {
               icon: Zap,
               title: 'Kecepatan Tinggi',
               desc: 'Proses kalkulasi instan. Tidak perlu menunggu lama, semua perhitungan selesai dalam hitungan detik.',
-              color: 'from-yellow-500 to-amber-500',
+              color: 'from-sky-300 to-sky-400',
             },
             {
               icon: Shield,
@@ -863,7 +847,7 @@ export default function Home() {
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.1}>
-              <div className="advantage-tap group flex items-start gap-4 p-5 rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-orange-200 cursor-pointer">
+              <div className="advantage-tap group flex items-start gap-4 p-5 rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-100 cursor-pointer">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg shrink-0 group-hover:scale-110 transition-transform duration-300`}>
                   <item.icon className="w-6 h-6 text-white" />
                 </div>
@@ -881,12 +865,12 @@ export default function Home() {
       <Section className="bg-white">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-800 border-blue-100 mb-4">
               Cara Kerja
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
               Semudah{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">1-2-3</span>
+              <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">1-2-3</span>
             </h2>
           </div>
         </FadeIn>
@@ -900,11 +884,11 @@ export default function Home() {
             <FadeIn key={i} delay={i * 0.15}>
               <div className="relative text-center">
                 {/* Step number */}
-                <div className="text-7xl font-black text-orange-100 absolute -top-4 left-1/2 -translate-x-1/2 select-none">
+                <div className="text-7xl font-black text-blue-50 absolute -top-4 left-1/2 -translate-x-1/2 select-none">
                   {item.step}
                 </div>
                 <div className="relative z-10 flex flex-col items-center gap-3 pt-6">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center shadow-lg shadow-blue-600/25">
                     <item.icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mt-2">{item.title}</h3>
@@ -912,7 +896,7 @@ export default function Home() {
                 </div>
                 {i < 2 && (
                   <div className="hidden md:block absolute top-10 -right-4 w-8">
-                    <ChevronRight className="w-8 h-8 text-orange-300" />
+                    <ChevronRight className="w-8 h-8 text-blue-300" />
                   </div>
                 )}
               </div>
@@ -925,12 +909,12 @@ export default function Home() {
       <Section id="harga" className="bg-black">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-500/20 text-orange-400 border-orange-500/30 mb-4">
+            <Badge variant="secondary" className="bg-blue-600/20 text-blue-400 border-blue-600/30 mb-4">
               Pilihan Paket
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
               Paket Harga{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Tanpa Ribet</span>
+              <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">Tanpa Ribet</span>
             </h2>
             <p className="text-gray-400 mt-4 max-w-2xl mx-auto text-base md:text-lg">
               Pilih paket yang sesuai dengan kebutuhan bisnismu. Bisa batal kapan saja!
@@ -1028,36 +1012,36 @@ export default function Home() {
       <Section id="testimoni" className="bg-white">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-800 border-blue-100 mb-4">
               Testimoni
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
               Dipercaya{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Ribuan Pengusaha</span> Percetakan
+              <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">Ribuan Pengusaha</span> Percetakan
             </h2>
           </div>
         </FadeIn>
 
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
           <TestimonialCard
-            name="Budi Santoso"
-            role="Pemilik CV Cetak Jaya"
+            name="Maman"
+            role="Pemilik Tunas Makmur"
             quote="Dulu hitung modal cetak pakai kalkulator, sering salah dan rugi. Sekarang pakai Darrell Soft, semua otomatis dan akurat. Profit naik 40%!"
-            avatar="BS"
+            avatar="M"
             delay={0}
           />
           <TestimonialCard
-            name="Siti Rahayu"
-            role="Pengusaha Percetakan Mandiri"
+            name="Jimmy"
+            role="Owner SiPrint"
             quote="Aplikasinya super mudah dipakai. Saya yang nggak paham komputer pun bisa langsung pakai. Harga paketnya juga sangat terjangkau."
-            avatar="SR"
+            avatar="J"
             delay={0.15}
           />
           <TestimonialCard
-            name="Ahmad Fauzi"
-            role="Owner Print House Express"
+            name="Lina Listiawati"
+            role="Owner Rajabowl"
             quote="Support-nya responsif banget! Setiap ada pertanyaan langsung dijawab. Darrell Soft memang solusi tepat untuk percetakan."
-            avatar="AF"
+            avatar="LL"
             delay={0.3}
           />
           <TestimonialCard
@@ -1071,7 +1055,7 @@ export default function Home() {
       </Section>
 
       {/* =================== CTA =================== */}
-      <section className="w-full bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 py-16 md:py-24 relative overflow-hidden">
+      <section className="w-full py-16 md:py-24 relative overflow-hidden" style={{ backgroundColor: '#003D79' }}>
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-40 h-40 border-2 border-white rounded-full" />
@@ -1092,7 +1076,7 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={goToLogin}
-                className="ripple-btn ripple-btn-dark cta-glow bg-white text-orange-600 hover:bg-orange-50 shadow-2xl shadow-orange-700/20 hover:shadow-3xl transition-all duration-300 text-lg font-bold py-7 px-10"
+                className="ripple-btn ripple-btn-dark cta-glow bg-white text-blue-700 hover:bg-blue-50 shadow-2xl shadow-blue-700/20 hover:shadow-3xl transition-all duration-300 text-lg font-bold py-7 px-10"
               >
                 Coba Gratis Sekarang <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -1114,12 +1098,12 @@ export default function Home() {
       <Section className="bg-white">
         <FadeIn>
           <div className="text-center mb-12 md:mb-16">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200 mb-4">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-800 border-blue-100 mb-4">
               FAQ
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
               Pertanyaan yang{' '}
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Sering Ditanyakan</span>
+              <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">Sering Ditanyakan</span>
             </h2>
           </div>
         </FadeIn>
@@ -1144,9 +1128,9 @@ export default function Home() {
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.1}>
-              <div className="faq-tap p-5 rounded-xl bg-gradient-to-br from-orange-50/50 to-amber-50/50 border border-orange-100 cursor-pointer">
+              <div className="faq-tap p-5 rounded-xl bg-gradient-to-br from-blue-50/50 to-blue-50/50 border border-blue-50 cursor-pointer">
                 <h4 className="font-bold text-gray-900 text-sm md:text-base flex items-start gap-2">
-                  <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                  <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                     Q
                   </span>
                   {item.q}
@@ -1165,11 +1149,11 @@ export default function Home() {
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md shadow-orange-500/20">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center shadow-md shadow-blue-600/20">
                   <Printer className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-extrabold tracking-tight">
-                  <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Darrell</span>
+                  <span className="bg-gradient-to-r from-blue-600 to-sky-400 bg-clip-text text-transparent">Darrell</span>
                   <span className="text-white"> Soft</span>
                 </span>
               </div>
@@ -1182,10 +1166,10 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Produk</h4>
               <ul className="space-y-2.5">
-                <li><a href="#fitur" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Fitur</a></li>
-                <li><a href="#harga" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Harga</a></li>
-                <li><a href="#testimoni" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Testimoni</a></li>
-                <li><a href="#faq" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">FAQ</a></li>
+                <li><a href="#fitur" className="text-sm text-gray-500 hover:text-blue-400 transition-colors">Fitur</a></li>
+                <li><a href="#harga" className="text-sm text-gray-500 hover:text-blue-400 transition-colors">Harga</a></li>
+                <li><a href="#testimoni" className="text-sm text-gray-500 hover:text-blue-400 transition-colors">Testimoni</a></li>
+                <li><a href="#faq" className="text-sm text-gray-500 hover:text-blue-400 transition-colors">FAQ</a></li>
               </ul>
             </div>
 
@@ -1193,8 +1177,8 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Perusahaan</h4>
               <ul className="space-y-2.5">
-                <li><a href="#keunggulan" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Tentang Kami</a></li>
-                <li><a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">Kontak</a></li>
+                <li><a href="#keunggulan" className="text-sm text-gray-500 hover:text-blue-400 transition-colors">Tentang Kami</a></li>
+                <li><a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-blue-400 transition-colors">Kontak</a></li>
                 <li><span className="text-sm text-gray-500">Kebijakan Privasi</span></li>
                 <li><span className="text-sm text-gray-500">Syarat & Ketentuan</span></li>
               </ul>
@@ -1205,7 +1189,7 @@ export default function Home() {
               <h4 className="text-white font-semibold text-sm mb-4">Support</h4>
               <ul className="space-y-2.5">
                 <li>
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-orange-400 transition-colors flex items-center gap-2">
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-blue-400 transition-colors flex items-center gap-2">
                     <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                   </a>
                 </li>
